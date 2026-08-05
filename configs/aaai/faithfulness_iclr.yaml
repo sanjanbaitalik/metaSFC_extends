@@ -1,0 +1,62 @@
+# ICLR 2027 post-hoc evaluation: perturbation (faithfulness) protocol for
+# Method 2 (Meta-GAT) and Method 3 (Two-Stage Biomarker-Guided KRR).
+#
+# The test: mask the Top-10 nodes identified by the TRUE working-memory
+# prior vs. the Top-10 nodes identified by the RANDOM prior, on the outer
+# test split, and measure RMSE/MAE/Pearson degradation.  A faithful,
+# task-specific reliance on the prior implies
+#
+#     delta_rmse(prior_true_top10) >> delta_rmse(prior_random_top10)
+#
+# Each split's model is refit with the *recorded* best hyperparameters of
+# the headline runs (scripts/41 and scripts/42), so the perturbed
+# evaluations use the exact same predictor family as the reported results.
+# Learned-mask (saliency top/bottom-10) and repeated random-k masks are
+# included for the standard faithfulness comparisons (scripts/17 schema).
+experiment_name: iclr_faithfulness_perturbation
+output_dir: outputs/aaai/faithfulness_iclr
+topk: 10
+random_repeats: 20
+mask_mode: both                 # both | fc | sc (always "both" here)
+device: auto
+seeds: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]
+n_folds: 5
+val_fraction: 0.15
+# The two fixed mask sets of the test (top-10 ROIs of each prior map).
+prior_true: outputs/priors/working_memory/aal116/roi_prior.csv
+prior_random: outputs/priors/random_prior/aal116/roi_prior.csv
+families:
+  meta_gat:
+    # Fixed Meta-GAT hyperparameters (identical to configs/aaai/meta_gat.yaml);
+    # per-split best hidden/dropout/lr/epochs are read from results_csv.
+    heads1: 4
+    heads2: 1
+    weight_decay: 0.0001
+    gamma_init: 1.0
+    grad_clip: 5.0
+    top_percent_sc: 10.0
+    methods:
+      M2_TRUE:
+        name: Meta-GAT (true working-memory prior)
+        results_csv: outputs/aaai/meta_gat/split_metrics.csv
+        saliency_dir: outputs/aaai/meta_gat/saliency/M2_TRUE
+      M2_RANDOM:
+        name: Meta-GAT (random prior)
+        results_csv: outputs/aaai/meta_gat/split_metrics.csv
+        saliency_dir: outputs/aaai/meta_gat/saliency/M2_RANDOM
+  kernel_ridge:
+    gate_mode: product
+    methods:
+      M3_TRUE:
+        name: Two-Stage KRR (true edge-prior biomarker)
+        results_csv: outputs/aaai/two_stage_kernel_ridge/split_metrics.csv
+        saliency_dir: outputs/aaai/two_stage_kernel_ridge/saliency/M3_TRUE
+      M3_RANDOM:
+        name: Two-Stage KRR (random edge-prior biomarker)
+        results_csv: outputs/aaai/two_stage_kernel_ridge/split_metrics.csv
+        saliency_dir: outputs/aaai/two_stage_kernel_ridge/saliency/M3_RANDOM
+data:
+  fc_path: inputs/dataset_FC/FC_all.npy
+  sc_path: inputs/dataset_SC/SC_all.npy
+  y_path: inputs/dataset_SC/label_all.npy
+  subjects_path: inputs/dataset_SC/hcp_subjects_used.csv

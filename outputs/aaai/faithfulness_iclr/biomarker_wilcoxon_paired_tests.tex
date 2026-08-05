@@ -1,0 +1,18 @@
+\begin{tabular}{lllrrrrrrrrrrrrrrrr}
+\toprule
+method_id & vs_method_id & metric & n_pairs & M2_TRUE_mean & M2_TRUE_std & M2_RANDOM_mean & M2_RANDOM_std & advantage_mean & wilcoxon_W & wilcoxon_p & M3_TRUE_mean & M3_TRUE_std & M3_RANDOM_mean & M3_RANDOM_std & E1_mean & E1_std & wilcoxon_p_holm_metric & significant_holm_005 \\
+\midrule
+M2_TRUE & M2_RANDOM & wm_alignment & 10 & 0.402 & 0.045 & -0.280 & 0.011 & 0.683 & 0.000 & 0.002 & NaN & NaN & NaN & NaN & NaN & NaN & 0.008 & True \\
+M2_TRUE & M2_RANDOM & rank_stability & 10 & 0.942 & 0.027 & 0.956 & 0.016 & -0.014 & 3.000 & 0.010 & NaN & NaN & NaN & NaN & NaN & NaN & 0.020 & True \\
+M2_TRUE & M2_RANDOM & top10_jaccard & 10 & 0.700 & 0.081 & 0.665 & 0.100 & 0.035 & 15.000 & 0.232 & NaN & NaN & NaN & NaN & NaN & NaN & 0.320 & False \\
+M3_TRUE & M3_RANDOM & wm_alignment & 10 & NaN & NaN & NaN & NaN & 0.192 & 0.000 & 0.002 & 0.005 & 0.033 & -0.188 & 0.026 & NaN & NaN & 0.008 & True \\
+M3_TRUE & M3_RANDOM & rank_stability & 10 & NaN & NaN & NaN & NaN & 0.078 & 1.000 & 0.004 & 0.767 & 0.067 & 0.689 & 0.073 & NaN & NaN & 0.012 & True \\
+M3_TRUE & M3_RANDOM & top10_jaccard & 10 & NaN & NaN & NaN & NaN & 0.159 & 0.000 & 0.002 & 0.419 & 0.082 & 0.260 & 0.048 & NaN & NaN & 0.008 & True \\
+M2_TRUE & E1 & wm_alignment & 10 & 0.402 & 0.045 & NaN & NaN & -0.307 & 0.000 & 0.002 & NaN & NaN & NaN & NaN & 0.709 & 0.007 & 0.008 & True \\
+M2_TRUE & E1 & rank_stability & 10 & 0.942 & 0.027 & NaN & NaN & 0.029 & 6.000 & 0.027 & NaN & NaN & NaN & NaN & 0.913 & 0.030 & 0.027 & True \\
+M2_TRUE & E1 & top10_jaccard & 10 & 0.700 & 0.081 & NaN & NaN & 0.074 & 13.000 & 0.160 & NaN & NaN & NaN & NaN & 0.625 & 0.081 & 0.320 & False \\
+M3_TRUE & E1 & wm_alignment & 10 & NaN & NaN & NaN & NaN & -0.704 & 0.000 & 0.002 & 0.005 & 0.033 & NaN & NaN & 0.709 & 0.007 & 0.008 & True \\
+M3_TRUE & E1 & rank_stability & 10 & NaN & NaN & NaN & NaN & -0.146 & 0.000 & 0.002 & 0.767 & 0.067 & NaN & NaN & 0.913 & 0.030 & 0.008 & True \\
+M3_TRUE & E1 & top10_jaccard & 10 & NaN & NaN & NaN & NaN & -0.206 & 0.000 & 0.002 & 0.419 & 0.082 & NaN & NaN & 0.625 & 0.081 & 0.008 & True \\
+\bottomrule
+\end{tabular}

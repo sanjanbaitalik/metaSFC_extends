@@ -1,0 +1,98 @@
+{
+  "config": {
+    "experiment_name": "iclr_faithfulness_perturbation",
+    "output_dir": "outputs/aaai/faithfulness_iclr",
+    "topk": 10,
+    "random_repeats": 20,
+    "mask_mode": "both",
+    "device": "auto",
+    "seeds": [
+      0,
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7,
+      8,
+      9
+    ],
+    "n_folds": 5,
+    "val_fraction": 0.15,
+    "prior_true": "outputs/priors/working_memory/aal116/roi_prior.csv",
+    "prior_random": "outputs/priors/random_prior/aal116/roi_prior.csv",
+    "families": {
+      "meta_gat": {
+        "heads1": 4,
+        "heads2": 1,
+        "weight_decay": 0.0001,
+        "gamma_init": 1.0,
+        "grad_clip": 5.0,
+        "top_percent_sc": 10.0,
+        "methods": {
+          "M2_TRUE": {
+            "name": "Meta-GAT (true working-memory prior)",
+            "results_csv": "outputs/aaai/meta_gat/split_metrics.csv",
+            "saliency_dir": "outputs/aaai/meta_gat/saliency/M2_TRUE"
+          },
+          "M2_RANDOM": {
+            "name": "Meta-GAT (random prior)",
+            "results_csv": "outputs/aaai/meta_gat/split_metrics.csv",
+            "saliency_dir": "outputs/aaai/meta_gat/saliency/M2_RANDOM"
+          }
+        }
+      },
+      "kernel_ridge": {
+        "gate_mode": "product",
+        "methods": {
+          "M3_TRUE": {
+            "name": "Two-Stage KRR (true edge-prior biomarker)",
+            "results_csv": "outputs/aaai/two_stage_kernel_ridge/split_metrics.csv",
+            "saliency_dir": "outputs/aaai/two_stage_kernel_ridge/saliency/M3_TRUE"
+          },
+          "M3_RANDOM": {
+            "name": "Two-Stage KRR (random edge-prior biomarker)",
+            "results_csv": "outputs/aaai/two_stage_kernel_ridge/split_metrics.csv",
+            "saliency_dir": "outputs/aaai/two_stage_kernel_ridge/saliency/M3_RANDOM"
+          }
+        }
+      }
+    },
+    "data": {
+      "fc_path": "inputs/dataset_FC/FC_all.npy",
+      "sc_path": "inputs/dataset_SC/SC_all.npy",
+      "y_path": "inputs/dataset_SC/label_all.npy",
+      "subjects_path": "inputs/dataset_SC/hcp_subjects_used.csv"
+    }
+  },
+  "n_subjects": 412,
+  "n_rois": 116,
+  "n_edges": 6670,
+  "prior_true_topk_rois": [
+    3,
+    23,
+    12,
+    65,
+    18,
+    13,
+    7,
+    61,
+    60,
+    63
+  ],
+  "prior_random_topk_rois": [
+    84,
+    54,
+    96,
+    92,
+    113,
+    65,
+    59,
+    22,
+    26,
+    100
+  ],
+  "overlap_true_random_topk": 1,
+  "device": "cuda"
+}

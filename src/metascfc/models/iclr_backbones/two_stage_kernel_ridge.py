@@ -329,11 +329,179 @@ def load_split_node_saliency(saliency_dir: str, seed: int, fold: int) -> np.ndar
     return sal
 
 
+# ---------------------------------------------------------------------------
+# Refit predictor (faithfulness / perturbation protocol)
+# ---------------------------------------------------------------------------
+class RefitKRRPredictor:
+    """Trained two-stage KRR with the split-level scalers, ready for masking.
+
+    Wraps the refit KernelRidge together with the feature scaler, the edge
+    gate, and the target de-normalization statistics.  ``predict`` accepts
+    *raw* connectomes of arbitrary subjects (e.g. with ROIs masked out) and
+    returns raw-unit predictions.  ``gradient_node_saliency`` computes the
+    KRR feature importance |dy/dx| analytically (RBF gradient) and lifts it
+    to a node-level biomarker in [0, 1].
+    """
+
+    def __init__(
+        self,
+        krr: KernelRidge,
+        x_mean: np.ndarray,
+        x_std: np.ndarray,
+        gate: np.ndarray,
+        fit_mean: float,
+        fit_std: float,
+        n_rois: int,
+    ) -> None:
+        self.krr = krr
+        self.x_mean = x_mean.reshape(1, -1)
+        self.x_std = x_std.reshape(1, -1)
+        self.gate = np.repeat(gate.reshape(1, -1), 2, axis=1)
+        self.fit_mean = float(fit_mean)
+        self.fit_std = float(fit_std)
+        self.n_rois = int(n_rois)
+        self.n_edges = int(gate.shape[0])
+        self.gamma = float(krr.gamma)
+
+    def _gated_standardized(self, fc: np.ndarray, sc: np.ndarray) -> np.ndarray:
+        mask = extract_upper(self.n_rois)
+        x = np.concatenate([fc[:, mask], sc[:, mask]], axis=1).astype(np.float64)
+        x = (x - self.x_mean) / self.x_std
+        return x * self.gate
+
+    def predict(self, fc: np.ndarray, sc: np.ndarray) -> np.ndarray:
+        """Predict raw-unit scores from raw (possibly perturbed) connectomes."""
+        x = self._gated_standardized(fc, sc)
+        pred = self.krr.predict(x)
+        return (pred * self.fit_std + self.fit_mean).astype(np.float64)
+
+    def gradient_node_saliency(
+        self, fc: np.ndarray, sc: np.ndarray
+    ) -> np.ndarray:
+        """KRR feature importance |dy/dx| lifted to node saliency.
+
+        For an RBF kernel k(x, x_i) = exp(-gamma ||x - x_i||^2) the
+        gradient of the KRR predictor wrt one subject's features is
+
+            dy/dx_sf = 2 gamma ( (W @ X)[s, f] - x_sf * rowsum_s )
+
+        with W[s, i] = alpha_i k(x_s, x_i).  The feature importance of a
+        split is the mean |dy/dx| over the given (fit) subjects; each edge
+        feature's importance is then summed over its two incident ROIs and
+        min-max normalized -> shape (n_rois,).  This is the nonlinear
+        biomarker of the KRR stage, comparable with the WM prior.
+
+        Parameters
+        ----------
+        fc / sc : np.ndarray, shape (n_subjects, n_rois, n_rois)
+            Raw connectomes of the subjects used for the aggregation.
+
+        Returns
+        -------
+        np.ndarray, shape (n_rois,)
+        """
+        n = len(fc)
+        x = self._gated_standardized(fc, sc)  # (n, 2 * n_edges)
+        alpha = np.asarray(self.krr.dual_coef_, dtype=np.float64).reshape(-1)
+        # RBF Gram matrix computed row-wise (memory-safe: no (n, n, d) diff):
+        #   ||x_s - x_i||^2 = ||x_s||^2 + ||x_i||^2 - 2 x_s . x_i
+        norm_sq = np.einsum("nd,nd->n", x, x)
+        k = np.empty((n, n), dtype=np.float64)
+        for s in range(n):
+            k[s] = np.exp(
+                -self.gamma
+                * (norm_sq[s] + norm_sq - 2.0 * x[s] @ x.T)
+            )
+        w = k * alpha[None, :]  # (n, n)
+        grad = 2.0 * self.gamma * (
+            w @ x - x * w.sum(axis=1, keepdims=True)
+        )  # (n, 2 * n_edges)
+        importance = np.abs(grad).mean(axis=0)  # (2 * n_edges,)
+        fc_imp = importance[: self.n_edges]
+        sc_imp = importance[self.n_edges :]
+        ii, jj = upper_triangle_indices(self.n_rois).T
+        node = np.zeros(self.n_rois, dtype=np.float64)
+        for block in (fc_imp, sc_imp):
+            np.add.at(node, ii, block)
+            np.add.at(node, jj, block)
+        span = node.max() - node.min()
+        if span > 1e-12:
+            node = (node - node.min()) / span
+        else:
+            node = np.zeros(self.n_rois, dtype=np.float64)
+        return node
+
+
+def refit_krr_predictor(
+    fc: np.ndarray,
+    sc: np.ndarray,
+    y: np.ndarray,
+    fit_idx: np.ndarray,
+    saliency: np.ndarray,
+    alpha: float,
+    gamma: float,
+    gate_mode: str = "product",
+) -> RefitKRRPredictor:
+    """Refit a two-stage KRR on a fit partition with a *given* (alpha, gamma).
+
+    Used by the faithfulness protocol: the (alpha, gamma) recorded by the
+    main run (scripts/42) is reused so the perturbed evaluations use the
+    same predictor family that produced the headline results.  The scalers
+    are fitted on the fit partition; the gate c is fixed per split.
+
+    Parameters
+    ----------
+    fc / sc : np.ndarray, shape (n, n_rois, n_rois)
+    y : np.ndarray, shape (n,)
+    fit_idx : np.ndarray
+        Fit partition (train+val of the outer split).
+    saliency : np.ndarray, shape (n_rois,)
+        Stage-1 gate saliency of the split.
+    alpha / gamma : float
+        Recorded best (alpha, gamma) of the split.
+    gate_mode : str
+        Edge lift ("product" or "sum").
+
+    Returns
+    -------
+    RefitKRRPredictor
+    """
+    fit_idx = np.asarray(fit_idx, dtype=int)
+    fc = np.asarray(fc, dtype=np.float32)
+    sc = np.asarray(sc, dtype=np.float32)
+    n_rois = fc.shape[1]
+    mask = extract_upper(n_rois)
+    x = np.concatenate([fc[:, mask], sc[:, mask]], axis=1).astype(np.float64)
+    y = np.asarray(y, dtype=np.float64).reshape(-1)
+
+    s = np.asarray(saliency, dtype=np.float64).reshape(-1)
+    if s.max() - s.min() < 1e-12:
+        s = np.ones_like(s)
+    gate = lift_node_saliency_to_edges(s, n_rois, mode=gate_mode)
+
+    x_fit = x[fit_idx]
+    x_mean = x_fit.mean(axis=0, keepdims=True)
+    x_std = x_fit.std(axis=0, keepdims=True)
+    x_std[x_std < 1e-8] = 1.0
+    fit_mean, fit_std = float(y[fit_idx].mean()), float(y[fit_idx].std())
+    fit_std = fit_std if fit_std >= 1e-8 else 1.0
+    y_fit_z = (y[fit_idx] - fit_mean) / fit_std
+
+    x_fit_gated = ((x_fit - x_mean) / x_std) * np.repeat(gate.reshape(1, -1), 2, axis=1)
+    krr = KernelRidge(kernel="rbf", alpha=float(alpha), gamma=float(gamma))
+    krr.fit(x_fit_gated, y_fit_z)
+    return RefitKRRPredictor(
+        krr, x_mean, x_std, gate, fit_mean, fit_std, n_rois
+    )
+
+
 __all__ = [
     "KRRConfig",
+    "RefitKRRPredictor",
     "extract_upper",
     "fit_predict_two_stage_krr",
     "lift_node_saliency_to_edges",
     "load_split_node_saliency",
+    "refit_krr_predictor",
     "upper_triangle_indices",
 ]

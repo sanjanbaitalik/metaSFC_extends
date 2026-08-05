@@ -1,0 +1,285 @@
+[2026-08-05 13:19:30] LAUNCH scripts/43_run_iclr_faithfulness.py (resume; methods M2_TRUE M2_RANDOM M3_TRUE M3_RANDOM, seeds 0-9, folds 0-4)
+Traceback (most recent call last):
+  File "<string>", line 1, in <module>
+    import torch; print("torch", torch.__version__, "cuda", torch.cuda.is_available())
+    ^^^^^^^^^^^^
+ModuleNotFoundError: No module named 'torch'
+[2026-08-05 13:19:30] env: /home/iemiedc2026/miniforge3/bin/python | 
+Traceback (most recent call last):
+  File "/home/iemiedc2026/Documents/Sanjan/iclr/scripts/43_run_iclr_faithfulness.py", line 48, in <module>
+    import numpy as np
+ModuleNotFoundError: No module named 'numpy'
+[2026-08-05 13:19:30] DONE exit=0
+[2026-08-05 13:20:19] LAUNCH scripts/43_run_iclr_faithfulness.py (resume; methods M2_TRUE M2_RANDOM M3_TRUE M3_RANDOM, seeds 0-9, folds 0-4)
+Traceback (most recent call last):
+  File "<string>", line 1, in <module>
+    import torch; print("torch", torch.__version__, "cuda", torch.cuda.is_available())
+    ^^^^^^^^^^^^
+ModuleNotFoundError: No module named 'torch'
+[2026-08-05 13:20:19] env: /home/iemiedc2026/miniforge3/bin/python | 
+Device: cuda
+Top-10 TRUE  prior ROIs: [3, 7, 12, 13, 18, 23, 60, 61, 63, 65]
+Top-10 RANDOM prior ROIs: [22, 26, 54, 59, 65, 84, 92, 96, 100, 113] (overlap with TRUE: 1)
+SKIP completed faithfulness run: M2_TRUE
+=== meta_gat / M2_RANDOM: Meta-GAT (random prior) ===
+/home/iemiedc2026/Documents/Sanjan/iclr/src/metascfc/models/iclr_backbones/meta_gat.py:311: UserWarning: index_reduce_cuda does not have a deterministic implementation, but you set 'torch.use_deterministic_algorithms(True, warn_only=True)'. You can file an issue at https://github.com/pytorch/pytorch/issues to help us prioritize adding deterministic support for this operation. (Triggered internally at /__w/pytorch/pytorch/aten/src/ATen/Context.cpp:186.)
+  max_per_node = torch.index_reduce(
+/home/iemiedc2026/Documents/Sanjan/iclr/src/metascfc/models/iclr_backbones/meta_gat.py:311: UserWarning: index_reduce_cuda does not have a deterministic implementation, but you set 'torch.use_deterministic_algorithms(True, warn_only=True)'. You can file an issue at https://github.com/pytorch/pytorch/issues to help us prioritize adding deterministic support for this operation. (Triggered internally at /__w/pytorch/pytorch/aten/src/ATen/Context.cpp:186.)
+  max_per_node = torch.index_reduce(
+M2_RANDOM seed00_fold00 orig_rmse=5.877 delta_true_top=+4.499 delta_random_top=+3.016 delta_random=+3.262 gap_true_vs_random=+1.237
+/home/iemiedc2026/Documents/Sanjan/iclr/src/metascfc/models/iclr_backbones/meta_gat.py:311: UserWarning: index_reduce_cuda does not have a deterministic implementation, but you set 'torch.use_deterministic_algorithms(True, warn_only=True)'. You can file an issue at https://github.com/pytorch/pytorch/issues to help us prioritize adding deterministic support for this operation. (Triggered internally at /__w/pytorch/pytorch/aten/src/ATen/Context.cpp:186.)
+  max_per_node = torch.index_reduce(
+M2_RANDOM seed00_fold01 orig_rmse=4.490 delta_true_top=+3.511 delta_random_top=+1.712 delta_random=+2.479 gap_true_vs_random=+1.033
+/home/iemiedc2026/Documents/Sanjan/iclr/src/metascfc/models/iclr_backbones/meta_gat.py:311: UserWarning: index_reduce_cuda does not have a deterministic implementation, but you set 'torch.use_deterministic_algorithms(True, warn_only=True)'. You can file an issue at https://github.com/pytorch/pytorch/issues to help us prioritize adding deterministic support for this operation. (Triggered internally at /__w/pytorch/pytorch/aten/src/ATen/Context.cpp:186.)
+  max_per_node = torch.index_reduce(
+M2_RANDOM seed00_fold02 orig_rmse=4.654 delta_true_top=+3.453 delta_random_top=+1.197 delta_random=+0.753 gap_true_vs_random=+2.701
+/home/iemiedc2026/Documents/Sanjan/iclr/src/metascfc/models/iclr_backbones/meta_gat.py:311: UserWarning: index_reduce_cuda does not have a deterministic implementation, but you set 'torch.use_deterministic_algorithms(True, warn_only=True)'. You can file an issue at https://github.com/pytorch/pytorch/issues to help us prioritize adding deterministic support for this operation. (Triggered internally at /__w/pytorch/pytorch/aten/src/ATen/Context.cpp:186.)
+  max_per_node = torch.index_reduce(
+M2_RANDOM seed00_fold03 orig_rmse=4.795 delta_true_top=+2.684 delta_random_top=+0.466 delta_random=+0.572 gap_true_vs_random=+2.112
+/home/iemiedc2026/Documents/Sanjan/iclr/src/metascfc/models/iclr_backbones/meta_gat.py:311: UserWarning: index_reduce_cuda does not have a deterministic implementation, but you set 'torch.use_deterministic_algorithms(True, warn_only=True)'. You can file an issue at https://github.com/pytorch/pytorch/issues to help us prioritize adding deterministic support for this operation. (Triggered internally at /__w/pytorch/pytorch/aten/src/ATen/Context.cpp:186.)
+  max_per_node = torch.index_reduce(
+M2_RANDOM seed00_fold04 orig_rmse=4.776 delta_true_top=+3.280 delta_random_top=+7.083 delta_random=+5.451 gap_true_vs_random=-2.171
+/home/iemiedc2026/Documents/Sanjan/iclr/src/metascfc/models/iclr_backbones/meta_gat.py:311: UserWarning: index_reduce_cuda does not have a deterministic implementation, but you set 'torch.use_deterministic_algorithms(True, warn_only=True)'. You can file an issue at https://github.com/pytorch/pytorch/issues to help us prioritize adding deterministic support for this operation. (Triggered internally at /__w/pytorch/pytorch/aten/src/ATen/Context.cpp:186.)
+  max_per_node = torch.index_reduce(
+M2_RANDOM seed01_fold00 orig_rmse=4.821 delta_true_top=+3.842 delta_random_top=+0.497 delta_random=+1.064 gap_true_vs_random=+2.777
+/home/iemiedc2026/Documents/Sanjan/iclr/src/metascfc/models/iclr_backbones/meta_gat.py:311: UserWarning: index_reduce_cuda does not have a deterministic implementation, but you set 'torch.use_deterministic_algorithms(True, warn_only=True)'. You can file an issue at https://github.com/pytorch/pytorch/issues to help us prioritize adding deterministic support for this operation. (Triggered internally at /__w/pytorch/pytorch/aten/src/ATen/Context.cpp:186.)
+  max_per_node = torch.index_reduce(
+M2_RANDOM seed01_fold01 orig_rmse=4.978 delta_true_top=+3.353 delta_random_top=-0.112 delta_random=+0.920 gap_true_vs_random=+2.434
+/home/iemiedc2026/Documents/Sanjan/iclr/src/metascfc/models/iclr_backbones/meta_gat.py:311: UserWarning: index_reduce_cuda does not have a deterministic implementation, but you set 'torch.use_deterministic_algorithms(True, warn_only=True)'. You can file an issue at https://github.com/pytorch/pytorch/issues to help us prioritize adding deterministic support for this operation. (Triggered internally at /__w/pytorch/pytorch/aten/src/ATen/Context.cpp:186.)
+  max_per_node = torch.index_reduce(
+M2_RANDOM seed01_fold02 orig_rmse=4.652 delta_true_top=+4.061 delta_random_top=+0.187 delta_random=+1.199 gap_true_vs_random=+2.862
+/home/iemiedc2026/Documents/Sanjan/iclr/src/metascfc/models/iclr_backbones/meta_gat.py:311: UserWarning: index_reduce_cuda does not have a deterministic implementation, but you set 'torch.use_deterministic_algorithms(True, warn_only=True)'. You can file an issue at https://github.com/pytorch/pytorch/issues to help us prioritize adding deterministic support for this operation. (Triggered internally at /__w/pytorch/pytorch/aten/src/ATen/Context.cpp:186.)
+  max_per_node = torch.index_reduce(
+M2_RANDOM seed01_fold03 orig_rmse=4.900 delta_true_top=+4.853 delta_random_top=+1.805 delta_random=+1.585 gap_true_vs_random=+3.267
+/home/iemiedc2026/Documents/Sanjan/iclr/src/metascfc/models/iclr_backbones/meta_gat.py:311: UserWarning: index_reduce_cuda does not have a deterministic implementation, but you set 'torch.use_deterministic_algorithms(True, warn_only=True)'. You can file an issue at https://github.com/pytorch/pytorch/issues to help us prioritize adding deterministic support for this operation. (Triggered internally at /__w/pytorch/pytorch/aten/src/ATen/Context.cpp:186.)
+  max_per_node = torch.index_reduce(
+M2_RANDOM seed01_fold04 orig_rmse=4.664 delta_true_top=+2.121 delta_random_top=+1.103 delta_random=+1.017 gap_true_vs_random=+1.104
+/home/iemiedc2026/Documents/Sanjan/iclr/src/metascfc/models/iclr_backbones/meta_gat.py:311: UserWarning: index_reduce_cuda does not have a deterministic implementation, but you set 'torch.use_deterministic_algorithms(True, warn_only=True)'. You can file an issue at https://github.com/pytorch/pytorch/issues to help us prioritize adding deterministic support for this operation. (Triggered internally at /__w/pytorch/pytorch/aten/src/ATen/Context.cpp:186.)
+  max_per_node = torch.index_reduce(
+M2_RANDOM seed02_fold00 orig_rmse=4.446 delta_true_top=+1.552 delta_random_top=+0.556 delta_random=+0.452 gap_true_vs_random=+1.100
+/home/iemiedc2026/Documents/Sanjan/iclr/src/metascfc/models/iclr_backbones/meta_gat.py:311: UserWarning: index_reduce_cuda does not have a deterministic implementation, but you set 'torch.use_deterministic_algorithms(True, warn_only=True)'. You can file an issue at https://github.com/pytorch/pytorch/issues to help us prioritize adding deterministic support for this operation. (Triggered internally at /__w/pytorch/pytorch/aten/src/ATen/Context.cpp:186.)
+  max_per_node = torch.index_reduce(
+M2_RANDOM seed02_fold01 orig_rmse=4.909 delta_true_top=+2.213 delta_random_top=+1.254 delta_random=+3.443 gap_true_vs_random=-1.230
+/home/iemiedc2026/Documents/Sanjan/iclr/src/metascfc/models/iclr_backbones/meta_gat.py:311: UserWarning: index_reduce_cuda does not have a deterministic implementation, but you set 'torch.use_deterministic_algorithms(True, warn_only=True)'. You can file an issue at https://github.com/pytorch/pytorch/issues to help us prioritize adding deterministic support for this operation. (Triggered internally at /__w/pytorch/pytorch/aten/src/ATen/Context.cpp:186.)
+  max_per_node = torch.index_reduce(
+M2_RANDOM seed02_fold02 orig_rmse=6.112 delta_true_top=+4.395 delta_random_top=+7.437 delta_random=+2.752 gap_true_vs_random=+1.643
+/home/iemiedc2026/Documents/Sanjan/iclr/src/metascfc/models/iclr_backbones/meta_gat.py:311: UserWarning: index_reduce_cuda does not have a deterministic implementation, but you set 'torch.use_deterministic_algorithms(True, warn_only=True)'. You can file an issue at https://github.com/pytorch/pytorch/issues to help us prioritize adding deterministic support for this operation. (Triggered internally at /__w/pytorch/pytorch/aten/src/ATen/Context.cpp:186.)
+  max_per_node = torch.index_reduce(
+M2_RANDOM seed02_fold03 orig_rmse=4.647 delta_true_top=+0.420 delta_random_top=+0.066 delta_random=+0.183 gap_true_vs_random=+0.236
+/home/iemiedc2026/Documents/Sanjan/iclr/src/metascfc/models/iclr_backbones/meta_gat.py:311: UserWarning: index_reduce_cuda does not have a deterministic implementation, but you set 'torch.use_deterministic_algorithms(True, warn_only=True)'. You can file an issue at https://github.com/pytorch/pytorch/issues to help us prioritize adding deterministic support for this operation. (Triggered internally at /__w/pytorch/pytorch/aten/src/ATen/Context.cpp:186.)
+  max_per_node = torch.index_reduce(
+M2_RANDOM seed02_fold04 orig_rmse=4.538 delta_true_top=+5.946 delta_random_top=+2.281 delta_random=+1.954 gap_true_vs_random=+3.992
+/home/iemiedc2026/Documents/Sanjan/iclr/src/metascfc/models/iclr_backbones/meta_gat.py:311: UserWarning: index_reduce_cuda does not have a deterministic implementation, but you set 'torch.use_deterministic_algorithms(True, warn_only=True)'. You can file an issue at https://github.com/pytorch/pytorch/issues to help us prioritize adding deterministic support for this operation. (Triggered internally at /__w/pytorch/pytorch/aten/src/ATen/Context.cpp:186.)
+  max_per_node = torch.index_reduce(
+M2_RANDOM seed03_fold00 orig_rmse=4.691 delta_true_top=+4.438 delta_random_top=+1.892 delta_random=+2.393 gap_true_vs_random=+2.045
+/home/iemiedc2026/Documents/Sanjan/iclr/src/metascfc/models/iclr_backbones/meta_gat.py:311: UserWarning: index_reduce_cuda does not have a deterministic implementation, but you set 'torch.use_deterministic_algorithms(True, warn_only=True)'. You can file an issue at https://github.com/pytorch/pytorch/issues to help us prioritize adding deterministic support for this operation. (Triggered internally at /__w/pytorch/pytorch/aten/src/ATen/Context.cpp:186.)
+  max_per_node = torch.index_reduce(
+M2_RANDOM seed03_fold01 orig_rmse=5.241 delta_true_top=+3.629 delta_random_top=+0.785 delta_random=+1.568 gap_true_vs_random=+2.061
+/home/iemiedc2026/Documents/Sanjan/iclr/src/metascfc/models/iclr_backbones/meta_gat.py:311: UserWarning: index_reduce_cuda does not have a deterministic implementation, but you set 'torch.use_deterministic_algorithms(True, warn_only=True)'. You can file an issue at https://github.com/pytorch/pytorch/issues to help us prioritize adding deterministic support for this operation. (Triggered internally at /__w/pytorch/pytorch/aten/src/ATen/Context.cpp:186.)
+  max_per_node = torch.index_reduce(
+M2_RANDOM seed03_fold02 orig_rmse=4.776 delta_true_top=+4.116 delta_random_top=+3.605 delta_random=+2.673 gap_true_vs_random=+1.443
+/home/iemiedc2026/Documents/Sanjan/iclr/src/metascfc/models/iclr_backbones/meta_gat.py:311: UserWarning: index_reduce_cuda does not have a deterministic implementation, but you set 'torch.use_deterministic_algorithms(True, warn_only=True)'. You can file an issue at https://github.com/pytorch/pytorch/issues to help us prioritize adding deterministic support for this operation. (Triggered internally at /__w/pytorch/pytorch/aten/src/ATen/Context.cpp:186.)
+  max_per_node = torch.index_reduce(
+M2_RANDOM seed03_fold03 orig_rmse=4.822 delta_true_top=+3.798 delta_random_top=+2.550 delta_random=+2.797 gap_true_vs_random=+1.001
+/home/iemiedc2026/Documents/Sanjan/iclr/src/metascfc/models/iclr_backbones/meta_gat.py:311: UserWarning: index_reduce_cuda does not have a deterministic implementation, but you set 'torch.use_deterministic_algorithms(True, warn_only=True)'. You can file an issue at https://github.com/pytorch/pytorch/issues to help us prioritize adding deterministic support for this operation. (Triggered internally at /__w/pytorch/pytorch/aten/src/ATen/Context.cpp:186.)
+  max_per_node = torch.index_reduce(
+M2_RANDOM seed03_fold04 orig_rmse=4.416 delta_true_top=+1.742 delta_random_top=+0.807 delta_random=+0.761 gap_true_vs_random=+0.982
+/home/iemiedc2026/Documents/Sanjan/iclr/src/metascfc/models/iclr_backbones/meta_gat.py:311: UserWarning: index_reduce_cuda does not have a deterministic implementation, but you set 'torch.use_deterministic_algorithms(True, warn_only=True)'. You can file an issue at https://github.com/pytorch/pytorch/issues to help us prioritize adding deterministic support for this operation. (Triggered internally at /__w/pytorch/pytorch/aten/src/ATen/Context.cpp:186.)
+  max_per_node = torch.index_reduce(
+M2_RANDOM seed04_fold00 orig_rmse=4.736 delta_true_top=+2.591 delta_random_top=+1.243 delta_random=+2.063 gap_true_vs_random=+0.528
+/home/iemiedc2026/Documents/Sanjan/iclr/src/metascfc/models/iclr_backbones/meta_gat.py:311: UserWarning: index_reduce_cuda does not have a deterministic implementation, but you set 'torch.use_deterministic_algorithms(True, warn_only=True)'. You can file an issue at https://github.com/pytorch/pytorch/issues to help us prioritize adding deterministic support for this operation. (Triggered internally at /__w/pytorch/pytorch/aten/src/ATen/Context.cpp:186.)
+  max_per_node = torch.index_reduce(
+M2_RANDOM seed04_fold01 orig_rmse=4.844 delta_true_top=+3.250 delta_random_top=-0.163 delta_random=+0.612 gap_true_vs_random=+2.638
+/home/iemiedc2026/Documents/Sanjan/iclr/src/metascfc/models/iclr_backbones/meta_gat.py:311: UserWarning: index_reduce_cuda does not have a deterministic implementation, but you set 'torch.use_deterministic_algorithms(True, warn_only=True)'. You can file an issue at https://github.com/pytorch/pytorch/issues to help us prioritize adding deterministic support for this operation. (Triggered internally at /__w/pytorch/pytorch/aten/src/ATen/Context.cpp:186.)
+  max_per_node = torch.index_reduce(
+M2_RANDOM seed04_fold02 orig_rmse=4.730 delta_true_top=+4.431 delta_random_top=+0.218 delta_random=+0.747 gap_true_vs_random=+3.683
+/home/iemiedc2026/Documents/Sanjan/iclr/src/metascfc/models/iclr_backbones/meta_gat.py:311: UserWarning: index_reduce_cuda does not have a deterministic implementation, but you set 'torch.use_deterministic_algorithms(True, warn_only=True)'. You can file an issue at https://github.com/pytorch/pytorch/issues to help us prioritize adding deterministic support for this operation. (Triggered internally at /__w/pytorch/pytorch/aten/src/ATen/Context.cpp:186.)
+  max_per_node = torch.index_reduce(
+M2_RANDOM seed04_fold03 orig_rmse=4.912 delta_true_top=+5.723 delta_random_top=+1.300 delta_random=+1.777 gap_true_vs_random=+3.946
+/home/iemiedc2026/Documents/Sanjan/iclr/src/metascfc/models/iclr_backbones/meta_gat.py:311: UserWarning: index_reduce_cuda does not have a deterministic implementation, but you set 'torch.use_deterministic_algorithms(True, warn_only=True)'. You can file an issue at https://github.com/pytorch/pytorch/issues to help us prioritize adding deterministic support for this operation. (Triggered internally at /__w/pytorch/pytorch/aten/src/ATen/Context.cpp:186.)
+  max_per_node = torch.index_reduce(
+M2_RANDOM seed04_fold04 orig_rmse=4.488 delta_true_top=+2.867 delta_random_top=+0.693 delta_random=+0.650 gap_true_vs_random=+2.216
+/home/iemiedc2026/Documents/Sanjan/iclr/src/metascfc/models/iclr_backbones/meta_gat.py:311: UserWarning: index_reduce_cuda does not have a deterministic implementation, but you set 'torch.use_deterministic_algorithms(True, warn_only=True)'. You can file an issue at https://github.com/pytorch/pytorch/issues to help us prioritize adding deterministic support for this operation. (Triggered internally at /__w/pytorch/pytorch/aten/src/ATen/Context.cpp:186.)
+  max_per_node = torch.index_reduce(
+M2_RANDOM seed05_fold00 orig_rmse=4.583 delta_true_top=+2.501 delta_random_top=+1.147 delta_random=+0.945 gap_true_vs_random=+1.556
+/home/iemiedc2026/Documents/Sanjan/iclr/src/metascfc/models/iclr_backbones/meta_gat.py:311: UserWarning: index_reduce_cuda does not have a deterministic implementation, but you set 'torch.use_deterministic_algorithms(True, warn_only=True)'. You can file an issue at https://github.com/pytorch/pytorch/issues to help us prioritize adding deterministic support for this operation. (Triggered internally at /__w/pytorch/pytorch/aten/src/ATen/Context.cpp:186.)
+  max_per_node = torch.index_reduce(
+M2_RANDOM seed05_fold01 orig_rmse=4.702 delta_true_top=+1.490 delta_random_top=+0.076 delta_random=+0.866 gap_true_vs_random=+0.623
+/home/iemiedc2026/Documents/Sanjan/iclr/src/metascfc/models/iclr_backbones/meta_gat.py:311: UserWarning: index_reduce_cuda does not have a deterministic implementation, but you set 'torch.use_deterministic_algorithms(True, warn_only=True)'. You can file an issue at https://github.com/pytorch/pytorch/issues to help us prioritize adding deterministic support for this operation. (Triggered internally at /__w/pytorch/pytorch/aten/src/ATen/Context.cpp:186.)
+  max_per_node = torch.index_reduce(
+M2_RANDOM seed05_fold02 orig_rmse=4.555 delta_true_top=+4.210 delta_random_top=+0.305 delta_random=+0.819 gap_true_vs_random=+3.391
+/home/iemiedc2026/Documents/Sanjan/iclr/src/metascfc/models/iclr_backbones/meta_gat.py:311: UserWarning: index_reduce_cuda does not have a deterministic implementation, but you set 'torch.use_deterministic_algorithms(True, warn_only=True)'. You can file an issue at https://github.com/pytorch/pytorch/issues to help us prioritize adding deterministic support for this operation. (Triggered internally at /__w/pytorch/pytorch/aten/src/ATen/Context.cpp:186.)
+  max_per_node = torch.index_reduce(
+M2_RANDOM seed05_fold03 orig_rmse=5.024 delta_true_top=+6.402 delta_random_top=+3.567 delta_random=+2.825 gap_true_vs_random=+3.577
+/home/iemiedc2026/Documents/Sanjan/iclr/src/metascfc/models/iclr_backbones/meta_gat.py:311: UserWarning: index_reduce_cuda does not have a deterministic implementation, but you set 'torch.use_deterministic_algorithms(True, warn_only=True)'. You can file an issue at https://github.com/pytorch/pytorch/issues to help us prioritize adding deterministic support for this operation. (Triggered internally at /__w/pytorch/pytorch/aten/src/ATen/Context.cpp:186.)
+  max_per_node = torch.index_reduce(
+M2_RANDOM seed05_fold04 orig_rmse=5.053 delta_true_top=+4.722 delta_random_top=+4.786 delta_random=+1.918 gap_true_vs_random=+2.804
+/home/iemiedc2026/Documents/Sanjan/iclr/src/metascfc/models/iclr_backbones/meta_gat.py:311: UserWarning: index_reduce_cuda does not have a deterministic implementation, but you set 'torch.use_deterministic_algorithms(True, warn_only=True)'. You can file an issue at https://github.com/pytorch/pytorch/issues to help us prioritize adding deterministic support for this operation. (Triggered internally at /__w/pytorch/pytorch/aten/src/ATen/Context.cpp:186.)
+  max_per_node = torch.index_reduce(
+M2_RANDOM seed06_fold00 orig_rmse=4.742 delta_true_top=+5.136 delta_random_top=+0.807 delta_random=+1.138 gap_true_vs_random=+3.998
+/home/iemiedc2026/Documents/Sanjan/iclr/src/metascfc/models/iclr_backbones/meta_gat.py:311: UserWarning: index_reduce_cuda does not have a deterministic implementation, but you set 'torch.use_deterministic_algorithms(True, warn_only=True)'. You can file an issue at https://github.com/pytorch/pytorch/issues to help us prioritize adding deterministic support for this operation. (Triggered internally at /__w/pytorch/pytorch/aten/src/ATen/Context.cpp:186.)
+  max_per_node = torch.index_reduce(
+M2_RANDOM seed06_fold01 orig_rmse=4.529 delta_true_top=+4.342 delta_random_top=+2.685 delta_random=+2.434 gap_true_vs_random=+1.908
+/home/iemiedc2026/Documents/Sanjan/iclr/src/metascfc/models/iclr_backbones/meta_gat.py:311: UserWarning: index_reduce_cuda does not have a deterministic implementation, but you set 'torch.use_deterministic_algorithms(True, warn_only=True)'. You can file an issue at https://github.com/pytorch/pytorch/issues to help us prioritize adding deterministic support for this operation. (Triggered internally at /__w/pytorch/pytorch/aten/src/ATen/Context.cpp:186.)
+  max_per_node = torch.index_reduce(
+M2_RANDOM seed06_fold02 orig_rmse=4.759 delta_true_top=+4.048 delta_random_top=+1.419 delta_random=+1.736 gap_true_vs_random=+2.312
+/home/iemiedc2026/Documents/Sanjan/iclr/src/metascfc/models/iclr_backbones/meta_gat.py:311: UserWarning: index_reduce_cuda does not have a deterministic implementation, but you set 'torch.use_deterministic_algorithms(True, warn_only=True)'. You can file an issue at https://github.com/pytorch/pytorch/issues to help us prioritize adding deterministic support for this operation. (Triggered internally at /__w/pytorch/pytorch/aten/src/ATen/Context.cpp:186.)
+  max_per_node = torch.index_reduce(
+M2_RANDOM seed06_fold03 orig_rmse=4.777 delta_true_top=+6.289 delta_random_top=+1.713 delta_random=+3.416 gap_true_vs_random=+2.873
+/home/iemiedc2026/Documents/Sanjan/iclr/src/metascfc/models/iclr_backbones/meta_gat.py:311: UserWarning: index_reduce_cuda does not have a deterministic implementation, but you set 'torch.use_deterministic_algorithms(True, warn_only=True)'. You can file an issue at https://github.com/pytorch/pytorch/issues to help us prioritize adding deterministic support for this operation. (Triggered internally at /__w/pytorch/pytorch/aten/src/ATen/Context.cpp:186.)
+  max_per_node = torch.index_reduce(
+M2_RANDOM seed06_fold04 orig_rmse=5.162 delta_true_top=+1.534 delta_random_top=-0.006 delta_random=+0.290 gap_true_vs_random=+1.243
+/home/iemiedc2026/Documents/Sanjan/iclr/src/metascfc/models/iclr_backbones/meta_gat.py:311: UserWarning: index_reduce_cuda does not have a deterministic implementation, but you set 'torch.use_deterministic_algorithms(True, warn_only=True)'. You can file an issue at https://github.com/pytorch/pytorch/issues to help us prioritize adding deterministic support for this operation. (Triggered internally at /__w/pytorch/pytorch/aten/src/ATen/Context.cpp:186.)
+  max_per_node = torch.index_reduce(
+M2_RANDOM seed07_fold00 orig_rmse=4.819 delta_true_top=+2.533 delta_random_top=+1.804 delta_random=+3.174 gap_true_vs_random=-0.641
+/home/iemiedc2026/Documents/Sanjan/iclr/src/metascfc/models/iclr_backbones/meta_gat.py:311: UserWarning: index_reduce_cuda does not have a deterministic implementation, but you set 'torch.use_deterministic_algorithms(True, warn_only=True)'. You can file an issue at https://github.com/pytorch/pytorch/issues to help us prioritize adding deterministic support for this operation. (Triggered internally at /__w/pytorch/pytorch/aten/src/ATen/Context.cpp:186.)
+  max_per_node = torch.index_reduce(
+M2_RANDOM seed07_fold01 orig_rmse=4.678 delta_true_top=+4.373 delta_random_top=+2.163 delta_random=+2.969 gap_true_vs_random=+1.404
+/home/iemiedc2026/Documents/Sanjan/iclr/src/metascfc/models/iclr_backbones/meta_gat.py:311: UserWarning: index_reduce_cuda does not have a deterministic implementation, but you set 'torch.use_deterministic_algorithms(True, warn_only=True)'. You can file an issue at https://github.com/pytorch/pytorch/issues to help us prioritize adding deterministic support for this operation. (Triggered internally at /__w/pytorch/pytorch/aten/src/ATen/Context.cpp:186.)
+  max_per_node = torch.index_reduce(
+M2_RANDOM seed07_fold02 orig_rmse=5.184 delta_true_top=+3.207 delta_random_top=-0.050 delta_random=+1.368 gap_true_vs_random=+1.839
+/home/iemiedc2026/Documents/Sanjan/iclr/src/metascfc/models/iclr_backbones/meta_gat.py:311: UserWarning: index_reduce_cuda does not have a deterministic implementation, but you set 'torch.use_deterministic_algorithms(True, warn_only=True)'. You can file an issue at https://github.com/pytorch/pytorch/issues to help us prioritize adding deterministic support for this operation. (Triggered internally at /__w/pytorch/pytorch/aten/src/ATen/Context.cpp:186.)
+  max_per_node = torch.index_reduce(
+M2_RANDOM seed07_fold03 orig_rmse=4.767 delta_true_top=+2.751 delta_random_top=+1.312 delta_random=+2.050 gap_true_vs_random=+0.702
+/home/iemiedc2026/Documents/Sanjan/iclr/src/metascfc/models/iclr_backbones/meta_gat.py:311: UserWarning: index_reduce_cuda does not have a deterministic implementation, but you set 'torch.use_deterministic_algorithms(True, warn_only=True)'. You can file an issue at https://github.com/pytorch/pytorch/issues to help us prioritize adding deterministic support for this operation. (Triggered internally at /__w/pytorch/pytorch/aten/src/ATen/Context.cpp:186.)
+  max_per_node = torch.index_reduce(
+M2_RANDOM seed07_fold04 orig_rmse=4.925 delta_true_top=+6.320 delta_random_top=+1.189 delta_random=+2.130 gap_true_vs_random=+4.190
+/home/iemiedc2026/Documents/Sanjan/iclr/src/metascfc/models/iclr_backbones/meta_gat.py:311: UserWarning: index_reduce_cuda does not have a deterministic implementation, but you set 'torch.use_deterministic_algorithms(True, warn_only=True)'. You can file an issue at https://github.com/pytorch/pytorch/issues to help us prioritize adding deterministic support for this operation. (Triggered internally at /__w/pytorch/pytorch/aten/src/ATen/Context.cpp:186.)
+  max_per_node = torch.index_reduce(
+M2_RANDOM seed08_fold00 orig_rmse=4.866 delta_true_top=+4.091 delta_random_top=+9.805 delta_random=+5.830 gap_true_vs_random=-1.739
+/home/iemiedc2026/Documents/Sanjan/iclr/src/metascfc/models/iclr_backbones/meta_gat.py:311: UserWarning: index_reduce_cuda does not have a deterministic implementation, but you set 'torch.use_deterministic_algorithms(True, warn_only=True)'. You can file an issue at https://github.com/pytorch/pytorch/issues to help us prioritize adding deterministic support for this operation. (Triggered internally at /__w/pytorch/pytorch/aten/src/ATen/Context.cpp:186.)
+  max_per_node = torch.index_reduce(
+M2_RANDOM seed08_fold01 orig_rmse=4.927 delta_true_top=+2.819 delta_random_top=+0.240 delta_random=+5.409 gap_true_vs_random=-2.590
+/home/iemiedc2026/Documents/Sanjan/iclr/src/metascfc/models/iclr_backbones/meta_gat.py:311: UserWarning: index_reduce_cuda does not have a deterministic implementation, but you set 'torch.use_deterministic_algorithms(True, warn_only=True)'. You can file an issue at https://github.com/pytorch/pytorch/issues to help us prioritize adding deterministic support for this operation. (Triggered internally at /__w/pytorch/pytorch/aten/src/ATen/Context.cpp:186.)
+  max_per_node = torch.index_reduce(
+M2_RANDOM seed08_fold02 orig_rmse=5.309 delta_true_top=+1.227 delta_random_top=+0.405 delta_random=+0.749 gap_true_vs_random=+0.478
+/home/iemiedc2026/Documents/Sanjan/iclr/src/metascfc/models/iclr_backbones/meta_gat.py:311: UserWarning: index_reduce_cuda does not have a deterministic implementation, but you set 'torch.use_deterministic_algorithms(True, warn_only=True)'. You can file an issue at https://github.com/pytorch/pytorch/issues to help us prioritize adding deterministic support for this operation. (Triggered internally at /__w/pytorch/pytorch/aten/src/ATen/Context.cpp:186.)
+  max_per_node = torch.index_reduce(
+M2_RANDOM seed08_fold03 orig_rmse=4.732 delta_true_top=+5.906 delta_random_top=-0.172 delta_random=+1.537 gap_true_vs_random=+4.370
+/home/iemiedc2026/Documents/Sanjan/iclr/src/metascfc/models/iclr_backbones/meta_gat.py:311: UserWarning: index_reduce_cuda does not have a deterministic implementation, but you set 'torch.use_deterministic_algorithms(True, warn_only=True)'. You can file an issue at https://github.com/pytorch/pytorch/issues to help us prioritize adding deterministic support for this operation. (Triggered internally at /__w/pytorch/pytorch/aten/src/ATen/Context.cpp:186.)
+  max_per_node = torch.index_reduce(
+M2_RANDOM seed08_fold04 orig_rmse=4.606 delta_true_top=+4.632 delta_random_top=+0.862 delta_random=+0.579 gap_true_vs_random=+4.052
+/home/iemiedc2026/Documents/Sanjan/iclr/src/metascfc/models/iclr_backbones/meta_gat.py:311: UserWarning: index_reduce_cuda does not have a deterministic implementation, but you set 'torch.use_deterministic_algorithms(True, warn_only=True)'. You can file an issue at https://github.com/pytorch/pytorch/issues to help us prioritize adding deterministic support for this operation. (Triggered internally at /__w/pytorch/pytorch/aten/src/ATen/Context.cpp:186.)
+  max_per_node = torch.index_reduce(
+M2_RANDOM seed09_fold00 orig_rmse=4.435 delta_true_top=+1.621 delta_random_top=+1.070 delta_random=+1.098 gap_true_vs_random=+0.523
+/home/iemiedc2026/Documents/Sanjan/iclr/src/metascfc/models/iclr_backbones/meta_gat.py:311: UserWarning: index_reduce_cuda does not have a deterministic implementation, but you set 'torch.use_deterministic_algorithms(True, warn_only=True)'. You can file an issue at https://github.com/pytorch/pytorch/issues to help us prioritize adding deterministic support for this operation. (Triggered internally at /__w/pytorch/pytorch/aten/src/ATen/Context.cpp:186.)
+  max_per_node = torch.index_reduce(
+M2_RANDOM seed09_fold01 orig_rmse=5.507 delta_true_top=+4.024 delta_random_top=-0.032 delta_random=+1.775 gap_true_vs_random=+2.248
+/home/iemiedc2026/Documents/Sanjan/iclr/src/metascfc/models/iclr_backbones/meta_gat.py:311: UserWarning: index_reduce_cuda does not have a deterministic implementation, but you set 'torch.use_deterministic_algorithms(True, warn_only=True)'. You can file an issue at https://github.com/pytorch/pytorch/issues to help us prioritize adding deterministic support for this operation. (Triggered internally at /__w/pytorch/pytorch/aten/src/ATen/Context.cpp:186.)
+  max_per_node = torch.index_reduce(
+M2_RANDOM seed09_fold02 orig_rmse=4.807 delta_true_top=+3.444 delta_random_top=+1.195 delta_random=+1.121 gap_true_vs_random=+2.322
+/home/iemiedc2026/Documents/Sanjan/iclr/src/metascfc/models/iclr_backbones/meta_gat.py:311: UserWarning: index_reduce_cuda does not have a deterministic implementation, but you set 'torch.use_deterministic_algorithms(True, warn_only=True)'. You can file an issue at https://github.com/pytorch/pytorch/issues to help us prioritize adding deterministic support for this operation. (Triggered internally at /__w/pytorch/pytorch/aten/src/ATen/Context.cpp:186.)
+  max_per_node = torch.index_reduce(
+M2_RANDOM seed09_fold03 orig_rmse=4.352 delta_true_top=+1.453 delta_random_top=+0.122 delta_random=+0.380 gap_true_vs_random=+1.074
+/home/iemiedc2026/Documents/Sanjan/iclr/src/metascfc/models/iclr_backbones/meta_gat.py:311: UserWarning: index_reduce_cuda does not have a deterministic implementation, but you set 'torch.use_deterministic_algorithms(True, warn_only=True)'. You can file an issue at https://github.com/pytorch/pytorch/issues to help us prioritize adding deterministic support for this operation. (Triggered internally at /__w/pytorch/pytorch/aten/src/ATen/Context.cpp:186.)
+  max_per_node = torch.index_reduce(
+M2_RANDOM seed09_fold04 orig_rmse=4.932 delta_true_top=+2.524 delta_random_top=+0.970 delta_random=+0.744 gap_true_vs_random=+1.780
+=== kernel_ridge / M3_TRUE: Two-Stage KRR (true edge-prior biomarker) ===
+M3_TRUE seed00_fold00 orig_rmse=4.673 delta_true_top=+0.289 delta_random_top=+0.078 delta_random=+0.268 gap_true_vs_random=+0.021
+M3_TRUE seed00_fold01 orig_rmse=4.664 delta_true_top=+0.116 delta_random_top=+0.259 delta_random=+0.315 gap_true_vs_random=-0.199
+M3_TRUE seed00_fold02 orig_rmse=4.581 delta_true_top=+0.118 delta_random_top=+0.032 delta_random=+0.099 gap_true_vs_random=+0.020
+M3_TRUE seed00_fold03 orig_rmse=4.870 delta_true_top=+0.306 delta_random_top=-0.008 delta_random=+0.187 gap_true_vs_random=+0.119
+M3_TRUE seed00_fold04 orig_rmse=4.644 delta_true_top=+0.606 delta_random_top=+0.589 delta_random=+0.698 gap_true_vs_random=-0.093
+M3_TRUE seed01_fold00 orig_rmse=4.677 delta_true_top=+0.125 delta_random_top=+0.120 delta_random=+0.401 gap_true_vs_random=-0.276
+M3_TRUE seed01_fold01 orig_rmse=4.824 delta_true_top=+0.066 delta_random_top=-0.222 delta_random=+0.177 gap_true_vs_random=-0.111
+M3_TRUE seed01_fold02 orig_rmse=4.583 delta_true_top=+0.117 delta_random_top=+0.031 delta_random=+0.280 gap_true_vs_random=-0.163
+M3_TRUE seed01_fold03 orig_rmse=4.716 delta_true_top=+0.887 delta_random_top=+0.026 delta_random=+0.687 gap_true_vs_random=+0.200
+M3_TRUE seed01_fold04 orig_rmse=4.729 delta_true_top=-0.168 delta_random_top=+0.076 delta_random=+0.290 gap_true_vs_random=-0.458
+M3_TRUE seed02_fold00 orig_rmse=4.515 delta_true_top=+0.260 delta_random_top=+0.145 delta_random=+0.270 gap_true_vs_random=-0.010
+M3_TRUE seed02_fold01 orig_rmse=4.752 delta_true_top=+0.182 delta_random_top=+0.015 delta_random=+0.089 gap_true_vs_random=+0.093
+M3_TRUE seed02_fold02 orig_rmse=5.453 delta_true_top=+0.442 delta_random_top=+0.001 delta_random=+0.681 gap_true_vs_random=-0.239
+M3_TRUE seed02_fold03 orig_rmse=4.697 delta_true_top=+0.014 delta_random_top=+0.008 delta_random=+0.012 gap_true_vs_random=+0.003
+M3_TRUE seed02_fold04 orig_rmse=4.596 delta_true_top=+0.027 delta_random_top=+0.028 delta_random=+0.037 gap_true_vs_random=-0.010
+M3_TRUE seed03_fold00 orig_rmse=4.650 delta_true_top=+0.257 delta_random_top=+0.119 delta_random=+0.240 gap_true_vs_random=+0.017
+M3_TRUE seed03_fold01 orig_rmse=4.797 delta_true_top=-0.021 delta_random_top=+0.074 delta_random=+0.222 gap_true_vs_random=-0.244
+M3_TRUE seed03_fold02 orig_rmse=4.757 delta_true_top=+0.087 delta_random_top=+0.029 delta_random=+0.089 gap_true_vs_random=-0.003
+M3_TRUE seed03_fold03 orig_rmse=4.658 delta_true_top=+0.235 delta_random_top=+0.029 delta_random=+0.293 gap_true_vs_random=-0.057
+M3_TRUE seed03_fold04 orig_rmse=4.308 delta_true_top=+0.153 delta_random_top=+0.202 delta_random=+0.852 gap_true_vs_random=-0.699
+M3_TRUE seed04_fold00 orig_rmse=5.065 delta_true_top=+0.869 delta_random_top=-0.087 delta_random=+0.969 gap_true_vs_random=-0.100
+M3_TRUE seed04_fold01 orig_rmse=4.723 delta_true_top=-0.343 delta_random_top=+0.110 delta_random=+1.200 gap_true_vs_random=-1.543
+M3_TRUE seed04_fold02 orig_rmse=4.762 delta_true_top=+0.407 delta_random_top=+0.044 delta_random=+0.663 gap_true_vs_random=-0.257
+M3_TRUE seed04_fold03 orig_rmse=4.778 delta_true_top=+0.011 delta_random_top=-0.005 delta_random=+0.024 gap_true_vs_random=-0.013
+M3_TRUE seed04_fold04 orig_rmse=4.948 delta_true_top=-0.057 delta_random_top=+0.881 delta_random=+0.997 gap_true_vs_random=-1.055
+M3_TRUE seed05_fold00 orig_rmse=4.569 delta_true_top=+0.112 delta_random_top=+0.177 delta_random=+0.268 gap_true_vs_random=-0.156
+M3_TRUE seed05_fold01 orig_rmse=4.681 delta_true_top=+0.315 delta_random_top=+0.173 delta_random=+0.187 gap_true_vs_random=+0.128
+M3_TRUE seed05_fold02 orig_rmse=4.643 delta_true_top=-0.130 delta_random_top=+0.021 delta_random=+0.085 gap_true_vs_random=-0.216
+M3_TRUE seed05_fold03 orig_rmse=4.605 delta_true_top=+0.203 delta_random_top=+0.030 delta_random=+0.377 gap_true_vs_random=-0.174
+M3_TRUE seed05_fold04 orig_rmse=5.184 delta_true_top=+0.272 delta_random_top=+0.972 delta_random=+1.121 gap_true_vs_random=-0.850
+M3_TRUE seed06_fold00 orig_rmse=4.439 delta_true_top=+0.041 delta_random_top=+0.161 delta_random=+0.317 gap_true_vs_random=-0.276
+M3_TRUE seed06_fold01 orig_rmse=5.050 delta_true_top=-0.000 delta_random_top=-0.000 delta_random=-0.000 gap_true_vs_random=-0.000
+M3_TRUE seed06_fold02 orig_rmse=4.561 delta_true_top=+0.534 delta_random_top=+0.041 delta_random=+0.736 gap_true_vs_random=-0.202
+M3_TRUE seed06_fold03 orig_rmse=4.816 delta_true_top=-0.021 delta_random_top=+0.099 delta_random=+0.846 gap_true_vs_random=-0.868
+M3_TRUE seed06_fold04 orig_rmse=4.852 delta_true_top=+0.096 delta_random_top=+0.061 delta_random=+0.129 gap_true_vs_random=-0.033
+M3_TRUE seed07_fold00 orig_rmse=4.847 delta_true_top=+0.022 delta_random_top=-0.003 delta_random=+0.008 gap_true_vs_random=+0.014
+M3_TRUE seed07_fold01 orig_rmse=4.573 delta_true_top=+0.100 delta_random_top=+0.065 delta_random=+0.113 gap_true_vs_random=-0.014
+M3_TRUE seed07_fold02 orig_rmse=5.166 delta_true_top=+0.032 delta_random_top=+0.008 delta_random=+0.039 gap_true_vs_random=-0.007
+M3_TRUE seed07_fold03 orig_rmse=4.720 delta_true_top=+0.548 delta_random_top=+0.032 delta_random=+0.240 gap_true_vs_random=+0.308
+M3_TRUE seed07_fold04 orig_rmse=4.368 delta_true_top=+0.244 delta_random_top=+0.023 delta_random=+0.346 gap_true_vs_random=-0.102
+M3_TRUE seed08_fold00 orig_rmse=5.156 delta_true_top=-0.032 delta_random_top=+0.622 delta_random=+1.181 gap_true_vs_random=-1.213
+M3_TRUE seed08_fold01 orig_rmse=4.493 delta_true_top=+0.728 delta_random_top=+0.034 delta_random=+0.457 gap_true_vs_random=+0.271
+M3_TRUE seed08_fold02 orig_rmse=4.995 delta_true_top=+0.020 delta_random_top=-0.021 delta_random=+0.264 gap_true_vs_random=-0.244
+M3_TRUE seed08_fold03 orig_rmse=4.725 delta_true_top=+0.105 delta_random_top=+0.017 delta_random=+0.037 gap_true_vs_random=+0.068
+M3_TRUE seed08_fold04 orig_rmse=4.812 delta_true_top=-0.003 delta_random_top=+0.028 delta_random=+0.058 gap_true_vs_random=-0.061
+M3_TRUE seed09_fold00 orig_rmse=4.342 delta_true_top=+0.246 delta_random_top=+0.201 delta_random=+0.253 gap_true_vs_random=-0.008
+M3_TRUE seed09_fold01 orig_rmse=5.527 delta_true_top=+0.263 delta_random_top=-0.129 delta_random=+0.711 gap_true_vs_random=-0.448
+M3_TRUE seed09_fold02 orig_rmse=4.571 delta_true_top=+0.061 delta_random_top=-0.036 delta_random=+0.471 gap_true_vs_random=-0.410
+M3_TRUE seed09_fold03 orig_rmse=4.334 delta_true_top=+0.458 delta_random_top=-0.004 delta_random=+0.333 gap_true_vs_random=+0.125
+M3_TRUE seed09_fold04 orig_rmse=5.242 delta_true_top=+0.182 delta_random_top=+0.034 delta_random=+0.954 gap_true_vs_random=-0.772
+=== kernel_ridge / M3_RANDOM: Two-Stage KRR (random edge-prior biomarker) ===
+M3_RANDOM seed00_fold00 orig_rmse=4.752 delta_true_top=+0.375 delta_random_top=+0.377 delta_random=+0.276 gap_true_vs_random=+0.100
+M3_RANDOM seed00_fold01 orig_rmse=4.571 delta_true_top=+0.298 delta_random_top=+0.586 delta_random=+0.614 gap_true_vs_random=-0.316
+M3_RANDOM seed00_fold02 orig_rmse=4.601 delta_true_top=+0.111 delta_random_top=+0.123 delta_random=+0.118 gap_true_vs_random=-0.007
+M3_RANDOM seed00_fold03 orig_rmse=4.644 delta_true_top=+0.560 delta_random_top=+0.634 delta_random=+0.792 gap_true_vs_random=-0.232
+M3_RANDOM seed00_fold04 orig_rmse=4.367 delta_true_top=-0.106 delta_random_top=+0.091 delta_random=+0.216 gap_true_vs_random=-0.322
+M3_RANDOM seed01_fold00 orig_rmse=4.660 delta_true_top=+0.268 delta_random_top=+3.265 delta_random=+2.083 gap_true_vs_random=-1.814
+M3_RANDOM seed01_fold01 orig_rmse=4.686 delta_true_top=+0.011 delta_random_top=+0.176 delta_random=+0.103 gap_true_vs_random=-0.092
+M3_RANDOM seed01_fold02 orig_rmse=4.642 delta_true_top=+0.162 delta_random_top=+0.838 delta_random=+0.475 gap_true_vs_random=-0.313
+M3_RANDOM seed01_fold03 orig_rmse=4.776 delta_true_top=+0.049 delta_random_top=+1.428 delta_random=+1.204 gap_true_vs_random=-1.155
+M3_RANDOM seed01_fold04 orig_rmse=4.625 delta_true_top=+0.046 delta_random_top=+2.485 delta_random=+0.529 gap_true_vs_random=-0.483
+M3_RANDOM seed02_fold00 orig_rmse=4.471 delta_true_top=+0.254 delta_random_top=+0.362 delta_random=+0.332 gap_true_vs_random=-0.078
+M3_RANDOM seed02_fold01 orig_rmse=4.776 delta_true_top=+0.008 delta_random_top=+0.194 delta_random=+1.230 gap_true_vs_random=-1.222
+M3_RANDOM seed02_fold02 orig_rmse=5.188 delta_true_top=+0.209 delta_random_top=+1.920 delta_random=+1.530 gap_true_vs_random=-1.320
+M3_RANDOM seed02_fold03 orig_rmse=4.564 delta_true_top=+0.082 delta_random_top=+0.189 delta_random=+0.111 gap_true_vs_random=-0.028
+M3_RANDOM seed02_fold04 orig_rmse=4.600 delta_true_top=+0.005 delta_random_top=+0.161 delta_random=+0.126 gap_true_vs_random=-0.121
+M3_RANDOM seed03_fold00 orig_rmse=4.728 delta_true_top=+0.253 delta_random_top=+0.253 delta_random=+0.253 gap_true_vs_random=+0.000
+M3_RANDOM seed03_fold01 orig_rmse=4.660 delta_true_top=+0.006 delta_random_top=+0.833 delta_random=+0.169 gap_true_vs_random=-0.163
+M3_RANDOM seed03_fold02 orig_rmse=4.612 delta_true_top=+0.260 delta_random_top=+0.336 delta_random=+0.298 gap_true_vs_random=-0.038
+M3_RANDOM seed03_fold03 orig_rmse=4.811 delta_true_top=+0.069 delta_random_top=+0.384 delta_random=+0.159 gap_true_vs_random=-0.089
+M3_RANDOM seed03_fold04 orig_rmse=4.269 delta_true_top=+0.207 delta_random_top=+0.999 delta_random=+0.556 gap_true_vs_random=-0.349
+M3_RANDOM seed04_fold00 orig_rmse=4.758 delta_true_top=+0.076 delta_random_top=+2.835 delta_random=+0.674 gap_true_vs_random=-0.598
+M3_RANDOM seed04_fold01 orig_rmse=4.524 delta_true_top=+0.081 delta_random_top=+0.221 delta_random=+0.243 gap_true_vs_random=-0.162
+M3_RANDOM seed04_fold02 orig_rmse=4.518 delta_true_top=+0.594 delta_random_top=+0.726 delta_random=+0.660 gap_true_vs_random=-0.066
+M3_RANDOM seed04_fold03 orig_rmse=4.627 delta_true_top=+0.023 delta_random_top=+0.545 delta_random=+0.192 gap_true_vs_random=-0.169
+M3_RANDOM seed04_fold04 orig_rmse=4.305 delta_true_top=+0.502 delta_random_top=+0.404 delta_random=+0.426 gap_true_vs_random=+0.076
+M3_RANDOM seed05_fold00 orig_rmse=4.409 delta_true_top=+0.162 delta_random_top=+2.205 delta_random=+1.069 gap_true_vs_random=-0.907
+M3_RANDOM seed05_fold01 orig_rmse=4.636 delta_true_top=+0.189 delta_random_top=+1.157 delta_random=+0.258 gap_true_vs_random=-0.069
+M3_RANDOM seed05_fold02 orig_rmse=4.669 delta_true_top=-0.095 delta_random_top=+0.881 delta_random=+0.545 gap_true_vs_random=-0.640
+M3_RANDOM seed05_fold03 orig_rmse=4.610 delta_true_top=+0.103 delta_random_top=+1.275 delta_random=+0.317 gap_true_vs_random=-0.214
+M3_RANDOM seed05_fold04 orig_rmse=4.884 delta_true_top=+0.012 delta_random_top=+0.243 delta_random=+0.179 gap_true_vs_random=-0.167
+M3_RANDOM seed06_fold00 orig_rmse=4.246 delta_true_top=+0.359 delta_random_top=+0.695 delta_random=+0.483 gap_true_vs_random=-0.124
+M3_RANDOM seed06_fold01 orig_rmse=4.726 delta_true_top=+0.324 delta_random_top=+0.324 delta_random=+0.324 gap_true_vs_random=+0.000
+M3_RANDOM seed06_fold02 orig_rmse=4.555 delta_true_top=+0.096 delta_random_top=+3.064 delta_random=+0.919 gap_true_vs_random=-0.823
+M3_RANDOM seed06_fold03 orig_rmse=4.587 delta_true_top=+0.024 delta_random_top=+0.215 delta_random=+0.563 gap_true_vs_random=-0.539
+M3_RANDOM seed06_fold04 orig_rmse=4.786 delta_true_top=+0.193 delta_random_top=+0.851 delta_random=+0.298 gap_true_vs_random=-0.105
+M3_RANDOM seed07_fold00 orig_rmse=4.702 delta_true_top=+0.022 delta_random_top=+0.246 delta_random=+0.257 gap_true_vs_random=-0.235
+M3_RANDOM seed07_fold01 orig_rmse=4.429 delta_true_top=+0.235 delta_random_top=+0.283 delta_random=+0.261 gap_true_vs_random=-0.026
+M3_RANDOM seed07_fold02 orig_rmse=5.097 delta_true_top=+0.282 delta_random_top=+1.324 delta_random=+0.452 gap_true_vs_random=-0.170
+M3_RANDOM seed07_fold03 orig_rmse=4.609 delta_true_top=+0.267 delta_random_top=+0.337 delta_random=+0.318 gap_true_vs_random=-0.051
+M3_RANDOM seed07_fold04 orig_rmse=4.617 delta_true_top=-0.004 delta_random_top=+4.166 delta_random=+2.677 gap_true_vs_random=-2.681
+M3_RANDOM seed08_fold00 orig_rmse=4.796 delta_true_top=-0.055 delta_random_top=+5.822 delta_random=+1.691 gap_true_vs_random=-1.746
+M3_RANDOM seed08_fold01 orig_rmse=4.351 delta_true_top=+0.244 delta_random_top=+0.373 delta_random=+0.450 gap_true_vs_random=-0.206
+M3_RANDOM seed08_fold02 orig_rmse=5.028 delta_true_top=+0.308 delta_random_top=+0.308 delta_random=+0.308 gap_true_vs_random=+0.000
+M3_RANDOM seed08_fold03 orig_rmse=4.749 delta_true_top=+0.290 delta_random_top=+0.392 delta_random=+0.254 gap_true_vs_random=+0.036
+M3_RANDOM seed08_fold04 orig_rmse=4.761 delta_true_top=+0.242 delta_random_top=+0.259 delta_random=+0.258 gap_true_vs_random=-0.016
+M3_RANDOM seed09_fold00 orig_rmse=4.200 delta_true_top=+0.426 delta_random_top=+0.426 delta_random=+0.426 gap_true_vs_random=+0.000
+M3_RANDOM seed09_fold01 orig_rmse=4.953 delta_true_top=-0.066 delta_random_top=+2.927 delta_random=+0.942 gap_true_vs_random=-1.008
+M3_RANDOM seed09_fold02 orig_rmse=4.622 delta_true_top=+0.015 delta_random_top=+1.171 delta_random=+0.601 gap_true_vs_random=-0.586
+M3_RANDOM seed09_fold03 orig_rmse=4.383 delta_true_top=+0.233 delta_random_top=+0.235 delta_random=+0.234 gap_true_vs_random=-0.001
+M3_RANDOM seed09_fold04 orig_rmse=4.960 delta_true_top=+0.035 delta_random_top=+0.109 delta_random=+0.330 gap_true_vs_random=-0.294
+Saved faithfulness outputs to outputs/aaai/faithfulness_iclr
+[2026-08-05 13:26:57] DONE exit=0
+[2026-08-05 13:30:45] EXPERIMENT 2 (biomarker alignment & stability) run: PYTHONPATH=src python scripts/44_run_iclr_biomarker_stability.py
+[2026-08-05 13:30:45] EXPERIMENT 2 results: M2_TRUE wm_alignment +0.402 vs M2_RANDOM -0.280 (Holm p=0.008); M3_TRUE +0.005 vs M3_RANDOM -0.188 (p=0.008); M3_TRUE rank_stab 0.767/Jaccard 0.419 vs 0.689/0.260 (p=0.012/0.008); E1 anchor 0.709/0.913/0.625
+[2026-08-05 13:30:45] EXPERIMENT 3 (statistical tests) run: PYTHONPATH=src python scripts/45_run_iclr_statistical_tests.py -> outputs/aaai/statistics_iclr/
+[2026-08-05 13:30:45] EXPERIMENT 3 results: NCR_TRUE vs B3 pearson 0.364 vs 0.370 (Holm p=0.037, dz=-0.61); M3_E0 vs E1 pearson 0.354 vs 0.149 (Holm p=0.004, dz=+5.34)
+[2026-08-05 13:30:45] Tests: PYTHONPATH=src python -m pytest -q tests/ -> 31 passed

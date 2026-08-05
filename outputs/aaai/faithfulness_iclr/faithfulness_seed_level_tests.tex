@@ -1,0 +1,62 @@
+\begin{tabular}{lllrrrrrrrrrrrr}
+\toprule
+ID & contrast & analysis_unit & n_seeds & mean_gap & std_gap & bootstrap95_low & bootstrap95_high & one_sample_t & one_sample_t_p_greater & wilcoxon_W & wilcoxon_p_greater & one_sample_t_p_holm & wilcoxon_p_holm & significant_wilcoxon_holm_005 \\
+\midrule
+M2_RANDOM & gap_pearson_top_vs_random & seed_mean_over_5_folds & 10 & 0.0305 & 0.0284 & 0.0138 & 0.0471 & 3.3979 & 0.0040 & 52.0000 & 0.0049 & 0.1185 & 0.1660 & False \\
+M2_RANDOM & gap_pearson_top_vs_bottom & seed_mean_over_5_folds & 10 & 0.0327 & 0.0300 & 0.0149 & 0.0497 & 3.4433 & 0.0037 & 51.0000 & 0.0068 & 0.1140 & 0.1914 & False \\
+M2_RANDOM & gap_pearson_prior_true_vs_random & seed_mean_over_5_folds & 10 & 0.0479 & 0.0273 & 0.0317 & 0.0637 & 5.5461 & 0.0002 & 55.0000 & 0.0010 & 0.0081 & 0.0547 & False \\
+M2_RANDOM & gap_pearson_prior_true_vs_prior_random & seed_mean_over_5_folds & 10 & 0.0537 & 0.0313 & 0.0351 & 0.0720 & 5.4164 & 0.0002 & 54.0000 & 0.0020 & 0.0093 & 0.0781 & False \\
+M2_RANDOM & gap_rmse_top_vs_random & seed_mean_over_5_folds & 10 & 1.1213 & 1.0568 & 0.4878 & 1.7343 & 3.3551 & 0.0042 & 52.0000 & 0.0049 & 0.1226 & 0.1660 & False \\
+M2_RANDOM & gap_rmse_top_vs_bottom & seed_mean_over_5_folds & 10 & 1.3102 & 1.3840 & 0.4835 & 2.1070 & 2.9937 & 0.0076 & 50.0000 & 0.0098 & 0.2040 & 0.2539 & False \\
+M2_RANDOM & gap_rmse_prior_true_vs_random & seed_mean_over_5_folds & 10 & 1.7587 & 0.6662 & 1.3773 & 2.1546 & 8.3488 & 0.0000 & 55.0000 & 0.0010 & 0.0004 & 0.0547 & False \\
+M2_RANDOM & gap_rmse_prior_true_vs_prior_random & seed_mean_over_5_folds & 10 & 1.9901 & 0.8950 & 1.4611 & 2.5040 & 7.0316 & 0.0000 & 55.0000 & 0.0010 & 0.0015 & 0.0547 & False \\
+M2_RANDOM & gap_mae_top_vs_random & seed_mean_over_5_folds & 10 & 1.1605 & 1.0401 & 0.5528 & 1.7779 & 3.5282 & 0.0032 & 52.0000 & 0.0049 & 0.1036 & 0.1660 & False \\
+M2_RANDOM & gap_mae_top_vs_bottom & seed_mean_over_5_folds & 10 & 1.1218 & 1.3245 & 0.3439 & 1.8976 & 2.6784 & 0.0126 & 47.0000 & 0.0244 & 0.2906 & 0.4883 & False \\
+M2_RANDOM & gap_mae_prior_true_vs_random & seed_mean_over_5_folds & 10 & 1.4588 & 0.7347 & 1.0322 & 1.8874 & 6.2786 & 0.0001 & 55.0000 & 0.0010 & 0.0035 & 0.0547 & False \\
+M2_RANDOM & gap_mae_prior_true_vs_prior_random & seed_mean_over_5_folds & 10 & 1.7319 & 0.9663 & 1.1610 & 2.2886 & 5.6677 & 0.0002 & 55.0000 & 0.0010 & 0.0071 & 0.0547 & False \\
+M2_RANDOM & delta_rmse_prior_true_top > delta_rmse_prior_random_top & paired_seed_means & 10 & 1.9901 & 0.8950 & NaN & NaN & 7.0316 & 0.0000 & 55.0000 & 0.0010 & 0.0015 & 0.0547 & False \\
+M2_RANDOM & delta_rmse_prior_true_top > delta_rmse_random_mean & paired_seed_means & 10 & 1.7587 & 0.6662 & NaN & NaN & 8.3488 & 0.0000 & 55.0000 & 0.0010 & 0.0004 & 0.0547 & False \\
+M2_TRUE & gap_pearson_top_vs_random & seed_mean_over_5_folds & 10 & 0.0010 & 0.0205 & -0.0108 & 0.0130 & 0.1540 & 0.4405 & 29.0000 & 0.4609 & 1.0000 & 1.0000 & False \\
+M2_TRUE & gap_pearson_top_vs_bottom & seed_mean_over_5_folds & 10 & -0.0060 & 0.0308 & -0.0249 & 0.0106 & -0.6199 & 0.7246 & 26.0000 & 0.5771 & 1.0000 & 1.0000 & False \\
+M2_TRUE & gap_pearson_prior_true_vs_random & seed_mean_over_5_folds & 10 & 0.0330 & 0.0235 & 0.0186 & 0.0457 & 4.4351 & 0.0008 & 52.0000 & 0.0049 & 0.0311 & 0.1660 & False \\
+M2_TRUE & gap_pearson_prior_true_vs_prior_random & seed_mean_over_5_folds & 10 & 0.0385 & 0.0248 & 0.0248 & 0.0535 & 4.9094 & 0.0004 & 55.0000 & 0.0010 & 0.0180 & 0.0547 & False \\
+M2_TRUE & gap_rmse_top_vs_random & seed_mean_over_5_folds & 10 & 0.1833 & 1.0766 & -0.4600 & 0.8026 & 0.5384 & 0.3017 & 33.0000 & 0.3125 & 1.0000 & 1.0000 & False \\
+M2_TRUE & gap_rmse_top_vs_bottom & seed_mean_over_5_folds & 10 & -0.8030 & 1.5512 & -1.7207 & 0.0907 & -1.6370 & 0.9320 & 13.0000 & 0.9346 & 1.0000 & 1.0000 & False \\
+M2_TRUE & gap_rmse_prior_true_vs_random & seed_mean_over_5_folds & 10 & 1.2459 & 0.9089 & 0.6638 & 1.7173 & 4.3350 & 0.0009 & 53.0000 & 0.0029 & 0.0350 & 0.1113 & False \\
+M2_TRUE & gap_rmse_prior_true_vs_prior_random & seed_mean_over_5_folds & 10 & 1.4716 & 0.9974 & 0.8308 & 1.9943 & 4.6657 & 0.0006 & 53.0000 & 0.0029 & 0.0241 & 0.1113 & False \\
+M2_TRUE & gap_mae_top_vs_random & seed_mean_over_5_folds & 10 & 0.0434 & 1.0680 & -0.5976 & 0.6595 & 0.1286 & 0.4502 & 29.0000 & 0.4609 & 1.0000 & 1.0000 & False \\
+M2_TRUE & gap_mae_top_vs_bottom & seed_mean_over_5_folds & 10 & -1.1857 & 1.4883 & -2.0709 & -0.3250 & -2.5193 & 0.9836 & 7.0000 & 0.9863 & 1.0000 & 1.0000 & False \\
+M2_TRUE & gap_mae_prior_true_vs_random & seed_mean_over_5_folds & 10 & 0.8607 & 0.9117 & 0.2780 & 1.3365 & 2.9853 & 0.0077 & 50.0000 & 0.0098 & 0.2040 & 0.2539 & False \\
+M2_TRUE & gap_mae_prior_true_vs_prior_random & seed_mean_over_5_folds & 10 & 1.1138 & 0.9422 & 0.5095 & 1.6020 & 3.7383 & 0.0023 & 52.0000 & 0.0049 & 0.0788 & 0.1660 & False \\
+M2_TRUE & delta_rmse_prior_true_top > delta_rmse_prior_random_top & paired_seed_means & 10 & 1.4716 & 0.9974 & NaN & NaN & 4.6657 & 0.0006 & 53.0000 & 0.0029 & 0.0241 & 0.1113 & False \\
+M2_TRUE & delta_rmse_prior_true_top > delta_rmse_random_mean & paired_seed_means & 10 & 1.2459 & 0.9089 & NaN & NaN & 4.3350 & 0.0009 & 53.0000 & 0.0029 & 0.0350 & 0.1113 & False \\
+M3_RANDOM & gap_pearson_top_vs_random & seed_mean_over_5_folds & 10 & 0.0501 & 0.0353 & 0.0306 & 0.0717 & 4.4879 & 0.0008 & 55.0000 & 0.0010 & 0.0295 & 0.0547 & False \\
+M3_RANDOM & gap_pearson_top_vs_bottom & seed_mean_over_5_folds & 10 & 0.0560 & 0.0367 & 0.0351 & 0.0783 & 4.8211 & 0.0005 & 55.0000 & 0.0010 & 0.0199 & 0.0547 & False \\
+M3_RANDOM & gap_pearson_prior_true_vs_random & seed_mean_over_5_folds & 10 & -0.0083 & 0.0105 & -0.0141 & -0.0019 & -2.4878 & 0.9827 & 8.0000 & 0.9814 & 1.0000 & 1.0000 & False \\
+M3_RANDOM & gap_pearson_prior_true_vs_prior_random & seed_mean_over_5_folds & 10 & -0.0670 & 0.0311 & -0.0851 & -0.0487 & -6.8120 & 1.0000 & 0.0000 & 1.0000 & 1.0000 & 1.0000 & False \\
+M3_RANDOM & gap_rmse_top_vs_random & seed_mean_over_5_folds & 10 & 0.3603 & 0.3495 & 0.1745 & 0.5787 & 3.2600 & 0.0049 & 54.0000 & 0.0020 & 0.1378 & 0.0781 & False \\
+M3_RANDOM & gap_rmse_top_vs_bottom & seed_mean_over_5_folds & 10 & 0.4896 & 0.5925 & 0.1611 & 0.8497 & 2.6131 & 0.0141 & 49.0000 & 0.0137 & 0.3094 & 0.3145 & False \\
+M3_RANDOM & gap_rmse_prior_true_vs_random & seed_mean_over_5_folds & 10 & -0.3906 & 0.2117 & -0.5180 & -0.2703 & -5.8357 & 0.9999 & 0.0000 & 1.0000 & 1.0000 & 1.0000 & False \\
+M3_RANDOM & gap_rmse_prior_true_vs_prior_random & seed_mean_over_5_folds & 10 & -0.8280 & 0.4275 & -1.0768 & -0.5774 & -6.1257 & 0.9999 & 0.0000 & 1.0000 & 1.0000 & 1.0000 & False \\
+M3_RANDOM & gap_mae_top_vs_random & seed_mean_over_5_folds & 10 & 0.3832 & 0.3104 & 0.2216 & 0.5807 & 3.9044 & 0.0018 & 55.0000 & 0.0010 & 0.0629 & 0.0547 & False \\
+M3_RANDOM & gap_mae_top_vs_bottom & seed_mean_over_5_folds & 10 & 0.5240 & 0.5574 & 0.2162 & 0.8661 & 2.9727 & 0.0078 & 52.0000 & 0.0049 & 0.2040 & 0.1660 & False \\
+M3_RANDOM & gap_mae_prior_true_vs_random & seed_mean_over_5_folds & 10 & -0.3536 & 0.1758 & -0.4561 & -0.2505 & -6.3595 & 0.9999 & 0.0000 & 1.0000 & 1.0000 & 1.0000 & False \\
+M3_RANDOM & gap_mae_prior_true_vs_prior_random & seed_mean_over_5_folds & 10 & -0.8104 & 0.3780 & -1.0281 & -0.5879 & -6.7794 & 1.0000 & 0.0000 & 1.0000 & 1.0000 & 1.0000 & False \\
+M3_RANDOM & delta_rmse_prior_true_top > delta_rmse_prior_random_top & paired_seed_means & 10 & -0.8280 & 0.4275 & NaN & NaN & -6.1257 & 0.9999 & 0.0000 & 1.0000 & 1.0000 & 1.0000 & False \\
+M3_RANDOM & delta_rmse_prior_true_top > delta_rmse_random_mean & paired_seed_means & 10 & -0.3906 & 0.2117 & NaN & NaN & -5.8357 & 0.9999 & 0.0000 & 1.0000 & 1.0000 & 1.0000 & False \\
+M3_TRUE & gap_pearson_top_vs_random & seed_mean_over_5_folds & 10 & 0.0403 & 0.0168 & 0.0306 & 0.0504 & 7.5909 & 0.0000 & 55.0000 & 0.0010 & 0.0009 & 0.0547 & False \\
+M3_TRUE & gap_pearson_top_vs_bottom & seed_mean_over_5_folds & 10 & 0.0442 & 0.0166 & 0.0355 & 0.0549 & 8.4187 & 0.0000 & 55.0000 & 0.0010 & 0.0004 & 0.0547 & False \\
+M3_TRUE & gap_pearson_prior_true_vs_random & seed_mean_over_5_folds & 10 & 0.0374 & 0.0137 & 0.0296 & 0.0456 & 8.6352 & 0.0000 & 55.0000 & 0.0010 & 0.0003 & 0.0547 & False \\
+M3_TRUE & gap_pearson_prior_true_vs_prior_random & seed_mean_over_5_folds & 10 & 0.0391 & 0.0175 & 0.0291 & 0.0498 & 7.0759 & 0.0000 & 55.0000 & 0.0010 & 0.0015 & 0.0547 & False \\
+M3_TRUE & gap_rmse_top_vs_random & seed_mean_over_5_folds & 10 & 0.1262 & 0.1912 & 0.0113 & 0.2355 & 2.0879 & 0.0332 & 45.0000 & 0.0420 & 0.6308 & 0.7979 & False \\
+M3_TRUE & gap_rmse_top_vs_bottom & seed_mean_over_5_folds & 10 & 0.1009 & 0.3249 & -0.1088 & 0.2672 & 0.9820 & 0.1759 & 40.0000 & 0.1162 & 1.0000 & 1.0000 & False \\
+M3_TRUE & gap_rmse_prior_true_vs_random & seed_mean_over_5_folds & 10 & -0.2038 & 0.1802 & -0.3152 & -0.1039 & -3.5775 & 0.9970 & 3.0000 & 0.9971 & 1.0000 & 1.0000 & False \\
+M3_TRUE & gap_rmse_prior_true_vs_prior_random & seed_mean_over_5_folds & 10 & 0.0840 & 0.1057 & 0.0205 & 0.1441 & 2.5140 & 0.0165 & 48.0000 & 0.0186 & 0.3475 & 0.4082 & False \\
+M3_TRUE & gap_mae_top_vs_random & seed_mean_over_5_folds & 10 & 0.1962 & 0.1750 & 0.0882 & 0.2928 & 3.5438 & 0.0031 & 51.0000 & 0.0068 & 0.1036 & 0.1914 & False \\
+M3_TRUE & gap_mae_top_vs_bottom & seed_mean_over_5_folds & 10 & 0.2191 & 0.2558 & 0.0487 & 0.3492 & 2.7086 & 0.0120 & 50.0000 & 0.0098 & 0.2886 & 0.2539 & False \\
+M3_TRUE & gap_mae_prior_true_vs_random & seed_mean_over_5_folds & 10 & -0.1435 & 0.1696 & -0.2458 & -0.0492 & -2.6761 & 0.9873 & 6.0000 & 0.9902 & 1.0000 & 1.0000 & False \\
+M3_TRUE & gap_mae_prior_true_vs_prior_random & seed_mean_over_5_folds & 10 & 0.1582 & 0.0829 & 0.1101 & 0.2080 & 6.0345 & 0.0001 & 55.0000 & 0.0010 & 0.0046 & 0.0547 & False \\
+M3_TRUE & delta_rmse_prior_true_top > delta_rmse_prior_random_top & paired_seed_means & 10 & 0.0840 & 0.1057 & NaN & NaN & 2.5140 & 0.0165 & 48.0000 & 0.0186 & 0.3475 & 0.4082 & False \\
+M3_TRUE & delta_rmse_prior_true_top > delta_rmse_random_mean & paired_seed_means & 10 & -0.2038 & 0.1802 & NaN & NaN & -3.5775 & 0.9970 & 3.0000 & 0.9971 & 1.0000 & 1.0000 & False \\
+\bottomrule
+\end{tabular}

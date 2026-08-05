@@ -327,6 +327,10 @@ class PriorGatedGATLayer(nn.Module):
         sum_per_edge = torch.einsum("bnh,en->beh", sum_per_node, A)
         alpha = exp_logit / sum_per_edge.clamp_min(1e-8)
 
+        # Attention coefficients are cached (detached) for the biomarker
+        # extraction (mean attention mass per ROI, faithfulness protocol).
+        self._last_alpha = alpha.detach()
+
         # Message aggregation: h'_v += sum_{u in N(v)} alpha_uv * W h_u,
         # i.e. agg[b, n, h, d] = sum_e A[e, n] * msg[b, e, h, d].
         msg = alpha.unsqueeze(-1) * Wh_src  # (batch, n_edges, heads, out_dim)
@@ -733,12 +737,179 @@ def fit_predict_meta_gat(
     return pred, best_cfg_dict, best_rmse, best_epoch, saliency, n_params
 
 
+# ---------------------------------------------------------------------------
+# Refit predictor (faithfulness / perturbation protocol)
+# ---------------------------------------------------------------------------
+class RefitMetaGATPredictor:
+    """Trained Meta-GAT with the split-level scalers, ready for masking tests.
+
+    Wraps a model refit on the (train+val) partition together with the
+    feature scaler (mean/std over the fit partition), the target
+    de-normalization statistics, and the ROI count.  ``predict`` accepts
+    *raw* connectomes of arbitrary subjects (e.g. with ROIs masked out) and
+    returns raw-unit predictions.
+    """
+
+    def __init__(
+        self,
+        model: MetaGAT,
+        x_mean: np.ndarray,
+        x_std: np.ndarray,
+        fit_mean: float,
+        fit_std: float,
+        n_rois: int,
+        device: torch.device,
+    ) -> None:
+        self.model = model
+        self.x_mean = x_mean.reshape(1, -1)
+        self.x_std = x_std.reshape(1, -1)
+        self.fit_mean = float(fit_mean)
+        self.fit_std = float(fit_std)
+        self.n_rois = int(n_rois)
+        self.device = device
+
+    def predict(self, fc: np.ndarray, sc: np.ndarray) -> np.ndarray:
+        """Predict raw-unit scores from raw (possibly perturbed) connectomes.
+
+        Parameters
+        ----------
+        fc / sc : np.ndarray, shape (n_subjects, n_rois, n_rois)
+            Raw connectomes (masked or unmasked).
+
+        Returns
+        -------
+        np.ndarray, shape (n_subjects,)
+        """
+        n = len(fc)
+        x = np.concatenate([fc, sc], axis=2).reshape(n, -1).astype(np.float64)
+        x = ((x - self.x_mean) / self.x_std).reshape(
+            n, self.n_rois, -1
+        ).astype(np.float32)
+        xt = torch.from_numpy(x).to(self.device)
+        self.model.eval()
+        with torch.no_grad():
+            pred = self.model(xt).detach().cpu().numpy()
+        return (pred * self.fit_std + self.fit_mean).astype(np.float64)
+
+    def attention_mass(self, fc: np.ndarray, sc: np.ndarray) -> np.ndarray:
+        """Mean attention coefficient per ROI over the given subjects/layers.
+
+        For every layer the cached attention coefficients alpha (n_edges,
+        heads) are averaged over subjects and heads -> (n_edges,).  Each
+        ROI's score is the *mean* alpha over its incident edges (incoming,
+        outgoing, and the self-loop).  The mean (not the sum) is used
+        because the split graph is regular: every ROI has exactly the same
+        number of incident edges, so sums are constant by construction.  The
+        two layers are averaged and the vector is L1-normalized.
+
+        Parameters
+        ----------
+        fc / sc : np.ndarray, shape (n_subjects, n_rois, n_rois)
+
+        Returns
+        -------
+        np.ndarray, shape (n_rois,)
+        """
+        n = len(fc)
+        x = np.concatenate([fc, sc], axis=2).reshape(n, -1).astype(np.float64)
+        x = ((x - self.x_mean) / self.x_std).reshape(
+            n, self.n_rois, -1
+        ).astype(np.float32)
+        xt = torch.from_numpy(x).to(self.device)
+        self.model.eval()
+        masses = []
+        with torch.no_grad():
+            _ = self.model(xt)
+        for layer in (self.model.layer1, self.model.layer2):
+            alpha = layer._last_alpha  # (batch, n_edges, heads)
+            alpha_mean = alpha.mean(dim=(0, 2)).cpu().numpy()  # (n_edges,)
+            A_dst = layer.edge_dst_onehot.cpu().numpy()  # (n_edges, n_nodes)
+            A_src = np.zeros_like(A_dst)
+            A_src[np.arange(A_src.shape[0]), layer.edge_src.cpu().numpy()] = 1.0
+            in_sum = A_dst.T @ alpha_mean
+            out_sum = A_src.T @ alpha_mean
+            in_deg = A_dst.sum(axis=0)
+            out_deg = A_src.sum(axis=0)
+            mass = (in_sum + out_sum) / (in_deg + out_deg)
+            total = float(mass.sum())
+            masses.append(mass / total if total > 1e-12 else mass)
+        return np.asarray(np.mean(masses, axis=0), dtype=np.float64)
+
+
+def refit_meta_gat_predictor(
+    fc: np.ndarray,
+    sc: np.ndarray,
+    y: np.ndarray,
+    fit_idx: np.ndarray,
+    config: MetaGATConfig,
+    prior: np.ndarray,
+    device: torch.device,
+    n_epochs: int,
+    top_percent: float = 10.0,
+    seed: Optional[int] = None,
+) -> RefitMetaGATPredictor:
+    """Refit a Meta-GAT on a fit partition with a *given* configuration.
+
+    Used by the faithfulness protocol: the configuration (and epoch budget)
+    recorded by the main run (scripts/41) is reused so the perturbed
+    evaluations are performed by the same model family that produced the
+    headline results.  The scalers, the split graph, and the prior are the
+    same objects the main refit used.
+
+    Parameters
+    ----------
+    fc / sc : np.ndarray, shape (n, n_rois, n_rois)
+    y : np.ndarray, shape (n,)
+    fit_idx : np.ndarray
+        Fit partition (train+val of the outer split).
+    config : MetaGATConfig
+        Recorded best configuration of the split.
+    prior : np.ndarray, shape (n_rois,)
+    device : torch.device
+    n_epochs : int
+        Recorded best epoch budget of the split (fixed-epoch refit).
+    top_percent : float
+    seed : int, optional
+        If given, set_all_seeds(seed) is called first (determinism).
+    """
+    fit_idx = np.asarray(fit_idx, dtype=int)
+    if seed is not None:
+        set_all_seeds(seed)
+    fc = np.asarray(fc, dtype=np.float32)
+    sc = np.asarray(sc, dtype=np.float32)
+    n_rois = fc.shape[1]
+    x = np.concatenate([fc, sc], axis=2)
+    y = np.asarray(y, dtype=np.float64).reshape(-1)
+
+    x_fit_flat = x[fit_idx].reshape(len(fit_idx), -1)
+    x_mean = x_fit_flat.mean(axis=0, keepdims=True)
+    x_std = x_fit_flat.std(axis=0, keepdims=True)
+    x_std[x_std < 1e-8] = 1.0
+    x_fit = torch.from_numpy(
+        ((x[fit_idx].reshape(len(fit_idx), -1) - x_mean) / x_std)
+        .reshape(len(fit_idx), n_rois, -1).astype(np.float32)
+    )
+    fit_mean, fit_std = float(y[fit_idx].mean()), float(y[fit_idx].std())
+    fit_std = fit_std if fit_std >= 1e-8 else 1.0
+    y_fit_z = torch.from_numpy(((y[fit_idx] - fit_mean) / fit_std).astype(np.float32))
+
+    edge_src, edge_dst = build_split_graph(sc[fit_idx], top_percent)
+    model = MetaGAT(n_rois, x.shape[2], config, prior, edge_src, edge_dst)
+    _train_fixed_epochs(model, x_fit, y_fit_z, config, int(n_epochs), device)
+    model.eval()
+    return RefitMetaGATPredictor(
+        model, x_mean, x_std, fit_mean, fit_std, n_rois, device
+    )
+
+
 __all__ = [
     "MetaGAT",
     "MetaGATConfig",
     "PriorGatedGATLayer",
+    "RefitMetaGATPredictor",
     "build_candidate_grid",
     "build_split_graph",
     "fit_predict_meta_gat",
     "gradient_node_saliency",
+    "refit_meta_gat_predictor",
 ]

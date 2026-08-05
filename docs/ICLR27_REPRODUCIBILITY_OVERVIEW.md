@@ -7,7 +7,8 @@ across methods:
 
 - [Method 1: Network-Constrained Prior-Laplacian Ridge](ICLR27_METHOD1_NETWORK_CONSTRAINED_RIDGE.md)
 - [Method 2: Prior-Gated Graph Attention Network (Meta-GAT)](ICLR27_METHOD2_META_GAT.md)
-- Method 3: Two-Stage Biomarker-Guided Kernel Ridge (implementation pending)
+- [Method 3: Two-Stage Biomarker-Guided Kernel Ridge](ICLR27_METHOD3_TWO_STAGE_KRR.md)
+- [Post-Hoc Experiments: Faithfulness, Biomarkers, Statistics](ICLR27_POSTHOC_FAITHFULNESS_BIOMARKERS.md)
 
 The protocol intentionally mirrors the AAAI-27 submission pipeline
 (scripts/08_run_aaai_matrix.py) so that all ICLR numbers are directly
@@ -176,6 +177,9 @@ skipped on restart; `--overwrite` clears the output directory first.
 | Method 1 (NCR ridge) | CPU (4 threads) | 150 | ~0.32 h total | ~8 s |
 | Method 2 (Meta-GAT) | CUDA (GB10) | 150 | ~0.82 h total | ~19 s (GPU) |
 | Method 2 (Meta-GAT) | CPU | (abandoned partial) | — | ~580 s |
+| Faithfulness refits (exp 1) | CUDA (GB10) | 200 | ~0.3 h total | ~30-45 s (Meta-GAT) |
 
 Method 2 is ~30x faster on the GB10 GPU than on CPU, which is why the GPU
-run is the canonical one.
+run is the canonical one.  The post-hoc faithfulness run (experiment 1)
+refits each split once with the recorded best hyperparameters and evaluates
+24 mask conditions per split (see the post-hoc guide).

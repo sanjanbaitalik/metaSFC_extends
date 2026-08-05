@@ -27,10 +27,12 @@ from .meta_gat import (
     MetaGAT,
     MetaGATConfig,
     PriorGatedGATLayer,
+    RefitMetaGATPredictor,
     build_candidate_grid,
     build_split_graph,
     fit_predict_meta_gat,
     gradient_node_saliency,
+    refit_meta_gat_predictor,
 )
 from .network_constrained_ridge import (
     EdgeLaplacian,
@@ -42,10 +44,12 @@ from .network_constrained_ridge import (
 )
 from .two_stage_kernel_ridge import (
     KRRConfig,
+    RefitKRRPredictor,
     extract_upper,
     fit_predict_two_stage_krr,
     lift_node_saliency_to_edges,
     load_split_node_saliency,
+    refit_krr_predictor,
     upper_triangle_indices,
 )
 
@@ -56,6 +60,8 @@ __all__ = [
     "MetaGATConfig",
     "NetworkConstrainedRidge",
     "PriorGatedGATLayer",
+    "RefitKRRPredictor",
+    "RefitMetaGATPredictor",
     "build_candidate_grid",
     "build_edge_laplacian",
     "build_prior_adjacency",
@@ -68,5 +74,7 @@ __all__ = [
     "lift_node_saliency_to_edges",
     "load_split_node_saliency",
     "node_saliency_from_beta",
+    "refit_krr_predictor",
+    "refit_meta_gat_predictor",
     "upper_triangle_indices",
 ]
