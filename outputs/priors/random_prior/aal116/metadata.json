@@ -1,0 +1,10 @@
+{
+  "control_type": "random_prior",
+  "source_prior": "outputs\\priors\\working_memory\\aal116",
+  "n_rois": 116,
+  "edge_shape": [
+    116,
+    116
+  ],
+  "note": "Control prior generated for negative-control experiments."
+}

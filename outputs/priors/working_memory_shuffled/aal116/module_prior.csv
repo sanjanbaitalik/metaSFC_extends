@@ -1,0 +1,9 @@
+module_id,module,raw_score,prior_score
+0,frontal_executive,0.21620393,0.62725466
+1,sensorimotor,0.20426834,0.56702507
+2,parietal_attention,0.09190203,0.0
+3,temporal_language_memory,0.21590172,0.6257297
+4,occipital_visual,0.15775055,0.33228606
+5,cingulo_insular_limbic,0.15993607,0.3433147
+6,subcortical,0.28346896,0.9666888
+7,cerebellar_vermis,0.29007018,1.0

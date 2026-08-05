@@ -1,0 +1,11 @@
+{
+  "term": "working memory",
+  "atlas": "aal116",
+  "source_map_path": "inputs\\meta_maps\\working_memory_z.nii.gz",
+  "normalization_method": "minmax",
+  "thresholding": {
+    "top_k": 30
+  },
+  "date_generated": "2026-07-17T11:00:56.223784",
+  "code_version": "metascfc-0.1.0"
+}

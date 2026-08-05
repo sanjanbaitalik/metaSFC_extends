@@ -1,0 +1,8 @@
+{
+  "prior_type": "node",
+  "lambda": 0.05,
+  "pearson_mean": 0.17781283458073935,
+  "rmse_mean": 4.930312368604872,
+  "mae_mean": 4.137002600563897,
+  "alignment_mean": 0.7694484856393602
+}

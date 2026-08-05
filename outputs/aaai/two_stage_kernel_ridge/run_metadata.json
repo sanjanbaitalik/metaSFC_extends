@@ -1,0 +1,78 @@
+{
+  "config": {
+    "experiment_name": "two_stage_biomarker_kernel_ridge",
+    "seeds": [
+      0,
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7,
+      8,
+      9
+    ],
+    "n_folds": 5,
+    "val_fraction": 0.15,
+    "device": "auto",
+    "gate_mode": "product",
+    "alpha_grid": [
+      0.01,
+      0.1,
+      1.0,
+      10.0,
+      100.0
+    ],
+    "gamma_grid": [
+      "1e-05",
+      0.0001,
+      0.001,
+      0.01
+    ],
+    "alignment_topk": 10,
+    "alignment_prior": "outputs/priors/working_memory/aal116/roi_prior.csv",
+    "methods": {
+      "M3_E0": {
+        "name": "Two-Stage Biomarker-Guided KRR (no-prior biomarker)",
+        "saliency_dir": "outputs/aaai/final/E0_baseline/saliency"
+      },
+      "M3_TRUE": {
+        "name": "Two-Stage Biomarker-Guided KRR (true edge-prior biomarker)",
+        "saliency_dir": "outputs/aaai/final/E7_edge_true/saliency"
+      },
+      "M3_SHUFFLED": {
+        "name": "Two-Stage Biomarker-Guided KRR (shuffled edge-prior biomarker)",
+        "saliency_dir": "outputs/aaai/final/E8_edge_shuffled/saliency"
+      },
+      "M3_RANDOM": {
+        "name": "Two-Stage Biomarker-Guided KRR (random edge-prior biomarker)",
+        "saliency_dir": "outputs/aaai/final/E9_edge_random/saliency"
+      }
+    },
+    "data": {
+      "fc_path": "inputs/dataset_FC/FC_all.npy",
+      "sc_path": "inputs/dataset_SC/SC_all.npy",
+      "y_path": "inputs/dataset_SC/label_all.npy",
+      "subjects_path": "inputs/dataset_SC/hcp_subjects_used.csv"
+    },
+    "output_dir": "outputs/aaai/two_stage_kernel_ridge"
+  },
+  "seeds_run": [
+    0,
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7,
+    8,
+    9
+  ],
+  "n_subjects": 412,
+  "n_rois": 116,
+  "n_edge_features": 13340,
+  "n_candidates": 20,
+  "device": "cuda"
+}

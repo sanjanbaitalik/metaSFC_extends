@@ -1,0 +1,8 @@
+{
+  "prior_type": "module",
+  "lambda": 0.05,
+  "pearson_mean": 0.16736283898353577,
+  "rmse_mean": 4.969994862874349,
+  "mae_mean": 4.162381304634942,
+  "alignment_mean": 0.9717797570758395
+}

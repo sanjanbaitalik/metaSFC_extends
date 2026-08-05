@@ -48,9 +48,4 @@ Thumbs.db
 *.temp
 
 # Generated experiment and publication artifacts
-outputs/
-figures/*.png
-figures/*.jpg
-figures/*.jpeg
-figures/*.pdf
-figures/*.csv
+

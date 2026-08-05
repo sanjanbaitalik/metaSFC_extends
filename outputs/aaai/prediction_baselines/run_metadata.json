@@ -1,0 +1,45 @@
+{
+  "config": {
+    "experiment_name": "fast_prediction_baselines",
+    "methods": [
+      "B0",
+      "B1",
+      "B2",
+      "B3"
+    ],
+    "seeds": [
+      0,
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7,
+      8,
+      9
+    ],
+    "n_folds": 5,
+    "val_fraction": 0.15,
+    "n_threads": 4,
+    "ridge_alphas": [
+      0.01,
+      0.1,
+      1.0,
+      10.0,
+      100.0,
+      1000.0
+    ],
+    "data": {
+      "fc_path": "inputs/dataset_FC/FC_all.npy",
+      "sc_path": "inputs/dataset_SC/SC_all.npy",
+      "y_path": "inputs/dataset_SC/label_all.npy",
+      "subjects_path": "inputs/dataset_SC/hcp_subjects_used.csv"
+    },
+    "output_dir": "outputs/aaai/prediction_baselines"
+  },
+  "n_subjects": 412,
+  "n_rois": 116,
+  "n_evaluations_per_method": 50,
+  "note": "All preprocessing and hyperparameter selection are nested within the outer split."
+}

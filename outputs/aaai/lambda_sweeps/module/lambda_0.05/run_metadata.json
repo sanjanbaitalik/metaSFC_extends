@@ -1,0 +1,73 @@
+{
+  "config": {
+    "experiment_name": "SWEEP_module_0.05",
+    "experiment_id": "SWEEP_module_0.05",
+    "baseline": "ms_inter_gcn",
+    "prior_type": "module",
+    "prior_source": "true_working_memory",
+    "task": "regression",
+    "roi_num": 116,
+    "hidden_channels": 64,
+    "dropout": 0.3,
+    "batch_size": 16,
+    "learning_rate": 0.001,
+    "weight_decay": 0.0001,
+    "n_epochs": 150,
+    "min_epochs": 30,
+    "early_stopping_patience": 20,
+    "selection_metric": "rmse",
+    "alpha_aux": 0.1,
+    "topk": 10,
+    "module_topk": 3,
+    "edge_topk": 100,
+    "n_folds": 3,
+    "seeds": [
+      0,
+      1,
+      2
+    ],
+    "val_fraction": 0.15,
+    "lambda_node": 0.0,
+    "lambda_module": 0.05,
+    "lambda_edge": 0.0,
+    "module_saliency_agg": "mean",
+    "cache_graphs": true,
+    "num_workers": 0,
+    "pin_memory": true,
+    "save_checkpoints": false,
+    "standardize_labels_within_fold": true,
+    "require_group_split": false,
+    "data": {
+      "fc_path": "inputs/dataset_FC/FC_all.npy",
+      "sc_path": "inputs/dataset_SC/SC_all.npy",
+      "y_path": "inputs/dataset_SC/label_all.npy",
+      "subjects_path": "inputs/dataset_SC/hcp_subjects_used.csv"
+    },
+    "prior": {
+      "roi_prior_path": "outputs/priors/working_memory/aal116/roi_prior.csv",
+      "module_prior_path": "outputs/priors/working_memory/aal116/module_prior.csv",
+      "edge_prior_path": "outputs/priors/working_memory/aal116/edge_prior.npy",
+      "roi_to_module_path": "inputs/atlases/AAL116_coarse_modules.csv"
+    },
+    "device": "auto",
+    "output_dir": "outputs\\aaai\\lambda_sweeps\\module\\lambda_0.05",
+    "reference_prior": {
+      "roi_prior_path": "outputs/priors/working_memory/aal116/roi_prior.csv",
+      "module_prior_path": "outputs/priors/working_memory/aal116/module_prior.csv",
+      "edge_prior_path": "outputs/priors/working_memory/aal116/edge_prior.npy",
+      "roi_to_module_path": "inputs/atlases/AAL116_coarse_modules.csv"
+    },
+    "project_root": "C:\\Users\\91943\\Desktop\\Sanjan\\Research\\Prof. Jagath_NTU\\AAAI-27\\metascfc_AAAI27_complete\\metascfc_AAAI27_complete",
+    "seed": 42
+  },
+  "n_subjects": 412,
+  "n_rois": 116,
+  "seeds": [
+    0,
+    1,
+    2
+  ],
+  "n_folds": 3,
+  "device": "cpu",
+  "selection_metric": "rmse"
+}

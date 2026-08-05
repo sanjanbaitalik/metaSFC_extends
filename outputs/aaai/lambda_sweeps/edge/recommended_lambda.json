@@ -1,0 +1,8 @@
+{
+  "prior_type": "edge",
+  "lambda": 0.01,
+  "pearson_mean": 0.1423045756916205,
+  "rmse_mean": 4.979353215959337,
+  "mae_mean": 4.144352277119954,
+  "alignment_mean": 0.753883977731069
+}

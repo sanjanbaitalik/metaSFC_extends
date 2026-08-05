@@ -1,0 +1,47 @@
+========================================================================
+Meta-GAT (Method 2, ICLR 2027) full GPU run log
+Started: 2026-08-05 10:34:29
+Host: spark-ef6f | GPU: NVIDIA GB10
+Command: PYTHONPATH=src python -u scripts/41_run_meta_gat.py --overwrite
+Backups: /tmp/opencode/meta_gat_cpu_backup/ (prior partial CPU run, seeds 0-3)
+------------------------------------------------------------------------
+               total        used        free      shared  buff/cache   available
+Mem:             121          13          35           0          73         108
+Wed Aug  5 10:34:29 2026       
++-----------------------------------------------------------------------------------------+
+| NVIDIA-SMI 580.142                Driver Version: 580.142        CUDA Version: 13.0     |
++-----------------------------------------+------------------------+----------------------+
+| GPU  Name                 Persistence-M | Bus-Id          Disp.A | Volatile Uncorr. ECC |
+| Fan  Temp   Perf          Pwr:Usage/Cap |           Memory-Usage | GPU-Util  Compute M. |
+|                                         |                        |               MIG M. |
+|=========================================+========================+======================|
+|   0  NVIDIA GB10                    On  |   0000000F:01:00.0 Off |                  N/A |
+| N/A   72C    P0             46W /  N/A  | Not Supported          |     92%      Default |
+|                                         |                        |                  N/A |
++-----------------------------------------+------------------------+----------------------+
+
++-----------------------------------------------------------------------------------------+
+| Processes:                                                                              |
+|  GPU   GI   CI              PID   Type   Process name                        GPU Memory |
+|        ID   ID                                                               Usage      |
+|=========================================================================================|
+|    0   N/A  N/A         1032748      C   python                                 6179MiB |
++-----------------------------------------------------------------------------------------+
+M2_RANDOM seed02_fold02 {"pearson": 0.22307400710579892, "rmse": 5.47716753342807, "mae": 4.615364737626983} cfg=hid16_do0.2_lr0.003 epoch=28 val_rmse=4.140 params=16,323
+M2_TRUE seed02_fold03 {"pearson": 0.18614384218185842, "rmse": 4.645648865659583, "mae": 3.9812060100276296} cfg=hid16_do0.5_lr0.001 epoch=10 val_rmse=4.719 params=16,323
+=== progress 10:34:29: 40/150 splits ===
+--- poll 10:44:35: 71/150 splits ---
+M2_SHUFFLED seed04_fold03 {"pearson": 0.3339419969305649, "rmse": 4.716833414084617, "mae": 3.9751794861584173} cfg=hid16_do0.2_lr0.001 epoch=31 val_rmse=4.693 params=16,323
+--- poll 11:24:00: 150/150 splits ---
+M2_RANDOM seed09_fold04 {"pearson": 0.34062377407941363, "rmse": 4.902791993047247, "mae": 4.171537050386754} cfg=hid16_do0.2_lr0.003 epoch=13 val_rmse=4.704 params=16,323
+Saved 150 evaluations to outputs/aaai/meta_gat
+--- FINAL SUMMARY (all 150 splits, cuda) ---
+M2_TRUE     pearson=0.267+-0.093  rmse=4.821  mae=4.054  align_pear=0.800
+M2_SHUFFLED pearson=0.282+-0.100  rmse=4.846  mae=4.067  align_pear=0.743
+M2_RANDOM   pearson=0.295+-0.097  rmse=4.784  mae=4.002  align_pear=0.626
+Paired: TRUE vs RANDOM p<0.05 (wilcoxon); TRUE loses to RANDOM in 34/50 splits.
+Reference: NCR ridge=0.364 | AAAI E0 GCN=0.151
+Done: 2026-08-05 11:24:22
+=== 2026-08-05 11:26:02: run complete, guides written ===
+Guides: docs/ICLR27_REPRODUCIBILITY_OVERVIEW.md, docs/ICLR27_METHOD1_NETWORK_CONSTRAINED_RIDGE.md, docs/ICLR27_METHOD2_META_GAT.md
+Full run: 150 splits, device=cuda, total 0.82h, per-split ~19s (CPU ~580s)

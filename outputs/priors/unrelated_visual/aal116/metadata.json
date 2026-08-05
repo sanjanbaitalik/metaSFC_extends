@@ -1,0 +1,11 @@
+{
+  "term": "visual",
+  "atlas": "aal116",
+  "source_map_path": "inputs\\meta_maps\\visual_z.nii.gz",
+  "normalization_method": "minmax",
+  "thresholding": {
+    "top_k": 30
+  },
+  "date_generated": "2026-07-17T21:08:31.982282",
+  "code_version": "metascfc-0.1.0"
+}
