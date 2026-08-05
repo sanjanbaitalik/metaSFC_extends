@@ -1,0 +1,17 @@
+term: "working memory"
+atlas: "aal116"
+meta_map_path: "inputs/meta_maps/working_memory_z.nii.gz"
+atlas_path: "inputs/atlases/AAL116.nii.gz"
+labels_path: "inputs/atlases/AAL116_labels.csv"
+roi_to_module_path: "inputs/atlases/AAL116_coarse_modules.csv"
+output_dir: "outputs/priors/working_memory/aal116"
+
+roi_mode: "mean_positive"
+normalization: "minmax"
+threshold:
+  top_k: 30
+
+module_agg: "mean"
+edge_prior_method: "outer_product"
+generate_figures: true
+seed: 42

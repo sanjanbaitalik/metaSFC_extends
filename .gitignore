@@ -1,0 +1,56 @@
+# Python bytecode and caches
+__pycache__/
+*.py[cod]
+*.pyd
+
+# Test and type-check caches
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.nox/
+.tox/
+
+# Coverage and profiling artifacts
+.coverage
+.coverage.*
+htmlcov/
+coverage.xml
+*.prof
+
+# Virtual environments
+.venv/
+venv/
+env/
+ENV/
+.python-version
+
+# Build and packaging outputs
+build/
+dist/
+*.egg-info/
+pip-wheel-metadata/
+
+# Notebook checkpoints
+.ipynb_checkpoints/
+
+# IDE and editor settings
+.vscode/
+.idea/
+*.code-workspace
+
+# OS-specific files
+.DS_Store
+Thumbs.db
+
+# Logs and temporary files
+*.log
+*.tmp
+*.temp
+
+# Generated experiment and publication artifacts
+outputs/
+figures/*.png
+figures/*.jpg
+figures/*.jpeg
+figures/*.pdf
+figures/*.csv

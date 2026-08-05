@@ -1,0 +1,48 @@
+# Method 3 (ICLR 2027): Two-Stage Biomarker-Guided Kernel Ridge.
+#
+# Stage 1 (biomarker): per-split min-max normalized node saliency c in
+# [0,1]^116 of a *previously trained* AAAI MS-Inter-GCN run (E0/E7/E8/E9),
+# loaded from its exported per-split npz files.  The biomarker is used as an
+# explicit feature-space projector, not as an explanation.
+#
+# Stage 2 (predictor): X_gated = X_std ⊙ [lift(c) | lift(c)] where
+# lift(c)_ij = c_i * c_j (gate_mode "product") or (c_i + c_j)/2 ("sum"),
+# and a Kernel Ridge Regression with an RBF kernel is trained on the gated
+# space:  K(s,t) = k(x_s ⊙ c, x_t ⊙ c).
+#
+# The nested-CV protocol (seeds, outer folds, inner validation, refit on
+# train+val) is identical to configs/aaai/meta_gat.yaml and
+# configs/aaai/network_constrained_ridge.yaml.  The (alpha, gamma) grid is
+# selected on the inner validation split; true/shuffled/random variants
+# share identical grids, seeds, and folds.
+experiment_name: two_stage_biomarker_kernel_ridge
+seeds: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]
+n_folds: 5
+val_fraction: 0.15
+device: auto
+gate_mode: product            # product | sum   (edge lift of node saliency)
+alpha_grid: [0.01, 0.1, 1.0, 10.0, 100.0]      # KRR ridge regularization
+gamma_grid: [1e-05, 0.0001, 0.001, 0.01]       # RBF width (sklearn convention)
+alignment_topk: 10
+# Prior used ONLY for the biomarker-alignment metric (identical across all
+# M3 methods, so alignment values are directly comparable).
+alignment_prior: outputs/priors/working_memory/aal116/roi_prior.csv
+methods:
+  M3_E0:
+    name: Two-Stage Biomarker-Guided KRR (no-prior biomarker)
+    saliency_dir: outputs/aaai/final/E0_baseline/saliency
+  M3_TRUE:
+    name: Two-Stage Biomarker-Guided KRR (true edge-prior biomarker)
+    saliency_dir: outputs/aaai/final/E7_edge_true/saliency
+  M3_SHUFFLED:
+    name: Two-Stage Biomarker-Guided KRR (shuffled edge-prior biomarker)
+    saliency_dir: outputs/aaai/final/E8_edge_shuffled/saliency
+  M3_RANDOM:
+    name: Two-Stage Biomarker-Guided KRR (random edge-prior biomarker)
+    saliency_dir: outputs/aaai/final/E9_edge_random/saliency
+data:
+  fc_path: inputs/dataset_FC/FC_all.npy
+  sc_path: inputs/dataset_SC/SC_all.npy
+  y_path: inputs/dataset_SC/label_all.npy
+  subjects_path: inputs/dataset_SC/hcp_subjects_used.csv
+output_dir: outputs/aaai/two_stage_kernel_ridge

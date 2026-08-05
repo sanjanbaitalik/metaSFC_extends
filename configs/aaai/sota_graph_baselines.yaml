@@ -1,0 +1,45 @@
+experiment_name: sota_graph_reimplementations
+seeds: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]
+n_folds: 5
+val_fraction: 0.15
+device: auto
+num_workers: 0
+top_percent_fc: 10.0
+top_percent_sc: 10.0
+module_map_path: inputs/atlases/AAL116_coarse_modules.csv
+data:
+  fc_path: inputs/dataset_FC/FC_all.npy
+  sc_path: inputs/dataset_SC/SC_all.npy
+  y_path: inputs/dataset_SC/label_all.npy
+  subjects_path: inputs/dataset_SC/hcp_subjects_used.csv
+models:
+  MGCN:
+    name: M-GCN (reimplementation)
+    channels: 32
+    graph_dim: 256
+    batch_size: 16
+    learning_rate: 0.001
+    momentum: 0.9
+    weight_decay: 0.001
+    lr_step: 10
+    lr_gamma: 0.9
+    epochs: 40
+    min_epochs: 40
+    patience: 40
+    grad_clip: 5.0
+    amp: true
+  IMG_GCN:
+    name: IMG-GCN (reimplementation)
+    graph_hidden: 16
+    bottleneck_ratio: 2
+    dropout: 0.5
+    batch_size: 4
+    learning_rate: 0.0005
+    weight_decay: 0.001
+    epochs: 20
+    min_epochs: 20
+    patience: 20
+    grad_clip: 5.0
+    attention_mode: full
+    amp: true
+output_dir: outputs/aaai/sota_graph_baselines

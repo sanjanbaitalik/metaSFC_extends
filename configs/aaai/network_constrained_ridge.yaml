@@ -1,0 +1,36 @@
+# Method 1 (ICLR 2027): Network-Constrained Prior-Laplacian Ridge.
+#
+# Objective:  min_β ||y - Xβ||^2 + λ1||β||^2 + λ2 β^T L_prior β
+# where X = [FC_upper | SC_upper] and L_prior is the line-graph lift of the
+# top-k prior-active ROI network into edge-feature space.
+#
+# The nested-CV protocol (seeds, outer folds, inner validation) is identical
+# to configs/aaai/prior_weighted_ridge.yaml. λ2 = 0.0 degenerates to the
+# plain FC+SC Ridge baseline (B3) and acts as an internal solver check.
+experiment_name: network_constrained_prior_laplacian_ridge
+seeds: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]
+n_folds: 5
+val_fraction: 0.15
+n_threads: 4
+top_k: 30
+laplacian_weighting: binary        # binary | node_prior
+laplacian_normalization: sym       # sym | none
+couple_modalities: false           # couple FC/SC copies of each active edge
+ridge_alphas: [0.01, 0.1, 1.0, 10.0, 100.0, 1000.0]     # λ1 grid
+laplacian_alphas: [0.0, 0.5, 1.0, 2.0, 5.0, 10.0]       # λ2 grid
+methods:
+  NCR_TRUE:
+    name: Network-Constrained Prior-Laplacian Ridge
+    path: outputs/priors/working_memory/aal116/roi_prior.csv
+  NCR_SHUFFLED:
+    name: Shuffled-prior Network-Constrained Ridge
+    path: outputs/priors/working_memory_shuffled/aal116/roi_prior.csv
+  NCR_RANDOM:
+    name: Random-prior Network-Constrained Ridge
+    path: outputs/priors/random_prior/aal116/roi_prior.csv
+data:
+  fc_path: inputs/dataset_FC/FC_all.npy
+  sc_path: inputs/dataset_SC/SC_all.npy
+  y_path: inputs/dataset_SC/label_all.npy
+  subjects_path: inputs/dataset_SC/hcp_subjects_used.csv
+output_dir: outputs/aaai/network_constrained_ridge

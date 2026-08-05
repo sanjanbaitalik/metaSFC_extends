@@ -1,0 +1,16 @@
+term: "visual"
+atlas: "aal116"
+meta_map_path: "inputs/meta_maps/visual_z.nii.gz"
+atlas_path: "inputs/atlases/AAL116.nii.gz"
+labels_path: "inputs/atlases/AAL116_labels.csv"
+roi_to_module_path: "inputs/atlases/AAL116_coarse_modules.csv"
+output_dir: "outputs/priors/unrelated_visual/aal116"
+
+normalization: "minmax"
+
+threshold:
+  top_k: 30
+
+edge_prior_method: "outer_product"
+generate_figures: true
+seed: 42

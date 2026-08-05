@@ -1,0 +1,60 @@
+experiment_name: module_random
+experiment_id: E6
+baseline: ms_inter_gcn
+prior_type: module
+prior_source: random
+task: regression
+roi_num: 116
+hidden_channels: 64
+dropout: 0.3
+batch_size: 16
+learning_rate: 0.001
+weight_decay: 0.0001
+n_epochs: 150
+min_epochs: 30
+early_stopping_patience: 20
+selection_metric: rmse
+alpha_aux: 0.1
+topk: 10
+module_topk: 3
+edge_topk: 100
+n_folds: 5
+seeds:
+- 0
+- 1
+- 2
+- 3
+- 4
+- 5
+- 6
+- 7
+- 8
+- 9
+val_fraction: 0.15
+lambda_node: 0
+lambda_module: 0.05
+lambda_edge: 0
+module_saliency_agg: mean
+cache_graphs: true
+num_workers: 0
+pin_memory: true
+save_checkpoints: false
+standardize_labels_within_fold: true
+require_group_split: false
+data:
+  fc_path: inputs/dataset_FC/FC_all.npy
+  sc_path: inputs/dataset_SC/SC_all.npy
+  y_path: inputs/dataset_SC/label_all.npy
+  subjects_path: inputs/dataset_SC/hcp_subjects_used.csv
+prior:
+  roi_prior_path: outputs/priors/random_prior/aal116/roi_prior.csv
+  module_prior_path: outputs/priors/random_prior/aal116/module_prior.csv
+  edge_prior_path: outputs/priors/random_prior/aal116/edge_prior.npy
+  roi_to_module_path: inputs/atlases/AAL116_coarse_modules.csv
+device: auto
+output_dir: outputs/aaai/final/E6_module_random
+reference_prior:
+  roi_prior_path: outputs/priors/working_memory/aal116/roi_prior.csv
+  module_prior_path: outputs/priors/working_memory/aal116/module_prior.csv
+  edge_prior_path: outputs/priors/working_memory/aal116/edge_prior.npy
+  roi_to_module_path: inputs/atlases/AAL116_coarse_modules.csv

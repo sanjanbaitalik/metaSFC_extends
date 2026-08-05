@@ -1,0 +1,51 @@
+# Method 2 (ICLR 2027): Prior-Gated Graph Attention Network (Meta-GAT).
+#
+# The ROI-level meta-analysis prior is injected directly into the attention
+# logits of a graph attention network (hard inductive bias on message
+# routing):
+#
+#     e_ij = LeakyReLU(a^T [W h_i || W h_j]) + gamma * (p_i + p_j)
+#
+# with gamma a learnable temperature (one per layer).  The split graph is the
+# row-wise top-10% positive threshold of the group-average structural
+# connectome over the inner training partition (leakage-free), with
+# self-loops.  Node features are [FC_row | SC_row] per subject, standardized
+# on the inner training partition only.
+#
+# The nested-CV protocol (seeds, outer folds, inner validation, refit on
+# train+val) is identical to configs/aaai/network_constrained_ridge.yaml.
+# The (hidden, dropout, lr) grid is selected on the inner validation split;
+# true/shuffled/random variants use identical grids, seeds, and folds.
+experiment_name: prior_gated_graph_attention_network
+seeds: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]
+n_folds: 5
+val_fraction: 0.15
+device: auto
+top_percent_sc: 10.0        # row-wise SC threshold for the split graph
+gamma_init: 1.0             # initial value of the learnable prior temperature
+heads1: 4                   # attention heads, layer 1 (concatenated)
+heads2: 1                   # attention heads, layer 2 (averaged)
+weight_decay: 0.0001
+epochs: 60
+patience: 15
+min_epochs: 10
+grad_clip: 5.0
+hidden_grid: [16, 32]       # inner-CV selection grid (cartesian product)
+dropout_grid: [0.2, 0.5]
+lr_grid: [0.001, 0.003]
+methods:
+  M2_TRUE:
+    name: Prior-Gated Graph Attention Network (Meta-GAT)
+    path: outputs/priors/working_memory/aal116/roi_prior.csv
+  M2_SHUFFLED:
+    name: Shuffled-prior Meta-GAT
+    path: outputs/priors/working_memory_shuffled/aal116/roi_prior.csv
+  M2_RANDOM:
+    name: Random-prior Meta-GAT
+    path: outputs/priors/random_prior/aal116/roi_prior.csv
+data:
+  fc_path: inputs/dataset_FC/FC_all.npy
+  sc_path: inputs/dataset_SC/SC_all.npy
+  y_path: inputs/dataset_SC/label_all.npy
+  subjects_path: inputs/dataset_SC/hcp_subjects_used.csv
+output_dir: outputs/aaai/meta_gat

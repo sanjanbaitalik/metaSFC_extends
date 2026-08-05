@@ -1,0 +1,23 @@
+experiment_name: prior_weighted_fc_sc_ridge
+seeds: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]
+n_folds: 5
+val_fraction: 0.15
+n_threads: 4
+ridge_alphas: [0.01, 0.1, 1.0, 10.0, 100.0, 1000.0]
+epsilon_grid: [0.05, 0.10, 0.25, 0.50]
+methods:
+  PW_TRUE:
+    name: Prior-weighted FC+SC Ridge
+    path: outputs/priors/working_memory/aal116/roi_prior.csv
+  PW_SHUFFLED:
+    name: Shuffled-prior FC+SC Ridge
+    path: outputs/priors/working_memory_shuffled/aal116/roi_prior.csv
+  PW_RANDOM:
+    name: Random-prior FC+SC Ridge
+    path: outputs/priors/random_prior/aal116/roi_prior.csv
+data:
+  fc_path: inputs/dataset_FC/FC_all.npy
+  sc_path: inputs/dataset_SC/SC_all.npy
+  y_path: inputs/dataset_SC/label_all.npy
+  subjects_path: inputs/dataset_SC/hcp_subjects_used.csv
+output_dir: outputs/aaai/prior_weighted_ridge

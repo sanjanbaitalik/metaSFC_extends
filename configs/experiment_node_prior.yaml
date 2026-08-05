@@ -1,0 +1,31 @@
+experiment_name: "node_prior_ms_inter_gcn"
+baseline: "ms_inter_gcn"
+prior_type: "node"
+task: "regression"
+num_classes: 2
+
+roi_num: 116
+hidden_channels: 64
+dropout: 0.3
+batch_size: 8
+learning_rate: 0.001
+weight_decay: 0.0001
+n_epochs: 100
+alpha_aux: 0.1
+topk: 10
+n_folds: 5
+seeds: [0, 1, 2, 3, 4]
+
+lambda_node: 0.05
+lambda_module: 0.0
+lambda_edge: 0.0
+
+roi_prior_path: "outputs/priors/fluid_intelligence/aal116/roi_prior.csv"
+data:
+  fc_path: "inputs/dataset_FC/FC_all.npy"
+  sc_path: "inputs/dataset_SC/SC_all.npy"
+  y_path: "inputs/dataset_SC/label_all.npy"
+
+output_dir: "outputs/experiments/node_prior_ms_inter_gcn"
+seed: 42
+device: "auto"
