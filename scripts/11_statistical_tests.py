@@ -22,6 +22,9 @@ DEFAULT_COMPARISONS = [
     ("E1", "E0"), ("E1", "E2"), ("E1", "E3"), ("E1", "E10"),
     ("E4", "E0"), ("E4", "E5"), ("E4", "E6"),
     ("E7", "E0"), ("E7", "E8"), ("E7", "E9"),
+    ("NCR_TRUE", "B3"), ("NCR_TRUE", "E0"),
+    ("M2_TRUE", "E0"), ("M2_TRUE", "E1"),
+    ("M3_E0", "E0"), ("M3_E0", "E1"), ("M3_E0", "E7"),
 ]
 DEFAULT_METRICS = [
     "pearson", "rmse", "mae",
@@ -31,6 +34,15 @@ DEFAULT_METRICS = [
     "alignment_node_pearson",
     "alignment_module_pearson",
     "alignment_edge_diagonal_pearson",
+]
+# Extra per-method split CSVs (ICLR methods and the fusion ridge baseline)
+# merged into the shared split table.  The ICLR files use method_id/method_name
+# columns; the prediction baselines use experiment_id/experiment_name.
+EXTRA_SPLIT_SOURCES = [
+    ("outputs/aaai/network_constrained_ridge/split_metrics.csv", "method_id"),
+    ("outputs/aaai/meta_gat/split_metrics.csv", "method_id"),
+    ("outputs/aaai/two_stage_kernel_ridge/split_metrics.csv", "method_id"),
+    ("outputs/aaai/prediction_baselines/prediction_baselines_split_metrics.csv", "experiment_id"),
 ]
 
 
@@ -78,6 +90,23 @@ def safe_wilcoxon(diff: np.ndarray):
         return 0.0, 1.0
 
 
+def load_split_metrics(table_dir: Path) -> pd.DataFrame:
+    split_df = pd.read_csv(table_dir / "all_split_metrics.csv")
+    for path, key in EXTRA_SPLIT_SOURCES:
+        csv_path = Path(path)
+        if not csv_path.exists():
+            print(f"[WARN] missing extra split source: {csv_path}")
+            continue
+        extra = pd.read_csv(csv_path)
+        if "experiment_id" not in extra.columns:
+            extra = extra.rename(columns={"method_id": "experiment_id"})
+        if "experiment_name" not in extra.columns and "method_name" in extra.columns:
+            extra = extra.rename(columns={"method_name": "experiment_name"})
+        keep = [c for c in extra.columns if c in split_df.columns or c in {"experiment_id", "experiment_name", "seed", "fold"}]
+        split_df = pd.concat([split_df, extra[keep]], ignore_index=True)
+    return split_df.drop_duplicates(subset=["experiment_id", "seed", "fold"])
+
+
 def main() -> None:
     ap = argparse.ArgumentParser()
     ap.add_argument("--table_dir", default="outputs/aaai/tables")
@@ -88,7 +117,7 @@ def main() -> None:
     table_dir = Path(args.table_dir)
     out = Path(args.out)
     out.mkdir(parents=True, exist_ok=True)
-    split_df = pd.read_csv(table_dir / "all_split_metrics.csv")
+    split_df = load_split_metrics(table_dir)
     metrics = [m for m in DEFAULT_METRICS if m in split_df.columns]
     seed_df = seed_aggregate(split_df, metrics)
     seed_df.to_csv(out / "seed_level_method_metrics.csv", index=False)

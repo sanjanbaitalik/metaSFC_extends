@@ -1,0 +1,513 @@
+Traceback (most recent call last):
+  File "/home/iemiedc2026/Documents/Sanjan/iclr/scripts/17_run_faithfulness.py", line 44, in <module>
+    from metascfc.models.iclr_backbones.network_constrained_ridge import (
+ModuleNotFoundError: No module named 'metascfc.models.iclr_backbones'
+[2026-08-11 19:13:58] LAUNCH 17_run_faithfulness (ICLR configs, seeds 0-4, topk 10, random_repeats 20, mask_mode both, overwrite)
+NCR_TRUE seed00_fold00 {'delta_rmse_top': 0.20611080088587208, 'delta_rmse_prior_top': 0.09593950346864144, 'delta_rmse_random': 1.097109490113164}
+NCR_TRUE seed00_fold01 {'delta_rmse_top': 0.2514040800662798, 'delta_rmse_prior_top': 0.7206941643330733, 'delta_rmse_random': 0.22406870626372744}
+NCR_TRUE seed00_fold02 {'delta_rmse_top': 0.33319048719758904, 'delta_rmse_prior_top': 0.5472912944011128, 'delta_rmse_random': 0.6029313701891059}
+NCR_TRUE seed00_fold03 {'delta_rmse_top': 6.294730305111123, 'delta_rmse_prior_top': 0.26006297908469644, 'delta_rmse_random': 1.7156507502677751}
+NCR_TRUE seed00_fold04 {'delta_rmse_top': 5.096278100691575, 'delta_rmse_prior_top': 1.262076409703277, 'delta_rmse_random': 1.3927699287698312}
+NCR_TRUE seed01_fold00 {'delta_rmse_top': 2.21191923832229, 'delta_rmse_prior_top': 1.6560075926003792, 'delta_rmse_random': 2.7912635228574603}
+NCR_TRUE seed01_fold01 {'delta_rmse_top': 0.2739765487354813, 'delta_rmse_prior_top': 0.6821311148178717, 'delta_rmse_random': 0.03306253384723146}
+NCR_TRUE seed01_fold02 {'delta_rmse_top': 0.9108740810603955, 'delta_rmse_prior_top': 0.12926604338390657, 'delta_rmse_random': 0.5740796392989092}
+NCR_TRUE seed01_fold03 {'delta_rmse_top': 4.139164514844302, 'delta_rmse_prior_top': 0.2947629095173232, 'delta_rmse_random': 1.0490590792964465}
+NCR_TRUE seed01_fold04 {'delta_rmse_top': 0.8756675990035889, 'delta_rmse_prior_top': -0.09552906951005813, 'delta_rmse_random': 0.32382796927109414}
+NCR_TRUE seed02_fold00 {'delta_rmse_top': 3.777962393376357, 'delta_rmse_prior_top': 0.18923516595506928, 'delta_rmse_random': 1.2474472935020229}
+NCR_TRUE seed02_fold01 {'delta_rmse_top': 1.4246534107925592, 'delta_rmse_prior_top': 2.227469373454845, 'delta_rmse_random': 1.5575340589129834}
+NCR_TRUE seed02_fold02 {'delta_rmse_top': 1.9354622256051393, 'delta_rmse_prior_top': 1.0229548999875329, 'delta_rmse_random': 1.678422526823514}
+NCR_TRUE seed02_fold03 {'delta_rmse_top': 0.007441428635368119, 'delta_rmse_prior_top': 0.029002270582072498, 'delta_rmse_random': 0.06982152192316882}
+NCR_TRUE seed02_fold04 {'delta_rmse_top': 3.4883169484652568, 'delta_rmse_prior_top': 2.5846762436915744, 'delta_rmse_random': 1.4073166843177862}
+NCR_TRUE seed03_fold00 {'delta_rmse_top': 1.0628897401441293, 'delta_rmse_prior_top': 0.7038413659588798, 'delta_rmse_random': 0.47632570443373634}
+NCR_TRUE seed03_fold01 {'delta_rmse_top': 0.2777686391498788, 'delta_rmse_prior_top': 0.7363552487154887, 'delta_rmse_random': 0.7139413538748443}
+NCR_TRUE seed03_fold02 {'delta_rmse_top': 8.062500237991445, 'delta_rmse_prior_top': 0.7474684872178594, 'delta_rmse_random': 1.764695042145581}
+NCR_TRUE seed03_fold03 {'delta_rmse_top': 0.877253691397911, 'delta_rmse_prior_top': 0.9486542130171669, 'delta_rmse_random': 0.3836565886442225}
+NCR_TRUE seed03_fold04 {'delta_rmse_top': 4.0567336415459, 'delta_rmse_prior_top': 0.10114569660630135, 'delta_rmse_random': 0.7825700534081301}
+NCR_TRUE seed04_fold00 {'delta_rmse_top': 0.9545382774742475, 'delta_rmse_prior_top': 2.2528606924033623, 'delta_rmse_random': 2.0686581743049643}
+NCR_TRUE seed04_fold01 {'delta_rmse_top': 7.789040591674373, 'delta_rmse_prior_top': -0.03989164852643956, 'delta_rmse_random': 1.9904450090338281}
+NCR_TRUE seed04_fold02 {'delta_rmse_top': 1.5450663688429138, 'delta_rmse_prior_top': 1.4156471232255727, 'delta_rmse_random': 1.7836331843306796}
+NCR_TRUE seed04_fold03 {'delta_rmse_top': 1.808744729448926, 'delta_rmse_prior_top': 2.8528636284218614, 'delta_rmse_random': 1.375402915400823}
+NCR_TRUE seed04_fold04 {'delta_rmse_top': 4.550066904626016, 'delta_rmse_prior_top': 0.8317543209357705, 'delta_rmse_random': 1.0002850859224992}
+NCR_SHUFFLED seed00_fold00 {'delta_rmse_top': 0.2061108008858703, 'delta_rmse_prior_top': 0.5929730705830982, 'delta_rmse_random': 1.0971094901131613}
+NCR_SHUFFLED seed00_fold01 {'delta_rmse_top': 0.251404080066278, 'delta_rmse_prior_top': 0.05934805854823644, 'delta_rmse_random': 0.2240687062637292}
+NCR_SHUFFLED seed00_fold02 {'delta_rmse_top': 1.9267710397336586, 'delta_rmse_prior_top': 0.01288586109635581, 'delta_rmse_random': 0.7117212063650022}
+NCR_SHUFFLED seed00_fold03 {'delta_rmse_top': 12.898892533993475, 'delta_rmse_prior_top': 0.10244858060305084, 'delta_rmse_random': 1.6224449092674078}
+NCR_SHUFFLED seed00_fold04 {'delta_rmse_top': 5.096278100691554, 'delta_rmse_prior_top': 0.5483020558665261, 'delta_rmse_random': 1.3927699287698196}
+NCR_SHUFFLED seed01_fold00 {'delta_rmse_top': 2.0269584819101025, 'delta_rmse_prior_top': 1.5480932060949453, 'delta_rmse_random': 2.5307572276527024}
+NCR_SHUFFLED seed01_fold01 {'delta_rmse_top': 1.0061575741750337, 'delta_rmse_prior_top': -0.14442405272411563, 'delta_rmse_random': 0.07825701116399841}
+NCR_SHUFFLED seed01_fold02 {'delta_rmse_top': 0.9108740810603964, 'delta_rmse_prior_top': 0.1240546880224187, 'delta_rmse_random': 0.57407963929891}
+NCR_SHUFFLED seed01_fold03 {'delta_rmse_top': 4.139164514844304, 'delta_rmse_prior_top': 0.30584447194920905, 'delta_rmse_random': 1.0490590792964465}
+NCR_SHUFFLED seed01_fold04 {'delta_rmse_top': 0.8756675990035916, 'delta_rmse_prior_top': 0.23615329543430086, 'delta_rmse_random': 0.32382796927109325}
+NCR_SHUFFLED seed02_fold00 {'delta_rmse_top': 5.67335002745923, 'delta_rmse_prior_top': 0.15983607085386886, 'delta_rmse_random': 0.9606611297754837}
+NCR_SHUFFLED seed02_fold01 {'delta_rmse_top': 0.6244652410185507, 'delta_rmse_prior_top': 0.03624773391462455, 'delta_rmse_random': 1.7656986156788506}
+NCR_SHUFFLED seed02_fold02 {'delta_rmse_top': 1.9354622256051393, 'delta_rmse_prior_top': 0.3658114847121672, 'delta_rmse_random': 1.678422526823514}
+NCR_SHUFFLED seed02_fold03 {'delta_rmse_top': 0.007441428635367231, 'delta_rmse_prior_top': 0.011399194238159716, 'delta_rmse_random': 0.06982152192316882}
+NCR_SHUFFLED seed02_fold04 {'delta_rmse_top': 0.989931769504163, 'delta_rmse_prior_top': 3.563362496473368, 'delta_rmse_random': 1.5200647319590246}
+NCR_SHUFFLED seed03_fold00 {'delta_rmse_top': 1.83607803237867, 'delta_rmse_prior_top': 0.5513999322894252, 'delta_rmse_random': 0.9220875274030531}
+NCR_SHUFFLED seed03_fold01 {'delta_rmse_top': 0.2777686391498779, 'delta_rmse_prior_top': 0.014620466613036065, 'delta_rmse_random': 0.7139413538748478}
+NCR_SHUFFLED seed03_fold02 {'delta_rmse_top': 8.062500237991454, 'delta_rmse_prior_top': 0.5990966224755017, 'delta_rmse_random': 1.7646950421455827}
+NCR_SHUFFLED seed03_fold03 {'delta_rmse_top': 1.5778848044936158, 'delta_rmse_prior_top': 0.09840635331561653, 'delta_rmse_random': 0.4623529706251297}
+NCR_SHUFFLED seed03_fold04 {'delta_rmse_top': 3.8794618882320044, 'delta_rmse_prior_top': 0.28175378764349457, 'delta_rmse_random': 0.6202131288004562}
+NCR_SHUFFLED seed04_fold00 {'delta_rmse_top': 1.0595104278205927, 'delta_rmse_prior_top': 0.9973535362609338, 'delta_rmse_random': 2.145207968459683}
+NCR_SHUFFLED seed04_fold01 {'delta_rmse_top': 9.277438929272087, 'delta_rmse_prior_top': 0.2571591398688877, 'delta_rmse_random': 1.9259001853769124}
+NCR_SHUFFLED seed04_fold02 {'delta_rmse_top': 0.5535371170900838, 'delta_rmse_prior_top': 0.13791096113127832, 'delta_rmse_random': 0.5313314779935476}
+NCR_SHUFFLED seed04_fold03 {'delta_rmse_top': 14.284737117884758, 'delta_rmse_prior_top': 0.10297899682517286, 'delta_rmse_random': 1.9070050671341532}
+NCR_SHUFFLED seed04_fold04 {'delta_rmse_top': 9.717369005013499, 'delta_rmse_prior_top': 0.39490779009773114, 'delta_rmse_random': 1.8692166456582662}
+NCR_RANDOM seed00_fold00 {'delta_rmse_top': 0.20611080088587386, 'delta_rmse_prior_top': 1.082519957209513, 'delta_rmse_random': 1.0971094901131675}
+NCR_RANDOM seed00_fold01 {'delta_rmse_top': 0.251404080066278, 'delta_rmse_prior_top': 0.20865660469421865, 'delta_rmse_random': 0.22406870626372744}
+NCR_RANDOM seed00_fold02 {'delta_rmse_top': 0.7229993517792455, 'delta_rmse_prior_top': 0.14863140107416584, 'delta_rmse_random': 0.601413169941365}
+NCR_RANDOM seed00_fold03 {'delta_rmse_top': 6.294730305111149, 'delta_rmse_prior_top': 0.7617236784634995, 'delta_rmse_random': 1.7156507502677805}
+NCR_RANDOM seed00_fold04 {'delta_rmse_top': 5.096278100691549, 'delta_rmse_prior_top': 1.009216099167638, 'delta_rmse_random': 1.3927699287698205}
+NCR_RANDOM seed01_fold00 {'delta_rmse_top': 2.026958481910115, 'delta_rmse_prior_top': 0.7025240360125125, 'delta_rmse_random': 2.5307572276526926}
+NCR_RANDOM seed01_fold01 {'delta_rmse_top': 0.4156501880564871, 'delta_rmse_prior_top': -0.10476722939332639, 'delta_rmse_random': 0.11363936903689176}
+NCR_RANDOM seed01_fold02 {'delta_rmse_top': 0.5739211163254607, 'delta_rmse_prior_top': 0.3111186925971401, 'delta_rmse_random': 2.0708164171736865}
+NCR_RANDOM seed01_fold03 {'delta_rmse_top': 4.139164514844302, 'delta_rmse_prior_top': 0.5027527142978547, 'delta_rmse_random': 1.0490590792964474}
+NCR_RANDOM seed01_fold04 {'delta_rmse_top': 0.8756675990035951, 'delta_rmse_prior_top': 0.7099184862029739, 'delta_rmse_random': 0.32382796927109503}
+NCR_RANDOM seed02_fold00 {'delta_rmse_top': 4.033662513130961, 'delta_rmse_prior_top': 0.7304146073025457, 'delta_rmse_random': 1.1668515241374733}
+NCR_RANDOM seed02_fold01 {'delta_rmse_top': 0.1185802875184967, 'delta_rmse_prior_top': 0.4490189702818608, 'delta_rmse_random': 1.3422303605064894}
+NCR_RANDOM seed02_fold02 {'delta_rmse_top': 1.9354622256051277, 'delta_rmse_prior_top': 0.2479510268330829, 'delta_rmse_random': 1.6784225268235193}
+NCR_RANDOM seed02_fold03 {'delta_rmse_top': 0.24450693047993788, 'delta_rmse_prior_top': 0.12406666082137718, 'delta_rmse_random': 0.3971921711160027}
+NCR_RANDOM seed02_fold04 {'delta_rmse_top': 0.9899317695041541, 'delta_rmse_prior_top': 0.11297286376839644, 'delta_rmse_random': 1.5200647319590237}
+NCR_RANDOM seed03_fold00 {'delta_rmse_top': 1.8360780323786754, 'delta_rmse_prior_top': 0.788239382921522, 'delta_rmse_random': 0.9220875274030531}
+NCR_RANDOM seed03_fold01 {'delta_rmse_top': 0.2777686391498797, 'delta_rmse_prior_top': 0.7426076419782204, 'delta_rmse_random': 0.7139413538748443}
+NCR_RANDOM seed03_fold02 {'delta_rmse_top': 8.062500237991477, 'delta_rmse_prior_top': 0.5239228451688085, 'delta_rmse_random': 1.7646950421455863}
+NCR_RANDOM seed03_fold03 {'delta_rmse_top': 0.879435640983468, 'delta_rmse_prior_top': 0.357990370692705, 'delta_rmse_random': 0.5520303556910511}
+NCR_RANDOM seed03_fold04 {'delta_rmse_top': 1.6187458702785298, 'delta_rmse_prior_top': 0.06609282430856833, 'delta_rmse_random': 0.6311636124110995}
+NCR_RANDOM seed04_fold00 {'delta_rmse_top': 3.8854660636266294, 'delta_rmse_prior_top': 0.036914251444436275, 'delta_rmse_random': 1.7501964162789605}
+NCR_RANDOM seed04_fold01 {'delta_rmse_top': 0.41332449849356223, 'delta_rmse_prior_top': -0.014954044610279382, 'delta_rmse_random': 1.6564383863250214}
+NCR_RANDOM seed04_fold02 {'delta_rmse_top': 0.27799875321389234, 'delta_rmse_prior_top': 0.36414439522145337, 'delta_rmse_random': 1.601528420362861}
+NCR_RANDOM seed04_fold03 {'delta_rmse_top': 1.8087447294489234, 'delta_rmse_prior_top': 0.921580469060439, 'delta_rmse_random': 1.3754029154008238}
+NCR_RANDOM seed04_fold04 {'delta_rmse_top': 2.6795166255093674, 'delta_rmse_prior_top': 1.2481540642340114, 'delta_rmse_random': 1.1454306156335354}
+Converted M2_TRUE: 25 splits, 575 long rows
+Traceback (most recent call last):
+  File "/home/iemiedc2026/Documents/Sanjan/iclr/scripts/17_run_faithfulness.py", line 810, in <module>
+    main()
+  File "/home/iemiedc2026/Documents/Sanjan/iclr/scripts/17_run_faithfulness.py", line 522, in main
+    exp_rows, exp_long = run_iclr_config(Path(config_path), args, out)
+                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/iemiedc2026/Documents/Sanjan/iclr/scripts/17_run_faithfulness.py", line 362, in run_iclr_config
+    raise FileNotFoundError(
+FileNotFoundError: ICLR faithfulness source missing for M2_SHUFFLED: outputs/aaai/faithfulness_iclr/per_method/M2_SHUFFLED
+[2026-08-11 19:19:11] DONE exit=0
+[2026-08-11 19:24:34] LAUNCH 17_run_faithfulness (ICLR configs, seeds 0-4, topk 10, random_repeats 20, mask_mode both, overwrite)
+NCR_TRUE seed00_fold00 {'delta_rmse_top': 0.20611080088587208, 'delta_rmse_prior_top': 0.09593950346864144, 'delta_rmse_random': 1.097109490113164}
+NCR_TRUE seed00_fold01 {'delta_rmse_top': 0.2514040800662798, 'delta_rmse_prior_top': 0.7206941643330733, 'delta_rmse_random': 0.22406870626372744}
+NCR_TRUE seed00_fold02 {'delta_rmse_top': 0.33319048719758904, 'delta_rmse_prior_top': 0.5472912944011128, 'delta_rmse_random': 0.6029313701891059}
+NCR_TRUE seed00_fold03 {'delta_rmse_top': 6.294730305111123, 'delta_rmse_prior_top': 0.26006297908469644, 'delta_rmse_random': 1.7156507502677751}
+NCR_TRUE seed00_fold04 {'delta_rmse_top': 5.096278100691575, 'delta_rmse_prior_top': 1.262076409703277, 'delta_rmse_random': 1.3927699287698312}
+NCR_TRUE seed01_fold00 {'delta_rmse_top': 2.21191923832229, 'delta_rmse_prior_top': 1.6560075926003792, 'delta_rmse_random': 2.7912635228574603}
+NCR_TRUE seed01_fold01 {'delta_rmse_top': 0.2739765487354813, 'delta_rmse_prior_top': 0.6821311148178717, 'delta_rmse_random': 0.03306253384723146}
+NCR_TRUE seed01_fold02 {'delta_rmse_top': 0.9108740810603955, 'delta_rmse_prior_top': 0.12926604338390657, 'delta_rmse_random': 0.5740796392989092}
+NCR_TRUE seed01_fold03 {'delta_rmse_top': 4.139164514844302, 'delta_rmse_prior_top': 0.2947629095173232, 'delta_rmse_random': 1.0490590792964465}
+NCR_TRUE seed01_fold04 {'delta_rmse_top': 0.8756675990035889, 'delta_rmse_prior_top': -0.09552906951005813, 'delta_rmse_random': 0.32382796927109414}
+NCR_TRUE seed02_fold00 {'delta_rmse_top': 3.777962393376357, 'delta_rmse_prior_top': 0.18923516595506928, 'delta_rmse_random': 1.2474472935020229}
+NCR_TRUE seed02_fold01 {'delta_rmse_top': 1.4246534107925592, 'delta_rmse_prior_top': 2.227469373454845, 'delta_rmse_random': 1.5575340589129834}
+NCR_TRUE seed02_fold02 {'delta_rmse_top': 1.9354622256051393, 'delta_rmse_prior_top': 1.0229548999875329, 'delta_rmse_random': 1.678422526823514}
+NCR_TRUE seed02_fold03 {'delta_rmse_top': 0.007441428635368119, 'delta_rmse_prior_top': 0.029002270582072498, 'delta_rmse_random': 0.06982152192316882}
+NCR_TRUE seed02_fold04 {'delta_rmse_top': 3.4883169484652568, 'delta_rmse_prior_top': 2.5846762436915744, 'delta_rmse_random': 1.4073166843177862}
+NCR_TRUE seed03_fold00 {'delta_rmse_top': 1.0628897401441293, 'delta_rmse_prior_top': 0.7038413659588798, 'delta_rmse_random': 0.47632570443373634}
+NCR_TRUE seed03_fold01 {'delta_rmse_top': 0.2777686391498788, 'delta_rmse_prior_top': 0.7363552487154887, 'delta_rmse_random': 0.7139413538748443}
+NCR_TRUE seed03_fold02 {'delta_rmse_top': 8.062500237991445, 'delta_rmse_prior_top': 0.7474684872178594, 'delta_rmse_random': 1.764695042145581}
+NCR_TRUE seed03_fold03 {'delta_rmse_top': 0.877253691397911, 'delta_rmse_prior_top': 0.9486542130171669, 'delta_rmse_random': 0.3836565886442225}
+NCR_TRUE seed03_fold04 {'delta_rmse_top': 4.0567336415459, 'delta_rmse_prior_top': 0.10114569660630135, 'delta_rmse_random': 0.7825700534081301}
+NCR_TRUE seed04_fold00 {'delta_rmse_top': 0.9545382774742475, 'delta_rmse_prior_top': 2.2528606924033623, 'delta_rmse_random': 2.0686581743049643}
+NCR_TRUE seed04_fold01 {'delta_rmse_top': 7.789040591674373, 'delta_rmse_prior_top': -0.03989164852643956, 'delta_rmse_random': 1.9904450090338281}
+NCR_TRUE seed04_fold02 {'delta_rmse_top': 1.5450663688429138, 'delta_rmse_prior_top': 1.4156471232255727, 'delta_rmse_random': 1.7836331843306796}
+NCR_TRUE seed04_fold03 {'delta_rmse_top': 1.808744729448926, 'delta_rmse_prior_top': 2.8528636284218614, 'delta_rmse_random': 1.375402915400823}
+NCR_TRUE seed04_fold04 {'delta_rmse_top': 4.550066904626016, 'delta_rmse_prior_top': 0.8317543209357705, 'delta_rmse_random': 1.0002850859224992}
+NCR_SHUFFLED seed00_fold00 {'delta_rmse_top': 0.2061108008858703, 'delta_rmse_prior_top': 0.5929730705830982, 'delta_rmse_random': 1.0971094901131613}
+NCR_SHUFFLED seed00_fold01 {'delta_rmse_top': 0.251404080066278, 'delta_rmse_prior_top': 0.05934805854823644, 'delta_rmse_random': 0.2240687062637292}
+NCR_SHUFFLED seed00_fold02 {'delta_rmse_top': 1.9267710397336586, 'delta_rmse_prior_top': 0.01288586109635581, 'delta_rmse_random': 0.7117212063650022}
+NCR_SHUFFLED seed00_fold03 {'delta_rmse_top': 12.898892533993475, 'delta_rmse_prior_top': 0.10244858060305084, 'delta_rmse_random': 1.6224449092674078}
+NCR_SHUFFLED seed00_fold04 {'delta_rmse_top': 5.096278100691554, 'delta_rmse_prior_top': 0.5483020558665261, 'delta_rmse_random': 1.3927699287698196}
+NCR_SHUFFLED seed01_fold00 {'delta_rmse_top': 2.0269584819101025, 'delta_rmse_prior_top': 1.5480932060949453, 'delta_rmse_random': 2.5307572276527024}
+NCR_SHUFFLED seed01_fold01 {'delta_rmse_top': 1.0061575741750337, 'delta_rmse_prior_top': -0.14442405272411563, 'delta_rmse_random': 0.07825701116399841}
+NCR_SHUFFLED seed01_fold02 {'delta_rmse_top': 0.9108740810603964, 'delta_rmse_prior_top': 0.1240546880224187, 'delta_rmse_random': 0.57407963929891}
+NCR_SHUFFLED seed01_fold03 {'delta_rmse_top': 4.139164514844304, 'delta_rmse_prior_top': 0.30584447194920905, 'delta_rmse_random': 1.0490590792964465}
+NCR_SHUFFLED seed01_fold04 {'delta_rmse_top': 0.8756675990035916, 'delta_rmse_prior_top': 0.23615329543430086, 'delta_rmse_random': 0.32382796927109325}
+NCR_SHUFFLED seed02_fold00 {'delta_rmse_top': 5.67335002745923, 'delta_rmse_prior_top': 0.15983607085386886, 'delta_rmse_random': 0.9606611297754837}
+NCR_SHUFFLED seed02_fold01 {'delta_rmse_top': 0.6244652410185507, 'delta_rmse_prior_top': 0.03624773391462455, 'delta_rmse_random': 1.7656986156788506}
+NCR_SHUFFLED seed02_fold02 {'delta_rmse_top': 1.9354622256051393, 'delta_rmse_prior_top': 0.3658114847121672, 'delta_rmse_random': 1.678422526823514}
+NCR_SHUFFLED seed02_fold03 {'delta_rmse_top': 0.007441428635367231, 'delta_rmse_prior_top': 0.011399194238159716, 'delta_rmse_random': 0.06982152192316882}
+NCR_SHUFFLED seed02_fold04 {'delta_rmse_top': 0.989931769504163, 'delta_rmse_prior_top': 3.563362496473368, 'delta_rmse_random': 1.5200647319590246}
+NCR_SHUFFLED seed03_fold00 {'delta_rmse_top': 1.83607803237867, 'delta_rmse_prior_top': 0.5513999322894252, 'delta_rmse_random': 0.9220875274030531}
+NCR_SHUFFLED seed03_fold01 {'delta_rmse_top': 0.2777686391498779, 'delta_rmse_prior_top': 0.014620466613036065, 'delta_rmse_random': 0.7139413538748478}
+NCR_SHUFFLED seed03_fold02 {'delta_rmse_top': 8.062500237991454, 'delta_rmse_prior_top': 0.5990966224755017, 'delta_rmse_random': 1.7646950421455827}
+NCR_SHUFFLED seed03_fold03 {'delta_rmse_top': 1.5778848044936158, 'delta_rmse_prior_top': 0.09840635331561653, 'delta_rmse_random': 0.4623529706251297}
+NCR_SHUFFLED seed03_fold04 {'delta_rmse_top': 3.8794618882320044, 'delta_rmse_prior_top': 0.28175378764349457, 'delta_rmse_random': 0.6202131288004562}
+NCR_SHUFFLED seed04_fold00 {'delta_rmse_top': 1.0595104278205927, 'delta_rmse_prior_top': 0.9973535362609338, 'delta_rmse_random': 2.145207968459683}
+NCR_SHUFFLED seed04_fold01 {'delta_rmse_top': 9.277438929272087, 'delta_rmse_prior_top': 0.2571591398688877, 'delta_rmse_random': 1.9259001853769124}
+NCR_SHUFFLED seed04_fold02 {'delta_rmse_top': 0.5535371170900838, 'delta_rmse_prior_top': 0.13791096113127832, 'delta_rmse_random': 0.5313314779935476}
+NCR_SHUFFLED seed04_fold03 {'delta_rmse_top': 14.284737117884758, 'delta_rmse_prior_top': 0.10297899682517286, 'delta_rmse_random': 1.9070050671341532}
+NCR_SHUFFLED seed04_fold04 {'delta_rmse_top': 9.717369005013499, 'delta_rmse_prior_top': 0.39490779009773114, 'delta_rmse_random': 1.8692166456582662}
+NCR_RANDOM seed00_fold00 {'delta_rmse_top': 0.20611080088587386, 'delta_rmse_prior_top': 1.082519957209513, 'delta_rmse_random': 1.0971094901131675}
+NCR_RANDOM seed00_fold01 {'delta_rmse_top': 0.251404080066278, 'delta_rmse_prior_top': 0.20865660469421865, 'delta_rmse_random': 0.22406870626372744}
+NCR_RANDOM seed00_fold02 {'delta_rmse_top': 0.7229993517792455, 'delta_rmse_prior_top': 0.14863140107416584, 'delta_rmse_random': 0.601413169941365}
+NCR_RANDOM seed00_fold03 {'delta_rmse_top': 6.294730305111149, 'delta_rmse_prior_top': 0.7617236784634995, 'delta_rmse_random': 1.7156507502677805}
+NCR_RANDOM seed00_fold04 {'delta_rmse_top': 5.096278100691549, 'delta_rmse_prior_top': 1.009216099167638, 'delta_rmse_random': 1.3927699287698205}
+NCR_RANDOM seed01_fold00 {'delta_rmse_top': 2.026958481910115, 'delta_rmse_prior_top': 0.7025240360125125, 'delta_rmse_random': 2.5307572276526926}
+NCR_RANDOM seed01_fold01 {'delta_rmse_top': 0.4156501880564871, 'delta_rmse_prior_top': -0.10476722939332639, 'delta_rmse_random': 0.11363936903689176}
+NCR_RANDOM seed01_fold02 {'delta_rmse_top': 0.5739211163254607, 'delta_rmse_prior_top': 0.3111186925971401, 'delta_rmse_random': 2.0708164171736865}
+NCR_RANDOM seed01_fold03 {'delta_rmse_top': 4.139164514844302, 'delta_rmse_prior_top': 0.5027527142978547, 'delta_rmse_random': 1.0490590792964474}
+NCR_RANDOM seed01_fold04 {'delta_rmse_top': 0.8756675990035951, 'delta_rmse_prior_top': 0.7099184862029739, 'delta_rmse_random': 0.32382796927109503}
+NCR_RANDOM seed02_fold00 {'delta_rmse_top': 4.033662513130961, 'delta_rmse_prior_top': 0.7304146073025457, 'delta_rmse_random': 1.1668515241374733}
+NCR_RANDOM seed02_fold01 {'delta_rmse_top': 0.1185802875184967, 'delta_rmse_prior_top': 0.4490189702818608, 'delta_rmse_random': 1.3422303605064894}
+NCR_RANDOM seed02_fold02 {'delta_rmse_top': 1.9354622256051277, 'delta_rmse_prior_top': 0.2479510268330829, 'delta_rmse_random': 1.6784225268235193}
+NCR_RANDOM seed02_fold03 {'delta_rmse_top': 0.24450693047993788, 'delta_rmse_prior_top': 0.12406666082137718, 'delta_rmse_random': 0.3971921711160027}
+NCR_RANDOM seed02_fold04 {'delta_rmse_top': 0.9899317695041541, 'delta_rmse_prior_top': 0.11297286376839644, 'delta_rmse_random': 1.5200647319590237}
+NCR_RANDOM seed03_fold00 {'delta_rmse_top': 1.8360780323786754, 'delta_rmse_prior_top': 0.788239382921522, 'delta_rmse_random': 0.9220875274030531}
+NCR_RANDOM seed03_fold01 {'delta_rmse_top': 0.2777686391498797, 'delta_rmse_prior_top': 0.7426076419782204, 'delta_rmse_random': 0.7139413538748443}
+NCR_RANDOM seed03_fold02 {'delta_rmse_top': 8.062500237991477, 'delta_rmse_prior_top': 0.5239228451688085, 'delta_rmse_random': 1.7646950421455863}
+NCR_RANDOM seed03_fold03 {'delta_rmse_top': 0.879435640983468, 'delta_rmse_prior_top': 0.357990370692705, 'delta_rmse_random': 0.5520303556910511}
+NCR_RANDOM seed03_fold04 {'delta_rmse_top': 1.6187458702785298, 'delta_rmse_prior_top': 0.06609282430856833, 'delta_rmse_random': 0.6311636124110995}
+NCR_RANDOM seed04_fold00 {'delta_rmse_top': 3.8854660636266294, 'delta_rmse_prior_top': 0.036914251444436275, 'delta_rmse_random': 1.7501964162789605}
+NCR_RANDOM seed04_fold01 {'delta_rmse_top': 0.41332449849356223, 'delta_rmse_prior_top': -0.014954044610279382, 'delta_rmse_random': 1.6564383863250214}
+NCR_RANDOM seed04_fold02 {'delta_rmse_top': 0.27799875321389234, 'delta_rmse_prior_top': 0.36414439522145337, 'delta_rmse_random': 1.601528420362861}
+NCR_RANDOM seed04_fold03 {'delta_rmse_top': 1.8087447294489234, 'delta_rmse_prior_top': 0.921580469060439, 'delta_rmse_random': 1.3754029154008238}
+NCR_RANDOM seed04_fold04 {'delta_rmse_top': 2.6795166255093674, 'delta_rmse_prior_top': 1.2481540642340114, 'delta_rmse_random': 1.1454306156335354}
+Converted M2_TRUE: 25 splits, 575 long rows
+[refit] M2_SHUFFLED: no scripts/43 outputs, refitting masks...
+/home/iemiedc2026/Documents/Sanjan/iclr/src/metascfc/models/iclr_backbones/meta_gat.py:311: UserWarning: index_reduce_cuda does not have a deterministic implementation, but you set 'torch.use_deterministic_algorithms(True, warn_only=True)'. You can file an issue at https://github.com/pytorch/pytorch/issues to help us prioritize adding deterministic support for this operation. (Triggered internally at /__w/pytorch/pytorch/aten/src/ATen/Context.cpp:186.)
+  max_per_node = torch.index_reduce(
+/home/iemiedc2026/Documents/Sanjan/iclr/src/metascfc/models/iclr_backbones/meta_gat.py:311: UserWarning: index_reduce_cuda does not have a deterministic implementation, but you set 'torch.use_deterministic_algorithms(True, warn_only=True)'. You can file an issue at https://github.com/pytorch/pytorch/issues to help us prioritize adding deterministic support for this operation. (Triggered internally at /__w/pytorch/pytorch/aten/src/ATen/Context.cpp:186.)
+  max_per_node = torch.index_reduce(
+[refit] M2_SHUFFLED seed00_fold00 delta_true_top=-0.409 delta_random_top=+4.173
+/home/iemiedc2026/Documents/Sanjan/iclr/src/metascfc/models/iclr_backbones/meta_gat.py:311: UserWarning: index_reduce_cuda does not have a deterministic implementation, but you set 'torch.use_deterministic_algorithms(True, warn_only=True)'. You can file an issue at https://github.com/pytorch/pytorch/issues to help us prioritize adding deterministic support for this operation. (Triggered internally at /__w/pytorch/pytorch/aten/src/ATen/Context.cpp:186.)
+  max_per_node = torch.index_reduce(
+[refit] M2_SHUFFLED seed00_fold01 delta_true_top=+5.638 delta_random_top=+2.012
+/home/iemiedc2026/Documents/Sanjan/iclr/src/metascfc/models/iclr_backbones/meta_gat.py:311: UserWarning: index_reduce_cuda does not have a deterministic implementation, but you set 'torch.use_deterministic_algorithms(True, warn_only=True)'. You can file an issue at https://github.com/pytorch/pytorch/issues to help us prioritize adding deterministic support for this operation. (Triggered internally at /__w/pytorch/pytorch/aten/src/ATen/Context.cpp:186.)
+  max_per_node = torch.index_reduce(
+[refit] M2_SHUFFLED seed00_fold02 delta_true_top=+1.419 delta_random_top=+0.914
+/home/iemiedc2026/Documents/Sanjan/iclr/src/metascfc/models/iclr_backbones/meta_gat.py:311: UserWarning: index_reduce_cuda does not have a deterministic implementation, but you set 'torch.use_deterministic_algorithms(True, warn_only=True)'. You can file an issue at https://github.com/pytorch/pytorch/issues to help us prioritize adding deterministic support for this operation. (Triggered internally at /__w/pytorch/pytorch/aten/src/ATen/Context.cpp:186.)
+  max_per_node = torch.index_reduce(
+[refit] M2_SHUFFLED seed00_fold03 delta_true_top=+0.212 delta_random_top=+0.315
+/home/iemiedc2026/Documents/Sanjan/iclr/src/metascfc/models/iclr_backbones/meta_gat.py:311: UserWarning: index_reduce_cuda does not have a deterministic implementation, but you set 'torch.use_deterministic_algorithms(True, warn_only=True)'. You can file an issue at https://github.com/pytorch/pytorch/issues to help us prioritize adding deterministic support for this operation. (Triggered internally at /__w/pytorch/pytorch/aten/src/ATen/Context.cpp:186.)
+  max_per_node = torch.index_reduce(
+[refit] M2_SHUFFLED seed00_fold04 delta_true_top=+7.227 delta_random_top=+0.058
+/home/iemiedc2026/Documents/Sanjan/iclr/src/metascfc/models/iclr_backbones/meta_gat.py:311: UserWarning: index_reduce_cuda does not have a deterministic implementation, but you set 'torch.use_deterministic_algorithms(True, warn_only=True)'. You can file an issue at https://github.com/pytorch/pytorch/issues to help us prioritize adding deterministic support for this operation. (Triggered internally at /__w/pytorch/pytorch/aten/src/ATen/Context.cpp:186.)
+  max_per_node = torch.index_reduce(
+[refit] M2_SHUFFLED seed01_fold00 delta_true_top=+0.087 delta_random_top=+0.237
+/home/iemiedc2026/Documents/Sanjan/iclr/src/metascfc/models/iclr_backbones/meta_gat.py:311: UserWarning: index_reduce_cuda does not have a deterministic implementation, but you set 'torch.use_deterministic_algorithms(True, warn_only=True)'. You can file an issue at https://github.com/pytorch/pytorch/issues to help us prioritize adding deterministic support for this operation. (Triggered internally at /__w/pytorch/pytorch/aten/src/ATen/Context.cpp:186.)
+  max_per_node = torch.index_reduce(
+[refit] M2_SHUFFLED seed01_fold01 delta_true_top=+1.185 delta_random_top=-0.154
+/home/iemiedc2026/Documents/Sanjan/iclr/src/metascfc/models/iclr_backbones/meta_gat.py:311: UserWarning: index_reduce_cuda does not have a deterministic implementation, but you set 'torch.use_deterministic_algorithms(True, warn_only=True)'. You can file an issue at https://github.com/pytorch/pytorch/issues to help us prioritize adding deterministic support for this operation. (Triggered internally at /__w/pytorch/pytorch/aten/src/ATen/Context.cpp:186.)
+  max_per_node = torch.index_reduce(
+[refit] M2_SHUFFLED seed01_fold02 delta_true_top=+0.023 delta_random_top=+0.078
+/home/iemiedc2026/Documents/Sanjan/iclr/src/metascfc/models/iclr_backbones/meta_gat.py:311: UserWarning: index_reduce_cuda does not have a deterministic implementation, but you set 'torch.use_deterministic_algorithms(True, warn_only=True)'. You can file an issue at https://github.com/pytorch/pytorch/issues to help us prioritize adding deterministic support for this operation. (Triggered internally at /__w/pytorch/pytorch/aten/src/ATen/Context.cpp:186.)
+  max_per_node = torch.index_reduce(
+[refit] M2_SHUFFLED seed01_fold03 delta_true_top=+0.629 delta_random_top=+1.826
+/home/iemiedc2026/Documents/Sanjan/iclr/src/metascfc/models/iclr_backbones/meta_gat.py:311: UserWarning: index_reduce_cuda does not have a deterministic implementation, but you set 'torch.use_deterministic_algorithms(True, warn_only=True)'. You can file an issue at https://github.com/pytorch/pytorch/issues to help us prioritize adding deterministic support for this operation. (Triggered internally at /__w/pytorch/pytorch/aten/src/ATen/Context.cpp:186.)
+  max_per_node = torch.index_reduce(
+[refit] M2_SHUFFLED seed01_fold04 delta_true_top=+0.556 delta_random_top=+0.854
+/home/iemiedc2026/Documents/Sanjan/iclr/src/metascfc/models/iclr_backbones/meta_gat.py:311: UserWarning: index_reduce_cuda does not have a deterministic implementation, but you set 'torch.use_deterministic_algorithms(True, warn_only=True)'. You can file an issue at https://github.com/pytorch/pytorch/issues to help us prioritize adding deterministic support for this operation. (Triggered internally at /__w/pytorch/pytorch/aten/src/ATen/Context.cpp:186.)
+  max_per_node = torch.index_reduce(
+[refit] M2_SHUFFLED seed02_fold00 delta_true_top=+0.113 delta_random_top=+0.103
+/home/iemiedc2026/Documents/Sanjan/iclr/src/metascfc/models/iclr_backbones/meta_gat.py:311: UserWarning: index_reduce_cuda does not have a deterministic implementation, but you set 'torch.use_deterministic_algorithms(True, warn_only=True)'. You can file an issue at https://github.com/pytorch/pytorch/issues to help us prioritize adding deterministic support for this operation. (Triggered internally at /__w/pytorch/pytorch/aten/src/ATen/Context.cpp:186.)
+  max_per_node = torch.index_reduce(
+[refit] M2_SHUFFLED seed02_fold01 delta_true_top=+4.556 delta_random_top=+1.376
+/home/iemiedc2026/Documents/Sanjan/iclr/src/metascfc/models/iclr_backbones/meta_gat.py:311: UserWarning: index_reduce_cuda does not have a deterministic implementation, but you set 'torch.use_deterministic_algorithms(True, warn_only=True)'. You can file an issue at https://github.com/pytorch/pytorch/issues to help us prioritize adding deterministic support for this operation. (Triggered internally at /__w/pytorch/pytorch/aten/src/ATen/Context.cpp:186.)
+  max_per_node = torch.index_reduce(
+[refit] M2_SHUFFLED seed02_fold02 delta_true_top=+1.392 delta_random_top=+6.816
+/home/iemiedc2026/Documents/Sanjan/iclr/src/metascfc/models/iclr_backbones/meta_gat.py:311: UserWarning: index_reduce_cuda does not have a deterministic implementation, but you set 'torch.use_deterministic_algorithms(True, warn_only=True)'. You can file an issue at https://github.com/pytorch/pytorch/issues to help us prioritize adding deterministic support for this operation. (Triggered internally at /__w/pytorch/pytorch/aten/src/ATen/Context.cpp:186.)
+  max_per_node = torch.index_reduce(
+[refit] M2_SHUFFLED seed02_fold03 delta_true_top=+0.422 delta_random_top=+0.025
+/home/iemiedc2026/Documents/Sanjan/iclr/src/metascfc/models/iclr_backbones/meta_gat.py:311: UserWarning: index_reduce_cuda does not have a deterministic implementation, but you set 'torch.use_deterministic_algorithms(True, warn_only=True)'. You can file an issue at https://github.com/pytorch/pytorch/issues to help us prioritize adding deterministic support for this operation. (Triggered internally at /__w/pytorch/pytorch/aten/src/ATen/Context.cpp:186.)
+  max_per_node = torch.index_reduce(
+[refit] M2_SHUFFLED seed02_fold04 delta_true_top=+4.503 delta_random_top=+1.603
+/home/iemiedc2026/Documents/Sanjan/iclr/src/metascfc/models/iclr_backbones/meta_gat.py:311: UserWarning: index_reduce_cuda does not have a deterministic implementation, but you set 'torch.use_deterministic_algorithms(True, warn_only=True)'. You can file an issue at https://github.com/pytorch/pytorch/issues to help us prioritize adding deterministic support for this operation. (Triggered internally at /__w/pytorch/pytorch/aten/src/ATen/Context.cpp:186.)
+  max_per_node = torch.index_reduce(
+[refit] M2_SHUFFLED seed03_fold00 delta_true_top=+4.226 delta_random_top=+1.619
+/home/iemiedc2026/Documents/Sanjan/iclr/src/metascfc/models/iclr_backbones/meta_gat.py:311: UserWarning: index_reduce_cuda does not have a deterministic implementation, but you set 'torch.use_deterministic_algorithms(True, warn_only=True)'. You can file an issue at https://github.com/pytorch/pytorch/issues to help us prioritize adding deterministic support for this operation. (Triggered internally at /__w/pytorch/pytorch/aten/src/ATen/Context.cpp:186.)
+  max_per_node = torch.index_reduce(
+[refit] M2_SHUFFLED seed03_fold01 delta_true_top=+3.518 delta_random_top=+1.091
+/home/iemiedc2026/Documents/Sanjan/iclr/src/metascfc/models/iclr_backbones/meta_gat.py:311: UserWarning: index_reduce_cuda does not have a deterministic implementation, but you set 'torch.use_deterministic_algorithms(True, warn_only=True)'. You can file an issue at https://github.com/pytorch/pytorch/issues to help us prioritize adding deterministic support for this operation. (Triggered internally at /__w/pytorch/pytorch/aten/src/ATen/Context.cpp:186.)
+  max_per_node = torch.index_reduce(
+[refit] M2_SHUFFLED seed03_fold02 delta_true_top=+4.841 delta_random_top=+1.211
+/home/iemiedc2026/Documents/Sanjan/iclr/src/metascfc/models/iclr_backbones/meta_gat.py:311: UserWarning: index_reduce_cuda does not have a deterministic implementation, but you set 'torch.use_deterministic_algorithms(True, warn_only=True)'. You can file an issue at https://github.com/pytorch/pytorch/issues to help us prioritize adding deterministic support for this operation. (Triggered internally at /__w/pytorch/pytorch/aten/src/ATen/Context.cpp:186.)
+  max_per_node = torch.index_reduce(
+[refit] M2_SHUFFLED seed03_fold03 delta_true_top=+1.266 delta_random_top=+1.513
+/home/iemiedc2026/Documents/Sanjan/iclr/src/metascfc/models/iclr_backbones/meta_gat.py:311: UserWarning: index_reduce_cuda does not have a deterministic implementation, but you set 'torch.use_deterministic_algorithms(True, warn_only=True)'. You can file an issue at https://github.com/pytorch/pytorch/issues to help us prioritize adding deterministic support for this operation. (Triggered internally at /__w/pytorch/pytorch/aten/src/ATen/Context.cpp:186.)
+  max_per_node = torch.index_reduce(
+[refit] M2_SHUFFLED seed03_fold04 delta_true_top=+2.426 delta_random_top=+0.565
+/home/iemiedc2026/Documents/Sanjan/iclr/src/metascfc/models/iclr_backbones/meta_gat.py:311: UserWarning: index_reduce_cuda does not have a deterministic implementation, but you set 'torch.use_deterministic_algorithms(True, warn_only=True)'. You can file an issue at https://github.com/pytorch/pytorch/issues to help us prioritize adding deterministic support for this operation. (Triggered internally at /__w/pytorch/pytorch/aten/src/ATen/Context.cpp:186.)
+  max_per_node = torch.index_reduce(
+[refit] M2_SHUFFLED seed04_fold00 delta_true_top=+0.453 delta_random_top=+0.168
+/home/iemiedc2026/Documents/Sanjan/iclr/src/metascfc/models/iclr_backbones/meta_gat.py:311: UserWarning: index_reduce_cuda does not have a deterministic implementation, but you set 'torch.use_deterministic_algorithms(True, warn_only=True)'. You can file an issue at https://github.com/pytorch/pytorch/issues to help us prioritize adding deterministic support for this operation. (Triggered internally at /__w/pytorch/pytorch/aten/src/ATen/Context.cpp:186.)
+  max_per_node = torch.index_reduce(
+[refit] M2_SHUFFLED seed04_fold01 delta_true_top=+1.838 delta_random_top=-0.085
+/home/iemiedc2026/Documents/Sanjan/iclr/src/metascfc/models/iclr_backbones/meta_gat.py:311: UserWarning: index_reduce_cuda does not have a deterministic implementation, but you set 'torch.use_deterministic_algorithms(True, warn_only=True)'. You can file an issue at https://github.com/pytorch/pytorch/issues to help us prioritize adding deterministic support for this operation. (Triggered internally at /__w/pytorch/pytorch/aten/src/ATen/Context.cpp:186.)
+  max_per_node = torch.index_reduce(
+[refit] M2_SHUFFLED seed04_fold02 delta_true_top=+0.210 delta_random_top=+0.132
+/home/iemiedc2026/Documents/Sanjan/iclr/src/metascfc/models/iclr_backbones/meta_gat.py:311: UserWarning: index_reduce_cuda does not have a deterministic implementation, but you set 'torch.use_deterministic_algorithms(True, warn_only=True)'. You can file an issue at https://github.com/pytorch/pytorch/issues to help us prioritize adding deterministic support for this operation. (Triggered internally at /__w/pytorch/pytorch/aten/src/ATen/Context.cpp:186.)
+  max_per_node = torch.index_reduce(
+[refit] M2_SHUFFLED seed04_fold03 delta_true_top=+1.727 delta_random_top=+1.249
+/home/iemiedc2026/Documents/Sanjan/iclr/src/metascfc/models/iclr_backbones/meta_gat.py:311: UserWarning: index_reduce_cuda does not have a deterministic implementation, but you set 'torch.use_deterministic_algorithms(True, warn_only=True)'. You can file an issue at https://github.com/pytorch/pytorch/issues to help us prioritize adding deterministic support for this operation. (Triggered internally at /__w/pytorch/pytorch/aten/src/ATen/Context.cpp:186.)
+  max_per_node = torch.index_reduce(
+[refit] M2_SHUFFLED seed04_fold04 delta_true_top=+0.148 delta_random_top=+0.913
+[refit] M2_SHUFFLED: 25 splits computed
+Converted M2_SHUFFLED: 25 splits, 575 long rows
+Converted M2_RANDOM: 25 splits, 575 long rows
+Traceback (most recent call last):
+  File "/home/iemiedc2026/Documents/Sanjan/iclr/scripts/17_run_faithfulness.py", line 974, in <module>
+    main()
+  File "/home/iemiedc2026/Documents/Sanjan/iclr/scripts/17_run_faithfulness.py", line 686, in main
+    exp_rows, exp_long = run_iclr_config(Path(config_path), args, out)
+                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/iemiedc2026/Documents/Sanjan/iclr/scripts/17_run_faithfulness.py", line 432, in run_iclr_config
+    prior = load_roi_prior_minmax(method_cfg["path"], n_rois)
+                                  ~~~~~~~~~~^^^^^^^^
+KeyError: 'path'
+[2026-08-11 19:31:05] DONE exit=0
+[2026-08-11 19:41:02] LAUNCH 17_run_faithfulness (ICLR configs, seeds 0-4, topk 10, random_repeats 20, mask_mode both, overwrite)
+NCR_TRUE seed00_fold00 {'delta_rmse_top': 0.20611080088587208, 'delta_rmse_prior_top': 0.09593950346864144, 'delta_rmse_random': 1.097109490113164}
+NCR_TRUE seed00_fold01 {'delta_rmse_top': 0.2514040800662798, 'delta_rmse_prior_top': 0.7206941643330733, 'delta_rmse_random': 0.22406870626372744}
+NCR_TRUE seed00_fold02 {'delta_rmse_top': 0.33319048719758904, 'delta_rmse_prior_top': 0.5472912944011128, 'delta_rmse_random': 0.6029313701891059}
+NCR_TRUE seed00_fold03 {'delta_rmse_top': 6.294730305111123, 'delta_rmse_prior_top': 0.26006297908469644, 'delta_rmse_random': 1.7156507502677751}
+NCR_TRUE seed00_fold04 {'delta_rmse_top': 5.096278100691575, 'delta_rmse_prior_top': 1.262076409703277, 'delta_rmse_random': 1.3927699287698312}
+NCR_TRUE seed01_fold00 {'delta_rmse_top': 2.21191923832229, 'delta_rmse_prior_top': 1.6560075926003792, 'delta_rmse_random': 2.7912635228574603}
+NCR_TRUE seed01_fold01 {'delta_rmse_top': 0.2739765487354813, 'delta_rmse_prior_top': 0.6821311148178717, 'delta_rmse_random': 0.03306253384723146}
+NCR_TRUE seed01_fold02 {'delta_rmse_top': 0.9108740810603955, 'delta_rmse_prior_top': 0.12926604338390657, 'delta_rmse_random': 0.5740796392989092}
+NCR_TRUE seed01_fold03 {'delta_rmse_top': 4.139164514844302, 'delta_rmse_prior_top': 0.2947629095173232, 'delta_rmse_random': 1.0490590792964465}
+NCR_TRUE seed01_fold04 {'delta_rmse_top': 0.8756675990035889, 'delta_rmse_prior_top': -0.09552906951005813, 'delta_rmse_random': 0.32382796927109414}
+NCR_TRUE seed02_fold00 {'delta_rmse_top': 3.777962393376357, 'delta_rmse_prior_top': 0.18923516595506928, 'delta_rmse_random': 1.2474472935020229}
+NCR_TRUE seed02_fold01 {'delta_rmse_top': 1.4246534107925592, 'delta_rmse_prior_top': 2.227469373454845, 'delta_rmse_random': 1.5575340589129834}
+NCR_TRUE seed02_fold02 {'delta_rmse_top': 1.9354622256051393, 'delta_rmse_prior_top': 1.0229548999875329, 'delta_rmse_random': 1.678422526823514}
+NCR_TRUE seed02_fold03 {'delta_rmse_top': 0.007441428635368119, 'delta_rmse_prior_top': 0.029002270582072498, 'delta_rmse_random': 0.06982152192316882}
+NCR_TRUE seed02_fold04 {'delta_rmse_top': 3.4883169484652568, 'delta_rmse_prior_top': 2.5846762436915744, 'delta_rmse_random': 1.4073166843177862}
+NCR_TRUE seed03_fold00 {'delta_rmse_top': 1.0628897401441293, 'delta_rmse_prior_top': 0.7038413659588798, 'delta_rmse_random': 0.47632570443373634}
+NCR_TRUE seed03_fold01 {'delta_rmse_top': 0.2777686391498788, 'delta_rmse_prior_top': 0.7363552487154887, 'delta_rmse_random': 0.7139413538748443}
+NCR_TRUE seed03_fold02 {'delta_rmse_top': 8.062500237991445, 'delta_rmse_prior_top': 0.7474684872178594, 'delta_rmse_random': 1.764695042145581}
+NCR_TRUE seed03_fold03 {'delta_rmse_top': 0.877253691397911, 'delta_rmse_prior_top': 0.9486542130171669, 'delta_rmse_random': 0.3836565886442225}
+NCR_TRUE seed03_fold04 {'delta_rmse_top': 4.0567336415459, 'delta_rmse_prior_top': 0.10114569660630135, 'delta_rmse_random': 0.7825700534081301}
+NCR_TRUE seed04_fold00 {'delta_rmse_top': 0.9545382774742475, 'delta_rmse_prior_top': 2.2528606924033623, 'delta_rmse_random': 2.0686581743049643}
+NCR_TRUE seed04_fold01 {'delta_rmse_top': 7.789040591674373, 'delta_rmse_prior_top': -0.03989164852643956, 'delta_rmse_random': 1.9904450090338281}
+NCR_TRUE seed04_fold02 {'delta_rmse_top': 1.5450663688429138, 'delta_rmse_prior_top': 1.4156471232255727, 'delta_rmse_random': 1.7836331843306796}
+NCR_TRUE seed04_fold03 {'delta_rmse_top': 1.808744729448926, 'delta_rmse_prior_top': 2.8528636284218614, 'delta_rmse_random': 1.375402915400823}
+NCR_TRUE seed04_fold04 {'delta_rmse_top': 4.550066904626016, 'delta_rmse_prior_top': 0.8317543209357705, 'delta_rmse_random': 1.0002850859224992}
+NCR_SHUFFLED seed00_fold00 {'delta_rmse_top': 0.2061108008858703, 'delta_rmse_prior_top': 0.09593950346864233, 'delta_rmse_random': 1.0971094901131613}
+NCR_SHUFFLED seed00_fold01 {'delta_rmse_top': 0.251404080066278, 'delta_rmse_prior_top': 0.720694164333076, 'delta_rmse_random': 0.2240687062637292}
+NCR_SHUFFLED seed00_fold02 {'delta_rmse_top': 1.9267710397336586, 'delta_rmse_prior_top': 0.08451502801299249, 'delta_rmse_random': 0.7117212063650022}
+NCR_SHUFFLED seed00_fold03 {'delta_rmse_top': 12.898892533993475, 'delta_rmse_prior_top': 0.26203986072766217, 'delta_rmse_random': 1.6224449092674078}
+NCR_SHUFFLED seed00_fold04 {'delta_rmse_top': 5.096278100691554, 'delta_rmse_prior_top': 1.262076409703277, 'delta_rmse_random': 1.3927699287698196}
+NCR_SHUFFLED seed01_fold00 {'delta_rmse_top': 2.0269584819101025, 'delta_rmse_prior_top': 0.15093095738118123, 'delta_rmse_random': 2.5307572276527024}
+NCR_SHUFFLED seed01_fold01 {'delta_rmse_top': 1.0061575741750337, 'delta_rmse_prior_top': 0.03937744647072794, 'delta_rmse_random': 0.07825701116399841}
+NCR_SHUFFLED seed01_fold02 {'delta_rmse_top': 0.9108740810603964, 'delta_rmse_prior_top': 0.12926604338390746, 'delta_rmse_random': 0.57407963929891}
+NCR_SHUFFLED seed01_fold03 {'delta_rmse_top': 4.139164514844304, 'delta_rmse_prior_top': 0.2947629095173214, 'delta_rmse_random': 1.0490590792964465}
+NCR_SHUFFLED seed01_fold04 {'delta_rmse_top': 0.8756675990035916, 'delta_rmse_prior_top': -0.0955290695100599, 'delta_rmse_random': 0.32382796927109325}
+NCR_SHUFFLED seed02_fold00 {'delta_rmse_top': 5.67335002745923, 'delta_rmse_prior_top': 0.1921489767346216, 'delta_rmse_random': 0.9606611297754837}
+NCR_SHUFFLED seed02_fold01 {'delta_rmse_top': 0.6244652410185507, 'delta_rmse_prior_top': -0.08728391722749951, 'delta_rmse_random': 1.7656986156788506}
+NCR_SHUFFLED seed02_fold02 {'delta_rmse_top': 1.9354622256051393, 'delta_rmse_prior_top': 1.0229548999875222, 'delta_rmse_random': 1.678422526823514}
+NCR_SHUFFLED seed02_fold03 {'delta_rmse_top': 0.007441428635367231, 'delta_rmse_prior_top': 0.029002270582072498, 'delta_rmse_random': 0.06982152192316882}
+NCR_SHUFFLED seed02_fold04 {'delta_rmse_top': 0.989931769504163, 'delta_rmse_prior_top': 0.2661696698468061, 'delta_rmse_random': 1.5200647319590246}
+NCR_SHUFFLED seed03_fold00 {'delta_rmse_top': 1.83607803237867, 'delta_rmse_prior_top': 0.15641669648289191, 'delta_rmse_random': 0.9220875274030531}
+NCR_SHUFFLED seed03_fold01 {'delta_rmse_top': 0.2777686391498779, 'delta_rmse_prior_top': 0.7363552487154914, 'delta_rmse_random': 0.7139413538748478}
+NCR_SHUFFLED seed03_fold02 {'delta_rmse_top': 8.062500237991454, 'delta_rmse_prior_top': 0.7474684872178585, 'delta_rmse_random': 1.7646950421455827}
+NCR_SHUFFLED seed03_fold03 {'delta_rmse_top': 1.5778848044936158, 'delta_rmse_prior_top': 0.06934627080110634, 'delta_rmse_random': 0.4623529706251297}
+NCR_SHUFFLED seed03_fold04 {'delta_rmse_top': 3.8794618882320044, 'delta_rmse_prior_top': 0.08606116726069946, 'delta_rmse_random': 0.6202131288004562}
+NCR_SHUFFLED seed04_fold00 {'delta_rmse_top': 1.0595104278205927, 'delta_rmse_prior_top': 0.3603707134934888, 'delta_rmse_random': 2.145207968459683}
+NCR_SHUFFLED seed04_fold01 {'delta_rmse_top': 9.277438929272087, 'delta_rmse_prior_top': 0.07089052683447328, 'delta_rmse_random': 1.9259001853769124}
+NCR_SHUFFLED seed04_fold02 {'delta_rmse_top': 0.5535371170900838, 'delta_rmse_prior_top': 0.19165650546687907, 'delta_rmse_random': 0.5313314779935476}
+NCR_SHUFFLED seed04_fold03 {'delta_rmse_top': 14.284737117884758, 'delta_rmse_prior_top': 3.0704702243442323, 'delta_rmse_random': 1.9070050671341532}
+NCR_SHUFFLED seed04_fold04 {'delta_rmse_top': 9.717369005013499, 'delta_rmse_prior_top': 0.4351848803235665, 'delta_rmse_random': 1.8692166456582662}
+NCR_RANDOM seed00_fold00 {'delta_rmse_top': 0.20611080088587386, 'delta_rmse_prior_top': 0.09593950346864677, 'delta_rmse_random': 1.0971094901131675}
+NCR_RANDOM seed00_fold01 {'delta_rmse_top': 0.251404080066278, 'delta_rmse_prior_top': 0.7206941643330724, 'delta_rmse_random': 0.22406870626372744}
+NCR_RANDOM seed00_fold02 {'delta_rmse_top': 0.7229993517792455, 'delta_rmse_prior_top': 0.11877242427928447, 'delta_rmse_random': 0.601413169941365}
+NCR_RANDOM seed00_fold03 {'delta_rmse_top': 6.294730305111149, 'delta_rmse_prior_top': 0.2600629790847053, 'delta_rmse_random': 1.7156507502677805}
+NCR_RANDOM seed00_fold04 {'delta_rmse_top': 5.096278100691549, 'delta_rmse_prior_top': 1.262076409703293, 'delta_rmse_random': 1.3927699287698205}
+NCR_RANDOM seed01_fold00 {'delta_rmse_top': 2.026958481910115, 'delta_rmse_prior_top': 0.15093095738118212, 'delta_rmse_random': 2.5307572276526926}
+NCR_RANDOM seed01_fold01 {'delta_rmse_top': 0.4156501880564871, 'delta_rmse_prior_top': 0.2697408501641556, 'delta_rmse_random': 0.11363936903689176}
+NCR_RANDOM seed01_fold02 {'delta_rmse_top': 0.5739211163254607, 'delta_rmse_prior_top': 0.09036004714645607, 'delta_rmse_random': 2.0708164171736865}
+NCR_RANDOM seed01_fold03 {'delta_rmse_top': 4.139164514844302, 'delta_rmse_prior_top': 0.2947629095173214, 'delta_rmse_random': 1.0490590792964474}
+NCR_RANDOM seed01_fold04 {'delta_rmse_top': 0.8756675990035951, 'delta_rmse_prior_top': -0.0955290695100599, 'delta_rmse_random': 0.32382796927109503}
+NCR_RANDOM seed02_fold00 {'delta_rmse_top': 4.033662513130961, 'delta_rmse_prior_top': 0.2055265929762422, 'delta_rmse_random': 1.1668515241374733}
+NCR_RANDOM seed02_fold01 {'delta_rmse_top': 0.1185802875184967, 'delta_rmse_prior_top': 0.12248064611091358, 'delta_rmse_random': 1.3422303605064894}
+NCR_RANDOM seed02_fold02 {'delta_rmse_top': 1.9354622256051277, 'delta_rmse_prior_top': 1.0229548999875426, 'delta_rmse_random': 1.6784225268235193}
+NCR_RANDOM seed02_fold03 {'delta_rmse_top': 0.24450693047993788, 'delta_rmse_prior_top': 0.1275609394300341, 'delta_rmse_random': 0.3971921711160027}
+NCR_RANDOM seed02_fold04 {'delta_rmse_top': 0.9899317695041541, 'delta_rmse_prior_top': 0.26616966984680257, 'delta_rmse_random': 1.5200647319590237}
+NCR_RANDOM seed03_fold00 {'delta_rmse_top': 1.8360780323786754, 'delta_rmse_prior_top': 0.15641669648289103, 'delta_rmse_random': 0.9220875274030531}
+NCR_RANDOM seed03_fold01 {'delta_rmse_top': 0.2777686391498797, 'delta_rmse_prior_top': 0.7363552487154914, 'delta_rmse_random': 0.7139413538748443}
+NCR_RANDOM seed03_fold02 {'delta_rmse_top': 8.062500237991477, 'delta_rmse_prior_top': 0.7474684872178514, 'delta_rmse_random': 1.7646950421455863}
+NCR_RANDOM seed03_fold03 {'delta_rmse_top': 0.879435640983468, 'delta_rmse_prior_top': 0.08564391247504854, 'delta_rmse_random': 0.5520303556910511}
+NCR_RANDOM seed03_fold04 {'delta_rmse_top': 1.6187458702785298, 'delta_rmse_prior_top': 0.04840277245138491, 'delta_rmse_random': 0.6311636124110995}
+NCR_RANDOM seed04_fold00 {'delta_rmse_top': 3.8854660636266294, 'delta_rmse_prior_top': 0.1579488326400007, 'delta_rmse_random': 1.7501964162789605}
+NCR_RANDOM seed04_fold01 {'delta_rmse_top': 0.41332449849356223, 'delta_rmse_prior_top': -0.017660548211027027, 'delta_rmse_random': 1.6564383863250214}
+NCR_RANDOM seed04_fold02 {'delta_rmse_top': 0.27799875321389234, 'delta_rmse_prior_top': 0.5188031759095946, 'delta_rmse_random': 1.601528420362861}
+NCR_RANDOM seed04_fold03 {'delta_rmse_top': 1.8087447294489234, 'delta_rmse_prior_top': 2.852863628421857, 'delta_rmse_random': 1.3754029154008238}
+NCR_RANDOM seed04_fold04 {'delta_rmse_top': 2.6795166255093674, 'delta_rmse_prior_top': 0.6984502121298304, 'delta_rmse_random': 1.1454306156335354}
+Converted M2_TRUE: 25 splits, 575 long rows
+Converted M2_SHUFFLED: 25 splits, 575 long rows
+Converted M2_RANDOM: 25 splits, 575 long rows
+[refit] M3_E0: no scripts/43 outputs, refitting masks...
+Traceback (most recent call last):
+  File "/home/iemiedc2026/Documents/Sanjan/iclr/scripts/17_run_faithfulness.py", line 987, in <module>
+    main()
+  File "/home/iemiedc2026/Documents/Sanjan/iclr/scripts/17_run_faithfulness.py", line 699, in main
+    exp_rows, exp_long = run_iclr_config(Path(config_path), args, out)
+                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/iemiedc2026/Documents/Sanjan/iclr/scripts/17_run_faithfulness.py", line 541, in run_iclr_config
+    _refit_iclr_masked(cfg, method_id, method_cfg, seeds, args)
+  File "/home/iemiedc2026/Documents/Sanjan/iclr/scripts/17_run_faithfulness.py", line 181, in _refit_iclr_masked
+    gate_mode=str(fixed.get("gate_mode", "product")),
+                  ^^^^^
+UnboundLocalError: cannot access local variable 'fixed' where it is not associated with a value
+[2026-08-11 20:42:30] DONE exit=0
+[2026-08-11 20:52:10] LAUNCH 17_run_faithfulness (ICLR configs, seeds 0-4, topk 10, random_repeats 20, mask_mode both, overwrite)
+NCR_TRUE seed00_fold00 {'delta_rmse_top': 0.20611080088587208, 'delta_rmse_prior_top': 0.09593950346864144, 'delta_rmse_random': 1.097109490113164}
+NCR_TRUE seed00_fold01 {'delta_rmse_top': 0.2514040800662798, 'delta_rmse_prior_top': 0.7206941643330733, 'delta_rmse_random': 0.22406870626372744}
+NCR_TRUE seed00_fold02 {'delta_rmse_top': 0.33319048719758904, 'delta_rmse_prior_top': 0.5472912944011128, 'delta_rmse_random': 0.6029313701891059}
+NCR_TRUE seed00_fold03 {'delta_rmse_top': 6.294730305111123, 'delta_rmse_prior_top': 0.26006297908469644, 'delta_rmse_random': 1.7156507502677751}
+NCR_TRUE seed00_fold04 {'delta_rmse_top': 5.096278100691575, 'delta_rmse_prior_top': 1.262076409703277, 'delta_rmse_random': 1.3927699287698312}
+NCR_TRUE seed01_fold00 {'delta_rmse_top': 2.21191923832229, 'delta_rmse_prior_top': 1.6560075926003792, 'delta_rmse_random': 2.7912635228574603}
+NCR_TRUE seed01_fold01 {'delta_rmse_top': 0.2739765487354813, 'delta_rmse_prior_top': 0.6821311148178717, 'delta_rmse_random': 0.03306253384723146}
+NCR_TRUE seed01_fold02 {'delta_rmse_top': 0.9108740810603955, 'delta_rmse_prior_top': 0.12926604338390657, 'delta_rmse_random': 0.5740796392989092}
+NCR_TRUE seed01_fold03 {'delta_rmse_top': 4.139164514844302, 'delta_rmse_prior_top': 0.2947629095173232, 'delta_rmse_random': 1.0490590792964465}
+NCR_TRUE seed01_fold04 {'delta_rmse_top': 0.8756675990035889, 'delta_rmse_prior_top': -0.09552906951005813, 'delta_rmse_random': 0.32382796927109414}
+NCR_TRUE seed02_fold00 {'delta_rmse_top': 3.777962393376357, 'delta_rmse_prior_top': 0.18923516595506928, 'delta_rmse_random': 1.2474472935020229}
+NCR_TRUE seed02_fold01 {'delta_rmse_top': 1.4246534107925592, 'delta_rmse_prior_top': 2.227469373454845, 'delta_rmse_random': 1.5575340589129834}
+NCR_TRUE seed02_fold02 {'delta_rmse_top': 1.9354622256051393, 'delta_rmse_prior_top': 1.0229548999875329, 'delta_rmse_random': 1.678422526823514}
+NCR_TRUE seed02_fold03 {'delta_rmse_top': 0.007441428635368119, 'delta_rmse_prior_top': 0.029002270582072498, 'delta_rmse_random': 0.06982152192316882}
+NCR_TRUE seed02_fold04 {'delta_rmse_top': 3.4883169484652568, 'delta_rmse_prior_top': 2.5846762436915744, 'delta_rmse_random': 1.4073166843177862}
+NCR_TRUE seed03_fold00 {'delta_rmse_top': 1.0628897401441293, 'delta_rmse_prior_top': 0.7038413659588798, 'delta_rmse_random': 0.47632570443373634}
+NCR_TRUE seed03_fold01 {'delta_rmse_top': 0.2777686391498788, 'delta_rmse_prior_top': 0.7363552487154887, 'delta_rmse_random': 0.7139413538748443}
+NCR_TRUE seed03_fold02 {'delta_rmse_top': 8.062500237991445, 'delta_rmse_prior_top': 0.7474684872178594, 'delta_rmse_random': 1.764695042145581}
+NCR_TRUE seed03_fold03 {'delta_rmse_top': 0.877253691397911, 'delta_rmse_prior_top': 0.9486542130171669, 'delta_rmse_random': 0.3836565886442225}
+NCR_TRUE seed03_fold04 {'delta_rmse_top': 4.0567336415459, 'delta_rmse_prior_top': 0.10114569660630135, 'delta_rmse_random': 0.7825700534081301}
+[2026-08-11 21:13:49] LAUNCH 17_run_faithfulness (ICLR configs, seeds 0-4, topk 10, random_repeats 20, mask_mode both, overwrite)
+NCR_TRUE seed00_fold00 {'delta_rmse_top': 0.20611080088587208, 'delta_rmse_prior_top': 0.09593950346864144, 'delta_rmse_random': 1.097109490113164}
+NCR_TRUE seed00_fold01 {'delta_rmse_top': 0.2514040800662798, 'delta_rmse_prior_top': 0.7206941643330733, 'delta_rmse_random': 0.22406870626372744}
+NCR_TRUE seed00_fold02 {'delta_rmse_top': 0.33319048719758904, 'delta_rmse_prior_top': 0.5472912944011128, 'delta_rmse_random': 0.6029313701891059}
+NCR_TRUE seed00_fold03 {'delta_rmse_top': 6.294730305111123, 'delta_rmse_prior_top': 0.26006297908469644, 'delta_rmse_random': 1.7156507502677751}
+NCR_TRUE seed00_fold04 {'delta_rmse_top': 5.096278100691575, 'delta_rmse_prior_top': 1.262076409703277, 'delta_rmse_random': 1.3927699287698312}
+NCR_TRUE seed01_fold00 {'delta_rmse_top': 2.21191923832229, 'delta_rmse_prior_top': 1.6560075926003792, 'delta_rmse_random': 2.7912635228574603}
+NCR_TRUE seed01_fold01 {'delta_rmse_top': 0.2739765487354813, 'delta_rmse_prior_top': 0.6821311148178717, 'delta_rmse_random': 0.03306253384723146}
+NCR_TRUE seed01_fold02 {'delta_rmse_top': 0.9108740810603955, 'delta_rmse_prior_top': 0.12926604338390657, 'delta_rmse_random': 0.5740796392989092}
+NCR_TRUE seed01_fold03 {'delta_rmse_top': 4.139164514844302, 'delta_rmse_prior_top': 0.2947629095173232, 'delta_rmse_random': 1.0490590792964465}
+NCR_TRUE seed01_fold04 {'delta_rmse_top': 0.8756675990035889, 'delta_rmse_prior_top': -0.09552906951005813, 'delta_rmse_random': 0.32382796927109414}
+NCR_TRUE seed02_fold00 {'delta_rmse_top': 3.777962393376357, 'delta_rmse_prior_top': 0.18923516595506928, 'delta_rmse_random': 1.2474472935020229}
+NCR_TRUE seed02_fold01 {'delta_rmse_top': 1.4246534107925592, 'delta_rmse_prior_top': 2.227469373454845, 'delta_rmse_random': 1.5575340589129834}
+NCR_TRUE seed02_fold02 {'delta_rmse_top': 1.9354622256051393, 'delta_rmse_prior_top': 1.0229548999875329, 'delta_rmse_random': 1.678422526823514}
+NCR_TRUE seed02_fold03 {'delta_rmse_top': 0.007441428635368119, 'delta_rmse_prior_top': 0.029002270582072498, 'delta_rmse_random': 0.06982152192316882}
+NCR_TRUE seed02_fold04 {'delta_rmse_top': 3.4883169484652568, 'delta_rmse_prior_top': 2.5846762436915744, 'delta_rmse_random': 1.4073166843177862}
+NCR_TRUE seed03_fold00 {'delta_rmse_top': 1.0628897401441293, 'delta_rmse_prior_top': 0.7038413659588798, 'delta_rmse_random': 0.47632570443373634}
+NCR_TRUE seed03_fold01 {'delta_rmse_top': 0.2777686391498788, 'delta_rmse_prior_top': 0.7363552487154887, 'delta_rmse_random': 0.7139413538748443}
+NCR_TRUE seed03_fold02 {'delta_rmse_top': 8.062500237991445, 'delta_rmse_prior_top': 0.7474684872178594, 'delta_rmse_random': 1.764695042145581}
+NCR_TRUE seed03_fold03 {'delta_rmse_top': 0.877253691397911, 'delta_rmse_prior_top': 0.9486542130171669, 'delta_rmse_random': 0.3836565886442225}
+NCR_TRUE seed03_fold04 {'delta_rmse_top': 4.0567336415459, 'delta_rmse_prior_top': 0.10114569660630135, 'delta_rmse_random': 0.7825700534081301}
+NCR_TRUE seed04_fold00 {'delta_rmse_top': 0.9545382774742475, 'delta_rmse_prior_top': 2.2528606924033623, 'delta_rmse_random': 2.0686581743049643}
+NCR_TRUE seed04_fold01 {'delta_rmse_top': 7.789040591674373, 'delta_rmse_prior_top': -0.03989164852643956, 'delta_rmse_random': 1.9904450090338281}
+NCR_TRUE seed04_fold02 {'delta_rmse_top': 1.5450663688429138, 'delta_rmse_prior_top': 1.4156471232255727, 'delta_rmse_random': 1.7836331843306796}
+NCR_TRUE seed04_fold03 {'delta_rmse_top': 1.808744729448926, 'delta_rmse_prior_top': 2.8528636284218614, 'delta_rmse_random': 1.375402915400823}
+NCR_TRUE seed04_fold04 {'delta_rmse_top': 4.550066904626016, 'delta_rmse_prior_top': 0.8317543209357705, 'delta_rmse_random': 1.0002850859224992}
+NCR_SHUFFLED seed00_fold00 {'delta_rmse_top': 0.2061108008858703, 'delta_rmse_prior_top': 0.09593950346864233, 'delta_rmse_random': 1.0971094901131613}
+NCR_SHUFFLED seed00_fold01 {'delta_rmse_top': 0.251404080066278, 'delta_rmse_prior_top': 0.720694164333076, 'delta_rmse_random': 0.2240687062637292}
+NCR_SHUFFLED seed00_fold02 {'delta_rmse_top': 1.9267710397336586, 'delta_rmse_prior_top': 0.08451502801299249, 'delta_rmse_random': 0.7117212063650022}
+NCR_SHUFFLED seed00_fold03 {'delta_rmse_top': 12.898892533993475, 'delta_rmse_prior_top': 0.26203986072766217, 'delta_rmse_random': 1.6224449092674078}
+NCR_SHUFFLED seed00_fold04 {'delta_rmse_top': 5.096278100691554, 'delta_rmse_prior_top': 1.262076409703277, 'delta_rmse_random': 1.3927699287698196}
+NCR_SHUFFLED seed01_fold00 {'delta_rmse_top': 2.0269584819101025, 'delta_rmse_prior_top': 0.15093095738118123, 'delta_rmse_random': 2.5307572276527024}
+NCR_SHUFFLED seed01_fold01 {'delta_rmse_top': 1.0061575741750337, 'delta_rmse_prior_top': 0.03937744647072794, 'delta_rmse_random': 0.07825701116399841}
+NCR_SHUFFLED seed01_fold02 {'delta_rmse_top': 0.9108740810603964, 'delta_rmse_prior_top': 0.12926604338390746, 'delta_rmse_random': 0.57407963929891}
+NCR_SHUFFLED seed01_fold03 {'delta_rmse_top': 4.139164514844304, 'delta_rmse_prior_top': 0.2947629095173214, 'delta_rmse_random': 1.0490590792964465}
+NCR_SHUFFLED seed01_fold04 {'delta_rmse_top': 0.8756675990035916, 'delta_rmse_prior_top': -0.0955290695100599, 'delta_rmse_random': 0.32382796927109325}
+NCR_SHUFFLED seed02_fold00 {'delta_rmse_top': 5.67335002745923, 'delta_rmse_prior_top': 0.1921489767346216, 'delta_rmse_random': 0.9606611297754837}
+NCR_SHUFFLED seed02_fold01 {'delta_rmse_top': 0.6244652410185507, 'delta_rmse_prior_top': -0.08728391722749951, 'delta_rmse_random': 1.7656986156788506}
+NCR_SHUFFLED seed02_fold02 {'delta_rmse_top': 1.9354622256051393, 'delta_rmse_prior_top': 1.0229548999875222, 'delta_rmse_random': 1.678422526823514}
+NCR_SHUFFLED seed02_fold03 {'delta_rmse_top': 0.007441428635367231, 'delta_rmse_prior_top': 0.029002270582072498, 'delta_rmse_random': 0.06982152192316882}
+NCR_SHUFFLED seed02_fold04 {'delta_rmse_top': 0.989931769504163, 'delta_rmse_prior_top': 0.2661696698468061, 'delta_rmse_random': 1.5200647319590246}
+NCR_SHUFFLED seed03_fold00 {'delta_rmse_top': 1.83607803237867, 'delta_rmse_prior_top': 0.15641669648289191, 'delta_rmse_random': 0.9220875274030531}
+NCR_SHUFFLED seed03_fold01 {'delta_rmse_top': 0.2777686391498779, 'delta_rmse_prior_top': 0.7363552487154914, 'delta_rmse_random': 0.7139413538748478}
+NCR_SHUFFLED seed03_fold02 {'delta_rmse_top': 8.062500237991454, 'delta_rmse_prior_top': 0.7474684872178585, 'delta_rmse_random': 1.7646950421455827}
+NCR_SHUFFLED seed03_fold03 {'delta_rmse_top': 1.5778848044936158, 'delta_rmse_prior_top': 0.06934627080110634, 'delta_rmse_random': 0.4623529706251297}
+NCR_SHUFFLED seed03_fold04 {'delta_rmse_top': 3.8794618882320044, 'delta_rmse_prior_top': 0.08606116726069946, 'delta_rmse_random': 0.6202131288004562}
+NCR_SHUFFLED seed04_fold00 {'delta_rmse_top': 1.0595104278205927, 'delta_rmse_prior_top': 0.3603707134934888, 'delta_rmse_random': 2.145207968459683}
+NCR_SHUFFLED seed04_fold01 {'delta_rmse_top': 9.277438929272087, 'delta_rmse_prior_top': 0.07089052683447328, 'delta_rmse_random': 1.9259001853769124}
+NCR_SHUFFLED seed04_fold02 {'delta_rmse_top': 0.5535371170900838, 'delta_rmse_prior_top': 0.19165650546687907, 'delta_rmse_random': 0.5313314779935476}
+NCR_SHUFFLED seed04_fold03 {'delta_rmse_top': 14.284737117884758, 'delta_rmse_prior_top': 3.0704702243442323, 'delta_rmse_random': 1.9070050671341532}
+NCR_SHUFFLED seed04_fold04 {'delta_rmse_top': 9.717369005013499, 'delta_rmse_prior_top': 0.4351848803235665, 'delta_rmse_random': 1.8692166456582662}
+NCR_RANDOM seed00_fold00 {'delta_rmse_top': 0.20611080088587386, 'delta_rmse_prior_top': 0.09593950346864677, 'delta_rmse_random': 1.0971094901131675}
+NCR_RANDOM seed00_fold01 {'delta_rmse_top': 0.251404080066278, 'delta_rmse_prior_top': 0.7206941643330724, 'delta_rmse_random': 0.22406870626372744}
+NCR_RANDOM seed00_fold02 {'delta_rmse_top': 0.7229993517792455, 'delta_rmse_prior_top': 0.11877242427928447, 'delta_rmse_random': 0.601413169941365}
+NCR_RANDOM seed00_fold03 {'delta_rmse_top': 6.294730305111149, 'delta_rmse_prior_top': 0.2600629790847053, 'delta_rmse_random': 1.7156507502677805}
+NCR_RANDOM seed00_fold04 {'delta_rmse_top': 5.096278100691549, 'delta_rmse_prior_top': 1.262076409703293, 'delta_rmse_random': 1.3927699287698205}
+NCR_RANDOM seed01_fold00 {'delta_rmse_top': 2.026958481910115, 'delta_rmse_prior_top': 0.15093095738118212, 'delta_rmse_random': 2.5307572276526926}
+NCR_RANDOM seed01_fold01 {'delta_rmse_top': 0.4156501880564871, 'delta_rmse_prior_top': 0.2697408501641556, 'delta_rmse_random': 0.11363936903689176}
+NCR_RANDOM seed01_fold02 {'delta_rmse_top': 0.5739211163254607, 'delta_rmse_prior_top': 0.09036004714645607, 'delta_rmse_random': 2.0708164171736865}
+NCR_RANDOM seed01_fold03 {'delta_rmse_top': 4.139164514844302, 'delta_rmse_prior_top': 0.2947629095173214, 'delta_rmse_random': 1.0490590792964474}
+NCR_RANDOM seed01_fold04 {'delta_rmse_top': 0.8756675990035951, 'delta_rmse_prior_top': -0.0955290695100599, 'delta_rmse_random': 0.32382796927109503}
+NCR_RANDOM seed02_fold00 {'delta_rmse_top': 4.033662513130961, 'delta_rmse_prior_top': 0.2055265929762422, 'delta_rmse_random': 1.1668515241374733}
+NCR_RANDOM seed02_fold01 {'delta_rmse_top': 0.1185802875184967, 'delta_rmse_prior_top': 0.12248064611091358, 'delta_rmse_random': 1.3422303605064894}
+NCR_RANDOM seed02_fold02 {'delta_rmse_top': 1.9354622256051277, 'delta_rmse_prior_top': 1.0229548999875426, 'delta_rmse_random': 1.6784225268235193}
+NCR_RANDOM seed02_fold03 {'delta_rmse_top': 0.24450693047993788, 'delta_rmse_prior_top': 0.1275609394300341, 'delta_rmse_random': 0.3971921711160027}
+NCR_RANDOM seed02_fold04 {'delta_rmse_top': 0.9899317695041541, 'delta_rmse_prior_top': 0.26616966984680257, 'delta_rmse_random': 1.5200647319590237}
+NCR_RANDOM seed03_fold00 {'delta_rmse_top': 1.8360780323786754, 'delta_rmse_prior_top': 0.15641669648289103, 'delta_rmse_random': 0.9220875274030531}
+NCR_RANDOM seed03_fold01 {'delta_rmse_top': 0.2777686391498797, 'delta_rmse_prior_top': 0.7363552487154914, 'delta_rmse_random': 0.7139413538748443}
+NCR_RANDOM seed03_fold02 {'delta_rmse_top': 8.062500237991477, 'delta_rmse_prior_top': 0.7474684872178514, 'delta_rmse_random': 1.7646950421455863}
+NCR_RANDOM seed03_fold03 {'delta_rmse_top': 0.879435640983468, 'delta_rmse_prior_top': 0.08564391247504854, 'delta_rmse_random': 0.5520303556910511}
+NCR_RANDOM seed03_fold04 {'delta_rmse_top': 1.6187458702785298, 'delta_rmse_prior_top': 0.04840277245138491, 'delta_rmse_random': 0.6311636124110995}
+NCR_RANDOM seed04_fold00 {'delta_rmse_top': 3.8854660636266294, 'delta_rmse_prior_top': 0.1579488326400007, 'delta_rmse_random': 1.7501964162789605}
+NCR_RANDOM seed04_fold01 {'delta_rmse_top': 0.41332449849356223, 'delta_rmse_prior_top': -0.017660548211027027, 'delta_rmse_random': 1.6564383863250214}
+NCR_RANDOM seed04_fold02 {'delta_rmse_top': 0.27799875321389234, 'delta_rmse_prior_top': 0.5188031759095946, 'delta_rmse_random': 1.601528420362861}
+NCR_RANDOM seed04_fold03 {'delta_rmse_top': 1.8087447294489234, 'delta_rmse_prior_top': 2.852863628421857, 'delta_rmse_random': 1.3754029154008238}
+NCR_RANDOM seed04_fold04 {'delta_rmse_top': 2.6795166255093674, 'delta_rmse_prior_top': 0.6984502121298304, 'delta_rmse_random': 1.1454306156335354}
+Converted M2_TRUE: 25 splits, 575 long rows
+Converted M2_SHUFFLED: 25 splits, 575 long rows
+Converted M2_RANDOM: 25 splits, 575 long rows
+[refit] M3_E0: no scripts/43 outputs, refitting masks...
+[refit] M3_E0 seed00_fold00 delta_true_top=+0.590 delta_random_top=+0.494
+[refit] M3_E0 seed00_fold01 delta_true_top=+0.326 delta_random_top=+0.322
+[refit] M3_E0 seed00_fold02 delta_true_top=+0.392 delta_random_top=+0.097
+[refit] M3_E0 seed00_fold03 delta_true_top=+0.226 delta_random_top=+1.287
+[refit] M3_E0 seed00_fold04 delta_true_top=-0.176 delta_random_top=+0.309
+[refit] M3_E0 seed01_fold00 delta_true_top=+0.394 delta_random_top=+0.512
+[refit] M3_E0 seed01_fold01 delta_true_top=+0.070 delta_random_top=+0.135
+[refit] M3_E0 seed01_fold02 delta_true_top=+0.118 delta_random_top=+0.227
+[refit] M3_E0 seed01_fold03 delta_true_top=+0.495 delta_random_top=+3.541
+[refit] M3_E0 seed01_fold04 delta_true_top=+0.398 delta_random_top=+0.228
+[refit] M3_E0 seed02_fold00 delta_true_top=+0.200 delta_random_top=+0.196
+[refit] M3_E0 seed02_fold01 delta_true_top=+0.286 delta_random_top=+1.365
+[refit] M3_E0 seed02_fold02 delta_true_top=+1.583 delta_random_top=+0.867
+[refit] M3_E0 seed02_fold03 delta_true_top=+0.068 delta_random_top=+0.066
+[refit] M3_E0 seed02_fold04 delta_true_top=+0.236 delta_random_top=+0.147
+[refit] M3_E0 seed03_fold00 delta_true_top=+0.702 delta_random_top=+0.896
+[refit] M3_E0 seed03_fold01 delta_true_top=+0.573 delta_random_top=+1.955
+[refit] M3_E0 seed03_fold02 delta_true_top=+0.433 delta_random_top=+0.435
+[refit] M3_E0 seed03_fold03 delta_true_top=+0.442 delta_random_top=+0.405
+[refit] M3_E0 seed03_fold04 delta_true_top=+0.788 delta_random_top=+0.665
+[refit] M3_E0 seed04_fold00 delta_true_top=+0.374 delta_random_top=+0.887
+[refit] M3_E0 seed04_fold01 delta_true_top=+0.018 delta_random_top=+0.394
+[refit] M3_E0 seed04_fold02 delta_true_top=+1.793 delta_random_top=+0.855
+[refit] M3_E0 seed04_fold03 delta_true_top=+0.050 delta_random_top=+0.041
+[refit] M3_E0 seed04_fold04 delta_true_top=+0.464 delta_random_top=+0.281
+[refit] M3_E0: 25 splits computed
+Converted M3_E0: 25 splits, 575 long rows
+Converted M3_TRUE: 25 splits, 575 long rows
+[refit] M3_SHUFFLED: no scripts/43 outputs, refitting masks...
+[refit] M3_SHUFFLED seed00_fold00 delta_true_top=+1.439 delta_random_top=+3.518
+[refit] M3_SHUFFLED seed00_fold01 delta_true_top=+0.370 delta_random_top=+0.346
+[refit] M3_SHUFFLED seed00_fold02 delta_true_top=+0.109 delta_random_top=+0.110
+[refit] M3_SHUFFLED seed00_fold03 delta_true_top=+0.410 delta_random_top=+0.520
+[refit] M3_SHUFFLED seed00_fold04 delta_true_top=-0.173 delta_random_top=-0.096
+[refit] M3_SHUFFLED seed01_fold00 delta_true_top=+0.358 delta_random_top=+0.341
+[refit] M3_SHUFFLED seed01_fold01 delta_true_top=+0.110 delta_random_top=+0.206
+[refit] M3_SHUFFLED seed01_fold02 delta_true_top=+0.074 delta_random_top=+0.272
+[refit] M3_SHUFFLED seed01_fold03 delta_true_top=+0.221 delta_random_top=+0.212
+[refit] M3_SHUFFLED seed01_fold04 delta_true_top=-0.100 delta_random_top=+0.201
+[refit] M3_SHUFFLED seed02_fold00 delta_true_top=+0.298 delta_random_top=+0.305
+[refit] M3_SHUFFLED seed02_fold01 delta_true_top=-0.007 delta_random_top=+2.059
+[refit] M3_SHUFFLED seed02_fold02 delta_true_top=+0.139 delta_random_top=+2.345
+[refit] M3_SHUFFLED seed02_fold03 delta_true_top=+0.040 delta_random_top=+0.059
+[refit] M3_SHUFFLED seed02_fold04 delta_true_top=+0.182 delta_random_top=+0.202
+[refit] M3_SHUFFLED seed03_fold00 delta_true_top=+0.307 delta_random_top=+0.307
+[refit] M3_SHUFFLED seed03_fold01 delta_true_top=+1.113 delta_random_top=+1.392
+[refit] M3_SHUFFLED seed03_fold02 delta_true_top=+0.174 delta_random_top=+0.265
+[refit] M3_SHUFFLED seed03_fold03 delta_true_top=+0.150 delta_random_top=+0.663
+[refit] M3_SHUFFLED seed03_fold04 delta_true_top=+0.673 delta_random_top=+0.621
+[refit] M3_SHUFFLED seed04_fold00 delta_true_top=+0.266 delta_random_top=+2.615
+[refit] M3_SHUFFLED seed04_fold01 delta_true_top=-0.031 delta_random_top=+0.122
+[refit] M3_SHUFFLED seed04_fold02 delta_true_top=+0.369 delta_random_top=+1.027
+[refit] M3_SHUFFLED seed04_fold03 delta_true_top=+0.085 delta_random_top=+0.286
+[refit] M3_SHUFFLED seed04_fold04 delta_true_top=+0.341 delta_random_top=+0.218
+[refit] M3_SHUFFLED: 25 splits computed
+Converted M3_SHUFFLED: 25 splits, 575 long rows
+Converted M3_RANDOM: 25 splits, 575 long rows
+Saved faithfulness outputs to outputs/aaai/faithfulness
+[2026-08-11 23:03:24] DONE exit=0

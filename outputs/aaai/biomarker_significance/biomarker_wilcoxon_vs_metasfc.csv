@@ -1,0 +1,43 @@
+reference_id,reference_name,method_id,method_name,metric,analysis_unit,n_pairs,reference_mean,method_mean,reference_advantage_mean,wilcoxon_W,wilcoxon_p,wilcoxon_p_holm_metric,significant_holm_005,reference_significantly_better
+E1,MetaSFC (ours),E0,No-prior MS-Inter-GCN,rank_stability,seed_level,10,0.912988582631761,0.6089492945834775,0.30403928804828356,0.0,0.001953125,0.02734375,True,True
+E1,MetaSFC (ours),E10,Visual-prior control,rank_stability,seed_level,10,0.912988582631761,0.8394559643255295,0.07353261830623144,0.0,0.001953125,0.02734375,True,True
+E1,MetaSFC (ours),E2,Shuffled-prior control,rank_stability,seed_level,10,0.912988582631761,0.616070426325299,0.2969181563064622,0.0,0.001953125,0.02734375,True,True
+E1,MetaSFC (ours),E3,Random-prior control,rank_stability,seed_level,10,0.912988582631761,0.7382734017606581,0.17471518087110288,0.0,0.001953125,0.02734375,True,True
+E1,MetaSFC (ours),M2_RANDOM,Meta-GAT attention mass (random prior),rank_stability,seed_level,5,0.91436958443855,0.9548844039518702,-0.04051481951332039,0.0,0.0625,0.625,False,False
+E1,MetaSFC (ours),M2_SHUFFLED,Meta-GAT attention mass (shuffled prior),rank_stability,seed_level,5,0.91436958443855,0.9653430207972938,-0.05097343635874376,0.0,0.0625,0.625,False,False
+E1,MetaSFC (ours),M2_TRUE,Meta-GAT attention mass (true prior),rank_stability,seed_level,5,0.91436958443855,0.9329775793271402,-0.018607994888590308,4.0,0.4375,0.625,False,False
+E1,MetaSFC (ours),M3_E0,Two-stage KRR gradient saliency (no-prior biomarker),rank_stability,seed_level,5,0.91436958443855,0.6045469572905855,0.30982262714796444,0.0,0.0625,0.625,False,False
+E1,MetaSFC (ours),M3_RANDOM,Two-stage KRR gradient saliency (random prior),rank_stability,seed_level,5,0.91436958443855,0.6967267135662938,0.21764287087225612,0.0,0.0625,0.625,False,False
+E1,MetaSFC (ours),M3_SHUFFLED,Two-stage KRR gradient saliency (shuffled prior),rank_stability,seed_level,5,0.91436958443855,0.7358534578864415,0.17851612655210852,0.0,0.0625,0.625,False,False
+E1,MetaSFC (ours),M3_TRUE,Two-stage KRR gradient saliency (true prior),rank_stability,seed_level,5,0.91436958443855,0.7918356206512129,0.12253396378733702,0.0,0.0625,0.625,False,False
+E1,MetaSFC (ours),NCR_RANDOM,Network-Constrained Ridge (random prior),rank_stability,seed_level,5,0.91436958443855,0.5161446968823281,0.3982248875562219,0.0,0.0625,0.625,False,False
+E1,MetaSFC (ours),NCR_SHUFFLED,Network-Constrained Ridge (shuffled prior),rank_stability,seed_level,5,0.91436958443855,0.552404105639488,0.36196547879906193,0.0,0.0625,0.625,False,False
+E1,MetaSFC (ours),NCR_TRUE,Network-Constrained Ridge (true prior),rank_stability,seed_level,5,0.91436958443855,0.5465653327182564,0.36780425172029363,0.0,0.0625,0.625,False,False
+E1,MetaSFC (ours),E0,No-prior MS-Inter-GCN,top10_jaccard,seed_level,10,0.6254012654012653,0.16427950532439697,0.46112176007686845,0.0,0.001953125,0.02734375,True,True
+E1,MetaSFC (ours),E2,Shuffled-prior control,top10_jaccard,seed_level,10,0.6254012654012653,0.33621115382725286,0.28919011157401253,0.0,0.001953125,0.02734375,True,True
+E1,MetaSFC (ours),E3,Random-prior control,top10_jaccard,seed_level,10,0.6254012654012653,0.4883566923272806,0.13704457307398482,2.0,0.005859375,0.0703125,False,False
+E1,MetaSFC (ours),M2_SHUFFLED,Meta-GAT attention mass (shuffled prior),top10_jaccard,seed_level,5,0.5924675324675325,0.7237495837495838,-0.13128205128205134,0.0,0.0625,0.6875,False,False
+E1,MetaSFC (ours),M3_E0,Two-stage KRR gradient saliency (no-prior biomarker),top10_jaccard,seed_level,5,0.5924675324675325,0.26973149313706585,0.32273603933046663,0.0,0.0625,0.6875,False,False
+E1,MetaSFC (ours),M3_RANDOM,Two-stage KRR gradient saliency (random prior),top10_jaccard,seed_level,5,0.5924675324675325,0.254873760570355,0.33759377189717743,0.0,0.0625,0.6875,False,False
+E1,MetaSFC (ours),M3_SHUFFLED,Two-stage KRR gradient saliency (shuffled prior),top10_jaccard,seed_level,5,0.5924675324675325,0.2916702578467284,0.30079727462080397,0.0,0.0625,0.6875,False,False
+E1,MetaSFC (ours),M3_TRUE,Two-stage KRR gradient saliency (true prior),top10_jaccard,seed_level,5,0.5924675324675325,0.4305897370603253,0.16187779540720718,0.0,0.0625,0.6875,False,False
+E1,MetaSFC (ours),NCR_RANDOM,Network-Constrained Ridge (random prior),top10_jaccard,seed_level,5,0.5924675324675325,0.33329418947066003,0.25917334299687245,0.0,0.0625,0.6875,False,False
+E1,MetaSFC (ours),NCR_SHUFFLED,Network-Constrained Ridge (shuffled prior),top10_jaccard,seed_level,5,0.5924675324675325,0.3235423967157713,0.26892513575176114,0.0,0.0625,0.6875,False,False
+E1,MetaSFC (ours),NCR_TRUE,Network-Constrained Ridge (true prior),top10_jaccard,seed_level,5,0.5924675324675325,0.35303382891618185,0.2394337035513506,0.0,0.0625,0.6875,False,False
+E1,MetaSFC (ours),M2_RANDOM,Meta-GAT attention mass (random prior),top10_jaccard,seed_level,5,0.5924675324675325,0.6519230769230769,-0.059455544455544504,4.0,0.4375,0.9375,False,False
+E1,MetaSFC (ours),M2_TRUE,Meta-GAT attention mass (true prior),top10_jaccard,seed_level,5,0.5924675324675325,0.6748114630467572,-0.08234393057922473,3.0,0.3125,0.9375,False,False
+E1,MetaSFC (ours),E10,Visual-prior control,top10_jaccard,seed_level,10,0.6254012654012653,0.6214102564102565,0.003991008991008948,27.0,1.0,1.0,False,False
+E1,MetaSFC (ours),E0,No-prior MS-Inter-GCN,wm_alignment,seed_level,10,0.7717383980751038,-0.3897065411508083,1.1614449392259123,0.0,0.001953125,0.02734375,True,True
+E1,MetaSFC (ours),E10,Visual-prior control,wm_alignment,seed_level,10,0.7717383980751038,0.13614991836249826,0.6355884797126055,0.0,0.001953125,0.02734375,True,True
+E1,MetaSFC (ours),E2,Shuffled-prior control,wm_alignment,seed_level,10,0.7717383980751038,-0.2372360905259847,1.0089744886010885,0.0,0.001953125,0.02734375,True,True
+E1,MetaSFC (ours),E3,Random-prior control,wm_alignment,seed_level,10,0.7717383980751038,0.019691709103062737,0.752046688972041,0.0,0.001953125,0.02734375,True,True
+E1,MetaSFC (ours),M2_RANDOM,Meta-GAT attention mass (random prior),wm_alignment,seed_level,5,0.7732434391975402,-0.2727654147331865,1.0460088539307268,0.0,0.0625,0.625,False,False
+E1,MetaSFC (ours),M2_SHUFFLED,Meta-GAT attention mass (shuffled prior),wm_alignment,seed_level,5,0.7732434391975402,-0.36583260316118194,1.139076042358722,0.0,0.0625,0.625,False,False
+E1,MetaSFC (ours),M2_TRUE,Meta-GAT attention mass (true prior),wm_alignment,seed_level,5,0.7732434391975402,0.40693157908317634,0.36631186011436395,0.0,0.0625,0.625,False,False
+E1,MetaSFC (ours),M3_E0,Two-stage KRR gradient saliency (no-prior biomarker),wm_alignment,seed_level,5,0.7732434391975402,-0.03315499485450668,0.806398434052047,0.0,0.0625,0.625,False,False
+E1,MetaSFC (ours),M3_RANDOM,Two-stage KRR gradient saliency (random prior),wm_alignment,seed_level,5,0.7732434391975402,-0.17776732121117722,0.9510107604087175,0.0,0.0625,0.625,False,False
+E1,MetaSFC (ours),M3_SHUFFLED,Two-stage KRR gradient saliency (shuffled prior),wm_alignment,seed_level,5,0.7732434391975402,-0.05811592845809749,0.8313593676556378,0.0,0.0625,0.625,False,False
+E1,MetaSFC (ours),M3_TRUE,Two-stage KRR gradient saliency (true prior),wm_alignment,seed_level,5,0.7732434391975402,0.0038130681186153274,0.769430371078925,0.0,0.0625,0.625,False,False
+E1,MetaSFC (ours),NCR_RANDOM,Network-Constrained Ridge (random prior),wm_alignment,seed_level,5,0.7732434391975402,-0.021508836466237934,0.7947522756637782,0.0,0.0625,0.625,False,False
+E1,MetaSFC (ours),NCR_SHUFFLED,Network-Constrained Ridge (shuffled prior),wm_alignment,seed_level,5,0.7732434391975402,-0.03812508783392564,0.811368527031466,0.0,0.0625,0.625,False,False
+E1,MetaSFC (ours),NCR_TRUE,Network-Constrained Ridge (true prior),wm_alignment,seed_level,5,0.7732434391975402,-0.30208516782274686,1.0753286070202872,0.0,0.0625,0.625,False,False

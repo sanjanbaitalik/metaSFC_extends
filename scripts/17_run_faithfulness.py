@@ -36,6 +36,186 @@ from metascfc.data.connectome_dataset import ConnectomeDataset, load_fc_sc_array
 from metascfc.experiments import PriorGuidedTrainer
 from metascfc.seed import set_seed
 
+from metascfc.benchmark_utils import (
+    choose_device,
+    iter_nested_splits,
+    load_connectomes,
+    prediction_metrics,
+)
+from metascfc.models.iclr_backbones import (
+    MetaGATConfig,
+    load_split_node_saliency,
+    refit_krr_predictor,
+    refit_meta_gat_predictor,
+)
+from metascfc.models.iclr_backbones.network_constrained_ridge import (
+    NetworkConstrainedRidge,
+    build_edge_laplacian,
+)
+
+ICLR_FAITHFULNESS_SOURCE = Path("outputs/aaai/faithfulness_iclr/per_method")
+NCR_OUTPUT_DIR = Path("outputs/aaai/network_constrained_ridge")
+ICLR_METHOD_PREFIXES = ("NCR_", "M2_", "M3_")
+
+
+def _load_43_helpers():
+    path = Path(__file__).with_name("43_run_iclr_faithfulness.py")
+    spec = importlib.util.spec_from_file_location("iclr_faithfulness_43", path)
+    if spec is None or spec.loader is None:
+        raise RuntimeError(f"Cannot import scripts/43 helpers from {path}")
+    module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(module)
+    return module
+
+
+def _refit_iclr_masked(
+    cfg: Dict,
+    method_id: str,
+    method_cfg: Dict,
+    seeds: list[int],
+    args,
+) -> None:
+    """Refit + mask-evaluate M2/M3 variants that scripts/43 did not cover
+    (the shuffled-prior controls), writing the same per-method format that
+    the conversion branch reads.  The reference prior is the WM meta-analysis
+    map (uniform across all methods, identical to the AAAI E* protocol); the
+    fixed random map is kept as the extra control."""
+    F = _load_43_helpers()
+    src = ICLR_FAITHFULNESS_SOURCE / method_id
+    (src / "attention").mkdir(parents=True, exist_ok=True)
+    (src / "krr_saliency").mkdir(parents=True, exist_ok=True)
+    split_csv = src / "faithfulness_split_metrics.csv"
+    long_csv = src / "faithfulness_long.csv"
+
+    fc, sc, y, subject_ids, groups = load_connectomes(cfg["data"])
+    y = np.asarray(y).reshape(-1)
+    n_rois = int(fc.shape[1])
+    n_folds = int(cfg.get("n_folds", 5))
+    val_fraction = float(cfg.get("val_fraction", 0.15))
+    topk = int(args.topk)
+    n_random = int(args.random_repeats)
+
+    wm_prior = F.load_roi_prior("outputs/priors/working_memory/aal116/roi_prior.csv", n_rois)
+    prior_true_idx = F.top_k_indices(wm_prior, topk)
+    random_prior = F.load_roi_prior(
+        "outputs/priors/random_prior/aal116/roi_prior.csv", n_rois
+    )
+    prior_random_idx = F.top_k_indices(random_prior, topk)
+
+    fixed = cfg
+    if method_id.startswith("M2_"):
+        family = "meta_gat"
+        headline = pd.read_csv(Path(cfg["output_dir"]) / "split_metrics.csv")
+        headline = headline[headline.method_id == method_id].set_index(["seed", "fold"])
+        device = choose_device(str(cfg.get("device", "auto")))
+        saliency_dir = Path(cfg["output_dir"]) / "saliency" / method_id
+        biomarker_dir = src / "attention"
+        biomarker_key = "node_attention_mass"
+    else:
+        family = "kernel_ridge"
+        headline = pd.read_csv(Path(cfg["output_dir"]) / "split_metrics.csv")
+        headline = headline[headline.method_id == method_id].set_index(["seed", "fold"])
+        device = None
+        saliency_dir = Path(cfg["output_dir"]) / "saliency" / method_id
+        biomarker_dir = src / "krr_saliency"
+        biomarker_key = "node_saliency"
+
+    rows = (
+        []
+        if not split_csv.exists()
+        else pd.read_csv(split_csv).to_dict("records")
+    )
+    completed = {(int(r["seed"]), int(r["fold"])) for r in rows}
+    long_rows = (
+        []
+        if not long_csv.exists()
+        else pd.read_csv(long_csv).to_dict("records")
+    )
+    for seed, fold, train_idx, val_idx, test_idx in iter_nested_splits(
+        y, seeds, n_folds, val_fraction, groups
+    ):
+        if (seed, fold) in completed:
+            continue
+        started = time.time()
+        split_seed = seed * 1000 + fold
+        fit_idx = np.concatenate([train_idx, val_idx])
+        rec = headline.loc[(seed, fold)]
+        saliency = load_split_node_saliency(saliency_dir, seed, fold)
+        rng = np.random.default_rng(split_seed + 9173)
+
+        if family == "meta_gat":
+            predictor = refit_meta_gat_predictor(
+                fc, sc, y, fit_idx,
+                MetaGATConfig(
+                    hidden=int(rec["best_hidden"]),
+                    heads1=int(fixed.get("heads1", 4)),
+                    heads2=int(fixed.get("heads2", 1)),
+                    dropout=float(rec["best_dropout"]),
+                    gamma_init=float(fixed.get("gamma_init", 1.0)),
+                    learning_rate=float(rec["best_learning_rate"]),
+                    weight_decay=float(fixed.get("weight_decay", 1e-4)),
+                    epochs=int(fixed.get("epochs", 60)),
+                    patience=int(fixed.get("patience", 15)),
+                    min_epochs=int(fixed.get("min_epochs", 10)),
+                    grad_clip=float(fixed.get("grad_clip", 5.0)),
+                ),
+                saliency, device,
+                n_epochs=int(rec["best_epoch"]),
+                top_percent=float(fixed.get("top_percent_sc", 10.0)),
+                seed=split_seed,
+            )
+            row, per_cond = F.evaluate_masks_meta_gat(
+                predictor, fc[test_idx], sc[test_idx], y[test_idx],
+                F.top_k_indices(saliency, topk), np.argsort(saliency)[:topk],
+                prior_true_idx, prior_random_idx, n_random, rng, n_rois,
+            )
+            np.savez(
+                biomarker_dir / f"seed{seed:02d}_fold{fold:02d}.npz",
+                node_attention_mass=predictor.attention_mass(fc[fit_idx], sc[fit_idx]),
+            )
+        else:
+            predictor = refit_krr_predictor(
+                fc, sc, y, fit_idx, saliency,
+                alpha=float(rec["best_alpha"]),
+                gamma=float(rec["best_gamma"]),
+                gate_mode=str(fixed.get("gate_mode", "product")),
+            )
+            row, per_cond = F.evaluate_masks_krr(
+                predictor, fc[test_idx], sc[test_idx], y[test_idx],
+                F.top_k_indices(saliency, topk), np.argsort(saliency)[:topk],
+                prior_true_idx, prior_random_idx, n_random, rng, n_rois,
+            )
+            np.savez(
+                biomarker_dir / f"seed{seed:02d}_fold{fold:02d}.npz",
+                node_saliency=predictor.gradient_node_saliency(fc[fit_idx], sc[fit_idx]),
+            )
+
+        rows.append({
+            "method_id": method_id,
+            "method_name": method_cfg["name"],
+            "method_family": family,
+            "seed": seed, "fold": fold,
+            "split_id": f"seed{seed:02d}_fold{fold:02d}",
+            "n_train": len(train_idx), "n_val": len(val_idx), "n_test": len(test_idx),
+            "topk": topk, "random_repeats": n_random,
+            "runtime_seconds": time.time() - started,
+            **row,
+        })
+        for item in per_cond:
+            long_rows.append({
+                "method_id": method_id, "seed": seed, "fold": fold,
+                **item,
+            })
+        pd.DataFrame(rows).to_csv(split_csv, index=False)
+        pd.DataFrame(long_rows).to_csv(long_csv, index=False)
+        print(
+            f"[refit] {method_id} seed{seed:02d}_fold{fold:02d} "
+            f"delta_true_top={row['delta_rmse_prior_true_top']:+.3f} "
+            f"delta_random_top={row['delta_rmse_prior_random_top']:+.3f}",
+            flush=True,
+        )
+    print(f"[refit] {method_id}: {len(rows)} splits computed", flush=True)
+
 
 def load_primary_runner():
     path = Path(__file__).with_name("07_run_aaai_experiment.py")
@@ -170,6 +350,321 @@ def load_reference_roi(cfg: Dict, n_rois: int) -> Optional[np.ndarray]:
     return arr
 
 
+def load_wm_reference_roi(n_rois: int) -> np.ndarray:
+    """The WM meta-analysis ROI prior, used as the uniform faithfulness
+    reference for every ICLR method (identical to the AAAI protocol, where
+    all E0-E10 experiments share the same reference_prior)."""
+    return load_reference_roi({"reference_prior": {
+        "roi_prior_path": "outputs/priors/working_memory/aal116/roi_prior.csv",
+    }}, n_rois)  # type: ignore[return-value]
+
+
+# ---------------------------------------------------------------------------
+# ICLR (NCR / Meta-GAT / Two-stage KRR) faithfulness support
+# ---------------------------------------------------------------------------
+
+def load_roi_prior_minmax(path: str | Path, n_rois: int) -> np.ndarray:
+    """Load and min-max normalize an ROI-level prior (same contract as 27/40)."""
+    df = pd.read_csv(path)
+    if "roi_index" in df.columns:
+        df = df.sort_values("roi_index")
+    values = df["prior_score"].to_numpy(np.float64).reshape(-1)
+    if values.shape != (n_rois,):
+        raise ValueError(f"ROI prior has shape {values.shape}, expected {(n_rois,)}")
+    low, high = float(values.min()), float(values.max())
+    if high - low < 1e-12:
+        return np.zeros(n_rois, dtype=np.float64)
+    return (values - low) / (high - low)
+
+
+def upper_triangle_features(mats: np.ndarray) -> tuple[np.ndarray, tuple[np.ndarray, np.ndarray]]:
+    iu = np.triu_indices(mats.shape[1], k=1)
+    return mats[:, iu[0], iu[1]].astype(np.float32), iu
+
+
+def load_split_node_saliency(directory: Path, seed: int, fold: int) -> np.ndarray:
+    payload = np.load(directory / f"seed{seed:02d}_fold{fold:02d}.npz", allow_pickle=False)
+    if "node_saliency" not in payload.files:
+        raise KeyError(f"node_saliency missing from {directory}")
+    return np.asarray(payload["node_saliency"], dtype=float).reshape(-1)
+
+
+def _ncr_mask_columns(roi_indices: Iterable[int], n_rois: int, iu) -> np.ndarray:
+    idx = np.unique(np.asarray(list(roi_indices), dtype=int))
+    incident = np.isin(iu[0], idx) | np.isin(iu[1], idx)
+    n_edges = len(iu[0])
+    return np.concatenate([incident, incident])
+
+
+def run_iclr_config(
+    config_path: Path,
+    args,
+    out: Path,
+) -> tuple[list[Dict], list[Dict]]:
+    """Faithfulness for the ICLR method configs (NCR / M2 / M3).
+
+    NCR (linear ridge): refitted per split with the recorded best (lambda1,
+    lambda2) from the headline run, then evaluated under raw-connectivity
+    ROI masks.  Meta-GAT / KRR: converted from the refit faithfulness run of
+    scripts/43 (identical protocol; raw condition values are stored in the
+    per-method long files).  The reference prior of every method is the WM
+    meta-analysis map (uniform across TRUE/SHUFFLED/RANDOM variants),
+    matching the AAAI E* semantics where all experiments share one
+    reference_prior.
+    """
+    cfg = load_config(config_path)
+    exp_rows: list[Dict] = []
+    exp_long: list[Dict] = []
+
+    fc, sc, y, subject_ids, groups = load_connectomes(cfg["data"])
+    y = np.asarray(y).reshape(-1)
+    n_rois = int(fc.shape[1])
+    n_folds = int(cfg.get("n_folds", 5))
+    val_fraction = float(cfg.get("val_fraction", 0.15))
+    x_fc, iu = upper_triangle_features(fc)
+    x_sc, _ = upper_triangle_features(sc)
+    x = np.concatenate([x_fc, x_sc], axis=1)
+    n_edges = len(iu[0])
+    seeds = list(args.seeds)
+
+    for method_id, method_cfg in cfg["methods"].items():
+        exp_out = out / "per_experiment" / method_id
+        exp_out.mkdir(parents=True, exist_ok=True)
+        complete = exp_out / "COMPLETE"
+        if complete.exists() and not args.overwrite:
+            print(f"Skipping completed faithfulness run: {method_id}")
+            existing = exp_out / "faithfulness_split_metrics.csv"
+            if existing.exists():
+                exp_rows.extend(pd.read_csv(existing).to_dict("records"))
+            existing_long = exp_out / "faithfulness_long.csv"
+            if existing_long.exists():
+                exp_long.extend(pd.read_csv(existing_long).to_dict("records"))
+            continue
+
+        method_rows: list[Dict] = []
+        method_long: list[Dict] = []
+
+        if method_id.startswith("NCR_"):
+            prior = load_roi_prior_minmax(method_cfg["path"], n_rois)
+            wm_prior = load_wm_reference_roi(n_rois)
+            results_path = NCR_OUTPUT_DIR / "split_metrics.csv"
+            headline = pd.read_csv(results_path)
+            headline = headline[
+                (headline.method_id == method_id)
+            ].set_index(["seed", "fold"])
+            laplacian = build_edge_laplacian(
+                n_rois=n_rois,
+                prior_scores=prior,
+                top_k=int(cfg.get("top_k", 30)),
+                weighting=str(cfg.get("laplacian_weighting", "binary")),
+                couple_modalities=bool(cfg.get("couple_modalities", False)),
+                normalize=str(cfg.get("laplacian_normalization", "sym")),
+            )
+            saliency_dir = NCR_OUTPUT_DIR / "saliency" / method_id
+            for seed, fold, train_idx, val_idx, test_idx in iter_nested_splits(
+                y, seeds, n_folds, val_fraction, groups
+            ):
+                started = time.time()
+                split_seed = seed * 1000 + fold
+                rec = headline.loc[(seed, fold)]
+                fit_idx = np.concatenate([train_idx, val_idx])
+                model = NetworkConstrainedRidge(
+                    alpha1=float(rec["best_alpha1"]),
+                    alpha2=float(rec["best_alpha2"]),
+                    edge_laplacian=laplacian,
+                    n_rois=n_rois,
+                ).fit(x[fit_idx], y[fit_idx])
+                saliency = load_split_node_saliency(saliency_dir, seed, fold)
+                k = min(args.topk, len(saliency))
+                top_idx = np.argsort(saliency)[-k:]
+                bottom_idx = np.argsort(saliency)[:k]
+                prior_idx = np.argsort(wm_prior)[-k:]
+
+                def masked(x_test, roi_indices):
+                    x_masked = x_test.copy()
+                    x_masked[:, _ncr_mask_columns(roi_indices, n_rois, iu)] = 0.0
+                    return model.predict(x_masked)
+
+                x_test = x[test_idx]
+                original = prediction_metrics(y[test_idx], model.predict(x_test))
+                top = prediction_metrics(y[test_idx], masked(x_test, top_idx))
+                bottom = prediction_metrics(y[test_idx], masked(x_test, bottom_idx))
+                prior_top = prediction_metrics(y[test_idx], masked(x_test, prior_idx))
+                random_metrics = []
+                rng = np.random.default_rng(split_seed + 9173)
+                for repeat in range(args.random_repeats):
+                    random_idx = rng.choice(n_rois, size=k, replace=False)
+                    result = prediction_metrics(y[test_idx], masked(x_test, random_idx))
+                    random_metrics.append(result)
+                    method_long.append({
+                        "experiment_id": method_id,
+                        "seed": seed, "fold": fold,
+                        "condition": "random", "repeat": repeat,
+                        **{m: float(result[m]) for m in ("pearson", "rmse", "mae")},
+                    })
+                random_mean = {m: float(np.mean([r[m] for r in random_metrics])) for m in ("pearson", "rmse", "mae")}
+                random_std = {m: float(np.std([r[m] for r in random_metrics], ddof=1)) for m in ("pearson", "rmse", "mae")}
+
+                row = _build_faithfulness_row(
+                    method_id, method_cfg["name"], seed, fold,
+                    train_idx, val_idx, test_idx, original, top, bottom,
+                    prior_top, random_mean, random_std, k, args, time.time() - started,
+                )
+                method_rows.append(row)
+                method_long.append({"experiment_id": method_id, "seed": seed, "fold": fold,
+                                    "condition": "original", "repeat": -1, **original})
+                method_long.append({"experiment_id": method_id, "seed": seed, "fold": fold,
+                                    "condition": "top", "repeat": -1, **top})
+                method_long.append({"experiment_id": method_id, "seed": seed, "fold": fold,
+                                    "condition": "bottom", "repeat": -1, **bottom})
+                method_long.append({"experiment_id": method_id, "seed": seed, "fold": fold,
+                                    "condition": "reference_prior_top", "repeat": -1, **prior_top})
+                (exp_out / "saliency").mkdir(exist_ok=True)
+                np.savez(
+                    exp_out / "saliency" / f"seed{seed:02d}_fold{fold:02d}.npz",
+                    node_saliency=saliency,
+                )
+                pd.DataFrame(method_rows).to_csv(exp_out / "faithfulness_split_metrics.csv", index=False)
+                pd.DataFrame(method_long).to_csv(exp_out / "faithfulness_long.csv", index=False)
+                print(method_id, f"seed{seed:02d}_fold{fold:02d}", {
+                    "delta_rmse_top": row["delta_rmse_top"],
+                    "delta_rmse_prior_top": row["delta_rmse_prior_top"],
+                    "delta_rmse_random": row["delta_rmse_random"],
+                }, flush=True)
+
+        elif method_id.startswith(("M2_", "M3_")):
+            src = ICLR_FAITHFULNESS_SOURCE / method_id
+            split_csv = src / "faithfulness_split_metrics.csv"
+            long_csv = src / "faithfulness_long.csv"
+            if not split_csv.exists() or not long_csv.exists():
+                print(f"[refit] {method_id}: no scripts/43 outputs, refitting masks...", flush=True)
+                _refit_iclr_masked(cfg, method_id, method_cfg, seeds, args)
+            is_random = method_id.endswith("RANDOM")
+            ref_key = "prior_true_top"
+            other_ref_key = "prior_random_top"
+            split_df = pd.read_csv(split_csv)
+            split_df = split_df[split_df.seed.isin(seeds)]
+            long_df = pd.read_csv(long_csv)
+            long_df = long_df[long_df.seed.isin(seeds)]
+
+            for _, r in split_df.iterrows():
+                row = {
+                    "experiment_id": method_id,
+                    "experiment_name": method_cfg["name"],
+                    "seed": int(r["seed"]), "fold": int(r["fold"]),
+                    "split_id": f"seed{int(r['seed']):02d}_fold{int(r['fold']):02d}",
+                    "n_train": int(r["n_train"]), "n_val": int(r["n_val"]),
+                    "n_test": int(r["n_test"]),
+                    "best_epoch": -1, "best_val_metric": float("nan"),
+                    "topk": int(r["topk"]), "mask_mode": args.mask_mode,
+                    "random_repeats": args.random_repeats,
+                    "runtime_seconds": float(r.get("runtime_seconds", float("nan"))),
+                }
+                for metric in ("pearson", "rmse", "mae"):
+                    row[f"original_{metric}"] = float(r[f"original_{metric}"])
+                    row[f"top_{metric}"] = float(r[f"top_{metric}"])
+                    row[f"bottom_{metric}"] = float(r[f"bottom_{metric}"])
+                    row[f"random_{metric}_mean"] = float(r[f"random_{metric}_mean"])
+                    row[f"random_{metric}_std"] = float(r[f"random_{metric}_std"])
+                    row[f"prior_top_{metric}"] = float(r[f"{ref_key}_{metric}"])
+                    row[f"delta_{metric}_top"] = float(r[f"delta_{metric}_top"])
+                    row[f"delta_{metric}_bottom"] = float(r[f"delta_{metric}_bottom"])
+                    row[f"delta_{metric}_random"] = float(r[f"delta_{metric}_random"])
+                    row[f"delta_{metric}_prior_top"] = float(r[f"delta_{metric}_{ref_key}"])
+                    row[f"gap_{metric}_top_vs_random"] = row[f"delta_{metric}_top"] - row[f"delta_{metric}_random"]
+                    row[f"gap_{metric}_top_vs_bottom"] = row[f"delta_{metric}_top"] - row[f"delta_{metric}_bottom"]
+                method_rows.append(row)
+
+            cond_map = {"original": "original", "top": "top", "bottom": "bottom",
+                        "random": "random", ref_key: "reference_prior_top"}
+            for _, r in long_df.iterrows():
+                condition = r["condition"]
+                mapped = cond_map.get(condition, other_ref_key)
+                if mapped not in cond_map.values():
+                    continue
+                method_long.append({
+                    "experiment_id": method_id,
+                    "seed": int(r["seed"]), "fold": int(r["fold"]),
+                    "condition": mapped, "repeat": int(r["repeat"]),
+                    **{m: float(r[m]) for m in ("pearson", "rmse", "mae")},
+                })
+
+            (exp_out / "saliency").mkdir(exist_ok=True)
+            if method_id.startswith("M2_"):
+                biomarker_dir = src / "attention"
+                key = "node_attention_mass"
+            else:
+                biomarker_dir = src / "krr_saliency"
+                key = "node_saliency"
+            for payload in biomarker_dir.glob("seed*_fold*.npz"):
+                seed, fold = int(payload.stem[4:6]), int(payload.stem[11:13])
+                if seed not in seeds:
+                    continue
+                with np.load(payload, allow_pickle=False) as data:
+                    np.savez(
+                        exp_out / "saliency" / payload.name,
+                        node_saliency=np.asarray(data[key], dtype=float).reshape(-1),
+                    )
+
+            pd.DataFrame(method_rows).to_csv(exp_out / "faithfulness_split_metrics.csv", index=False)
+            pd.DataFrame(method_long).to_csv(exp_out / "faithfulness_long.csv", index=False)
+            print(f"Converted {method_id}: {len(method_rows)} splits, {len(method_long)} long rows", flush=True)
+
+        else:
+            raise ValueError(f"Unknown ICLR method prefix for {method_id}")
+
+        complete.write_text("ok\n", encoding="utf-8")
+        exp_rows.extend(method_rows)
+        exp_long.extend(method_long)
+
+    return exp_rows, exp_long
+
+
+def _build_faithfulness_row(
+    experiment_id: str,
+    experiment_name: str,
+    seed: int,
+    fold: int,
+    train_idx,
+    val_idx,
+    test_idx,
+    original: Dict,
+    top: Dict,
+    bottom: Dict,
+    prior_top: Dict,
+    random_mean: Dict,
+    random_std: Dict,
+    topk: int,
+    args,
+    runtime: float,
+) -> Dict:
+    row = {
+        "experiment_id": experiment_id,
+        "experiment_name": experiment_name,
+        "seed": seed, "fold": fold,
+        "split_id": f"seed{seed:02d}_fold{fold:02d}",
+        "n_train": len(train_idx), "n_val": len(val_idx), "n_test": len(test_idx),
+        "best_epoch": -1, "best_val_metric": float("nan"),
+        "topk": topk, "mask_mode": args.mask_mode,
+        "random_repeats": args.random_repeats,
+        "runtime_seconds": runtime,
+    }
+    for metric in ("pearson", "rmse", "mae"):
+        row[f"original_{metric}"] = float(original[metric])
+        row[f"top_{metric}"] = float(top[metric])
+        row[f"bottom_{metric}"] = float(bottom[metric])
+        row[f"random_{metric}_mean"] = random_mean[metric]
+        row[f"random_{metric}_std"] = random_std[metric]
+        row[f"prior_top_{metric}"] = float(prior_top[metric])
+        row[f"delta_{metric}_top"] = positive_degradation(original, top, metric)
+        row[f"delta_{metric}_bottom"] = positive_degradation(original, bottom, metric)
+        row[f"delta_{metric}_random"] = positive_degradation(original, random_mean, metric)
+        row[f"delta_{metric}_prior_top"] = positive_degradation(original, prior_top, metric)
+        row[f"gap_{metric}_top_vs_random"] = row[f"delta_{metric}_top"] - row[f"delta_{metric}_random"]
+        row[f"gap_{metric}_top_vs_bottom"] = row[f"delta_{metric}_top"] - row[f"delta_{metric}_bottom"]
+    return row
+
+
 def main() -> None:
     ap = argparse.ArgumentParser()
     ap.add_argument(
@@ -199,6 +694,12 @@ def main() -> None:
     for config_path in args.configs:
         cfg = load_config(config_path)
         experiment_id = str(cfg.get("experiment_id", Path(config_path).stem))
+        method_ids = list(cfg.get("methods", {}).keys())
+        if any(str(m).startswith(ICLR_METHOD_PREFIXES) for m in method_ids):
+            exp_rows, exp_long = run_iclr_config(Path(config_path), args, out)
+            all_rows.extend(exp_rows)
+            long_rows.extend(exp_long)
+            continue
         exp_out = out / "per_experiment" / experiment_id
         exp_out.mkdir(parents=True, exist_ok=True)
         complete = exp_out / "COMPLETE"

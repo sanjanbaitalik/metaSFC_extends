@@ -1,0 +1,54 @@
+\begin{table*}[t]
+\centering
+\small
+\caption{Paired seed-level Wilcoxon signed-rank comparisons of MetaSFC with ROI-level controls. Five folds are summarized within each seed ($n=10$ paired seeds), and two-sided $p$-values are Holm-adjusted separately within each metric.}
+\label{tab:biomarker_wilcoxon}
+\begin{tabular}{llccc}
+\toprule
+Metric & Control & $W$ & $p_{\mathrm{Holm}}$ & Result \\
+\midrule
+Rank stability & No-prior MS-Inter-GCN & 0.0 & $0.027$ & MetaSFC higher \\
+Rank stability & Visual-prior control & 0.0 & $0.027$ & MetaSFC higher \\
+Rank stability & Shuffled-prior control & 0.0 & $0.027$ & MetaSFC higher \\
+Rank stability & Random-prior control & 0.0 & $0.027$ & MetaSFC higher \\
+Rank stability & Meta-GAT attention mass (random prior) & 0.0 & $0.625$ & Not significant \\
+Rank stability & Meta-GAT attention mass (shuffled prior) & 0.0 & $0.625$ & Not significant \\
+Rank stability & Meta-GAT attention mass (true prior) & 4.0 & $0.625$ & Not significant \\
+Rank stability & Two-stage KRR gradient saliency (no-prior biomarker) & 0.0 & $0.625$ & Not significant \\
+Rank stability & Two-stage KRR gradient saliency (random prior) & 0.0 & $0.625$ & Not significant \\
+Rank stability & Two-stage KRR gradient saliency (shuffled prior) & 0.0 & $0.625$ & Not significant \\
+Rank stability & Two-stage KRR gradient saliency (true prior) & 0.0 & $0.625$ & Not significant \\
+Rank stability & Network-Constrained Ridge (random prior) & 0.0 & $0.625$ & Not significant \\
+Rank stability & Network-Constrained Ridge (shuffled prior) & 0.0 & $0.625$ & Not significant \\
+Rank stability & Network-Constrained Ridge (true prior) & 0.0 & $0.625$ & Not significant \\
+Top-10 Jaccard & No-prior MS-Inter-GCN & 0.0 & $0.027$ & MetaSFC higher \\
+Top-10 Jaccard & Shuffled-prior control & 0.0 & $0.027$ & MetaSFC higher \\
+Top-10 Jaccard & Random-prior control & 2.0 & $0.070$ & Not significant \\
+Top-10 Jaccard & Meta-GAT attention mass (shuffled prior) & 0.0 & $0.688$ & Not significant \\
+Top-10 Jaccard & Two-stage KRR gradient saliency (no-prior biomarker) & 0.0 & $0.688$ & Not significant \\
+Top-10 Jaccard & Two-stage KRR gradient saliency (random prior) & 0.0 & $0.688$ & Not significant \\
+Top-10 Jaccard & Two-stage KRR gradient saliency (shuffled prior) & 0.0 & $0.688$ & Not significant \\
+Top-10 Jaccard & Two-stage KRR gradient saliency (true prior) & 0.0 & $0.688$ & Not significant \\
+Top-10 Jaccard & Network-Constrained Ridge (random prior) & 0.0 & $0.688$ & Not significant \\
+Top-10 Jaccard & Network-Constrained Ridge (shuffled prior) & 0.0 & $0.688$ & Not significant \\
+Top-10 Jaccard & Network-Constrained Ridge (true prior) & 0.0 & $0.688$ & Not significant \\
+Top-10 Jaccard & Meta-GAT attention mass (random prior) & 4.0 & $0.938$ & Not significant \\
+Top-10 Jaccard & Meta-GAT attention mass (true prior) & 3.0 & $0.938$ & Not significant \\
+Top-10 Jaccard & Visual-prior control & 27.0 & $1.000$ & Not significant \\
+WM alignment & No-prior MS-Inter-GCN & 0.0 & $0.027$ & MetaSFC higher \\
+WM alignment & Visual-prior control & 0.0 & $0.027$ & MetaSFC higher \\
+WM alignment & Shuffled-prior control & 0.0 & $0.027$ & MetaSFC higher \\
+WM alignment & Random-prior control & 0.0 & $0.027$ & MetaSFC higher \\
+WM alignment & Meta-GAT attention mass (random prior) & 0.0 & $0.625$ & Not significant \\
+WM alignment & Meta-GAT attention mass (shuffled prior) & 0.0 & $0.625$ & Not significant \\
+WM alignment & Meta-GAT attention mass (true prior) & 0.0 & $0.625$ & Not significant \\
+WM alignment & Two-stage KRR gradient saliency (no-prior biomarker) & 0.0 & $0.625$ & Not significant \\
+WM alignment & Two-stage KRR gradient saliency (random prior) & 0.0 & $0.625$ & Not significant \\
+WM alignment & Two-stage KRR gradient saliency (shuffled prior) & 0.0 & $0.625$ & Not significant \\
+WM alignment & Two-stage KRR gradient saliency (true prior) & 0.0 & $0.625$ & Not significant \\
+WM alignment & Network-Constrained Ridge (random prior) & 0.0 & $0.625$ & Not significant \\
+WM alignment & Network-Constrained Ridge (shuffled prior) & 0.0 & $0.625$ & Not significant \\
+WM alignment & Network-Constrained Ridge (true prior) & 0.0 & $0.625$ & Not significant \\
+\bottomrule
+\end{tabular}
+\end{table*}
