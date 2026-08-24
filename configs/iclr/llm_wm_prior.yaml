@@ -22,11 +22,12 @@ device: auto
 alignment_topk: 10
 top_percent_sc: 10.0        # row-wise SC threshold for the split graph
 
-# LLM-gated attention architecture (e_ij = LeakyReLU(a^T[Wh_i||Wh_j]) + lambda*(p_i+p_j))
+# LLM-gated attention with adaptive prior routing:
+# e_ij = (1-alpha)*LeakyReLU(a^T[Wh_i||Wh_j]) + alpha*(p_i+p_j)
 n_layers: 2                 # transformer-style blocks (residual + FFN + LayerNorm)
 heads1: 4
 heads2: 1
-lambda_init: 1.0            # initial learnable prior temperature per layer
+alpha_init: 0.5             # initial bypass gate (alpha=sigmoid(rho); 1=trust prior, 0=ignore)
 weight_decay: 0.0001
 epochs: 60
 patience: 15

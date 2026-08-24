@@ -77,6 +77,81 @@ python scripts/47_run_llm_gated_transformer.py \
 Outputs land in `outputs/iclr/<experiment>/` with the identical split /
 summary / prediction / saliency schema as Methods 1-3.
 
+## ICLR 2.0: LLM Priors & Dual-Task Matrix
+
+Final experimental phase. Core hypothesis - the **Inductive Bottleneck
+Phenomenon**: a cognitive prior whose domain matches the prediction target
+acts as an informative projector and surpasses linear baselines; a
+mismatched prior over-constrains the hypothesis space and degrades it.
+
+### 1. Generate the zero-shot LLM priors (both tasks)
+
+```bash
+# Working Memory prior + anatomically shuffled control (local Ollama / llama3):
+python scripts/46_generate_llm_priors.py --task "Working Memory" \
+    --provider ollama --model llama3 --controls
+
+# Fluid Intelligence prior (hosted OpenAI / gpt-4o-mini):
+OPENAI_API_KEY=... python scripts/46_generate_llm_priors.py \
+    --task "Fluid Intelligence" --provider openai --model gpt-4o-mini --controls
+```
+
+Both write Neurosynth-schema priors to
+`outputs/priors/llm/{working_memory,fluid_intelligence}/roi_prior.csv`.
+
+### 2. Run the dual-task matrix
+
+```bash
+# Full matrix (default): {llm_gated, ncr} x {llm_wm, llm_fluid,
+# random_control, no_prior} x {fluid_intelligence, working_memory},
+# 10 seeds x 5 folds, resumable:
+python scripts/50_run_dual_task_matrix.py
+
+# Materialize the ListSort_Unadj labels first (once):
+python -m metascfc.data.hcp_targets --behavior-csv <HCP_unrestricted.csv> \
+    --targets working_memory
+
+# Smoke test (1 seed x 1 fold):
+python scripts/50_run_dual_task_matrix.py --seeds 0 --folds 0
+```
+
+The unified result table is written to
+`outputs/iclr/dual_task_matrix/summary.csv` - one row per cell of the
+2 x 4 x 2 design with Pearson r / RMSE / MAE (mean +/- std), the converged
+Information Bottleneck metrics, and the learned bypass gate.
+
+### 3. Information Bottleneck tracking
+
+`src/metascfc/metrics/information_bottleneck.py` logs two Tishby-style
+quantities during training (Gaussian/VIB-proxy estimator; identical settings
+across all cells so comparisons are meaningful):
+
+- `I_XZ` - **compression**: mutual information between the input graphs X
+  and the latent embedding Z (the pooled penultimate layer of the
+  transformer; the scalar projection x^T beta for the ridge), estimated as a
+  Gaussian-channel rate bound.
+- `I_ZY` - **predictive capacity**: mutual information between Z and the
+  target Y, estimated by inverting a linear probe's R^2.
+
+Per-epoch curves are stored per split (`--track-ib` in script 47; always on
+in script 50). The theory being tested: a *mismatched* prior yields high
+I(X;Z) but low I(Z;Y) (aggressive filtering that destroys predictive
+signal); a *matched* prior optimizes the trade-off.
+
+### 4. Adaptive prior routing (bypass gate)
+
+The LLM-gated attention uses a learnable convex mix instead of a fixed
+additive bias:
+
+```
+e_ij = (1 - alpha) * LeakyReLU(a^T [W_f h_i | W_s h_j]) + alpha * (p_i + p_j)
+```
+
+with `alpha = sigmoid(rho)` learned per layer. The final value is recorded
+per split (`bypass_alpha` column): alpha -> 1 means "trust the prior"
+(matched), alpha -> 0 means "ignore the prior" (mismatched).
+
+
 
 ## Experiment matrix
 

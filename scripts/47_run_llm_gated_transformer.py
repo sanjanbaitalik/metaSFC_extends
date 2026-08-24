@@ -4,11 +4,14 @@
 Runs the exact repeated nested-CV protocol of Methods 1-3 (10 seeds, 5 outer
 folds, 15% inner validation, identical data loaders and splitters):
 
-    e_ij = LeakyReLU(a^T [W h_i || W h_j]) + lambda * (p_i + p_j)
+    e_ij = (1 - alpha) * LeakyReLU(a^T [W_f h_i | W_s h_j]) + alpha * (p_i + p_j)
 
 where p is the zero-shot LLM-generated semantic prior (scripts/
-46_generate_llm_priors.py) and lambda is a learnable per-layer temperature
-(see src/metascfc/models/llm_gated_transformer.py).
+46_generate_llm_priors.py) and alpha = sigmoid(rho) is a learnable per-layer
+bypass gate (adaptive prior routing; see
+src/metascfc/models/llm_gated_transformer.py).  The learned alpha and the
+converged Information Bottleneck metrics (I(X;Z), I(Z;Y)) are recorded per
+split when --track-ib is passed.
 
 Dual-task matrix: point --config at configs/iclr/llm_wm_prior.yaml (HCP
 ListSort_Unadj working memory) or configs/iclr/llm_fluid_prior.yaml (HCP
@@ -49,6 +52,7 @@ from metascfc.benchmark_utils import (
     save_json,
     seed_level_metrics,
 )
+from metascfc.metrics import IBEpochTracker
 from metascfc.models.iclr_backbones import fit_predict_llm_gated
 
 
@@ -97,6 +101,9 @@ def main() -> None:
                     help="Optional seed override for smoke/partial runs")
     ap.add_argument("--methods", nargs="*", help="Optional method-ID override")
     ap.add_argument("--folds", nargs="*", type=int, help="Optional fold-index override")
+    ap.add_argument("--track-ib", action="store_true",
+                    help="Record per-epoch/converged Information Bottleneck "
+                         "metrics and the learned bypass alpha per split")
     args = ap.parse_args()
 
     cfg: Dict = yaml.safe_load(Path(args.config).read_text(encoding="utf-8"))
@@ -148,7 +155,7 @@ def main() -> None:
         "epochs": int(cfg.get("epochs", 60)),
         "patience": int(cfg.get("patience", 15)),
         "min_epochs": int(cfg.get("min_epochs", 10)),
-        "lambda_init": float(cfg.get("lambda_init", 1.0)),
+        "alpha_init": float(cfg.get("alpha_init", cfg.get("lambda_init", 0.5))),
         "grad_clip": float(cfg.get("grad_clip", 5.0)),
     }
 
@@ -163,6 +170,7 @@ def main() -> None:
                 print(f"SKIP {method_id} {split_id}")
                 continue
             started = time.time()
+            tracker = IBEpochTracker() if args.track_ib else None
             pred, best_cfg, best_val_rmse, best_epoch, saliency, n_params = fit_predict_llm_gated(
                 fc, sc, y, train_idx, val_idx, test_idx,
                 priors[method_id],
@@ -171,6 +179,7 @@ def main() -> None:
                 lr_grid=[float(l) for l in cfg["lr_grid"]],
                 device=device,
                 seed=split_seed,
+                ib_tracker=tracker,
                 **fixed,
             )
             metrics = prediction_metrics(y[test_idx], pred)
@@ -187,6 +196,19 @@ def main() -> None:
                 "device": str(device), "group_aware": groups is not None,
                 **metrics, **alignment,
             }
+            if tracker is not None:
+                if tracker.final:
+                    row["I_XZ_final"] = float(tracker.final["I_XZ"])
+                    row["I_ZY_final"] = float(tracker.final["I_ZY"])
+                    row["probe_r2_final"] = float(tracker.final["probe_r2"])
+                if getattr(tracker, "alpha_final", None):
+                    row["bypass_alpha_mean"] = float(np.mean(tracker.alpha_final))
+                (out_dir / "ib_tracking").mkdir(parents=True, exist_ok=True)
+                save_json(
+                    {"config": {k: tracker.to_dict()[k] for k in ("noise_floor", "epochs", "I_XZ", "I_ZY")},
+                     "alpha_final": tracker.alpha_final},
+                    out_dir / "ib_tracking" / f"{method_id}_{split_id}.json",
+                )
             rows.append(row)
             completed.add((method_id, seed, fold))
             pd.DataFrame({

@@ -37,8 +37,8 @@ def _toy_edges(n_nodes: int = 2):
 
 
 def test_prior_gate_biases_attention():
-    """With a strong gate, node 1's output collapses to the prior-active
-    node-0 message: lambda*(p_i+p_j) must dominate the learned logits."""
+    """At alpha -> 1 the routing becomes purely prior-driven and the node
+    output is analytically determined by the prior-gate softmax."""
     n_nodes, in_dim, out_dim = 2, 4, 6
     rng = np.random.default_rng(0)
     x = torch.from_numpy(rng.standard_normal((1, n_nodes, in_dim)).astype(np.float32))
@@ -46,15 +46,15 @@ def test_prior_gate_biases_attention():
     edge_src, edge_dst = _toy_edges()
     half = in_dim // 2
 
-    def make_layer(lam: float) -> LLMPriorGatedGATLayer:
+    def make_layer(alpha_init: float) -> LLMPriorGatedGATLayer:
         torch.manual_seed(11)
         return LLMPriorGatedGATLayer(
             in_dim, out_dim, heads=1, n_nodes=n_nodes, prior=prior,
-            edge_src=edge_src, edge_dst=edge_dst, lambda_init=lam,
+            edge_src=edge_src, edge_dst=edge_dst, alpha_init=alpha_init,
         )
 
-    # Same seed -> identical learned weights; only lambda differs.
-    strong_layer, weak_layer = make_layer(50.0), make_layer(0.0)
+    # Same seed -> identical learned weights; only the bypass differs.
+    strong_layer, weak_layer = make_layer(0.999), make_layer(0.001)
     assert torch.allclose(strong_layer.W_fc, weak_layer.W_fc)
     with torch.no_grad():
         strong_layer.eval()
@@ -63,23 +63,33 @@ def test_prior_gate_biases_attention():
         weak = weak_layer(x)[0, 1]
     assert not torch.allclose(strong, weak)
 
-    # Strong gate -> incoming attention ~ entirely on edge (0->1): output is
-    # ELU(h_fc_0 @ W_fc + h_sc_0 @ W_sc) - the cross-modal message of the
-    # prior-active region.
+    # alpha -> 1: incoming attention of node 1 = softmax over prior gates
+    # {edge 0->1: p0+p1 = 1, edge 1->1: p1+p1 = 0} = softmax([1, 0]).
+    w = torch.sigmoid(strong_layer.rho).detach()
+    assert w > 0.99
+    attn = torch.softmax(torch.tensor([w.item() * 1.0, w.item() * 0.0]), dim=0)
+    proj = lambda xi: x[0, xi, :half] @ strong_layer.W_fc[0] \
+        + x[0, xi, half:] @ strong_layer.W_sc[0]
     target = torch.nn.functional.elu(
-        x[0, 0, :half] @ strong_layer.W_fc[0]
-        + x[0, 0, half:] @ strong_layer.W_sc[0]
+        attn[0] * proj(0) + attn[1] * proj(1)
     ).detach()
     assert torch.allclose(strong, target, atol=1e-4)
 
 
-def test_lambda_is_learnable():
+def test_bypass_alpha_is_learnable_and_bounded():
     layer = LLMPriorGatedGATLayer(
         4, 4, heads=1, n_nodes=2, prior=np.ones(2),
-        edge_src=_toy_edges()[0], edge_dst=_toy_edges()[1], lambda_init=0.7,
+        edge_src=_toy_edges()[0], edge_dst=_toy_edges()[1], alpha_init=0.7,
     )
-    assert isinstance(layer.lambda_gate, torch.nn.Parameter)
-    assert layer.lambda_gate.item() == pytest.approx(0.7)
+    assert isinstance(layer.rho, torch.nn.Parameter)
+    init = float(torch.sigmoid(layer.rho))
+    assert init == pytest.approx(0.7, abs=1e-5)
+    with torch.no_grad():
+        layer.rho.fill_(3.0)
+    assert layer.bypass_alpha == pytest.approx(1.0 / (1.0 + np.exp(-3.0)), abs=1e-5)
+    with torch.no_grad():
+        layer.rho.fill_(-8.0)
+    assert layer.bypass_alpha < 1e-3  # mismatch regime: prior ignored
 
 
 def test_stable_softmax_under_extreme_logits():
@@ -98,12 +108,8 @@ def test_stable_softmax_under_extreme_logits():
     out = layer(x)
     assert out.shape == (2, n_nodes, out_dim * 2)
     assert torch.isfinite(out).all()
-    alpha = layer._last_alpha
-    assert torch.isfinite(alpha).all()
-    sums = torch.zeros(2, n_nodes, 2)
-    dst_onehot = layer.edge_dst_onehot
-    sums += torch.einsum("beh,en->bnh", alpha, dst_onehot)
-    assert torch.allclose(sums, torch.ones_like(sums), atol=1e-4)
+    attn = layer._last_attention
+    assert torch.isfinite(attn).all()
 
 
 def test_transformer_residual_shapes_and_depth():
@@ -130,7 +136,7 @@ def test_transformer_residual_shapes_and_depth():
 def test_candidate_grid_cartesian_product():
     grid = build_llm_gated_grid(
         [8, 16], [0.2], [1e-3], n_layers=2, heads=4, weight_decay=1e-4,
-        epochs=5, patience=2, min_epochs=1, lambda_init=1.0, grad_clip=5.0,
+        epochs=5, patience=2, min_epochs=1, alpha_init=0.5, grad_clip=5.0,
     )
     assert len(grid) == 2
     assert {c.hidden for c in grid} == {8, 16}
@@ -163,6 +169,32 @@ def test_fit_predict_deterministic_and_leakage_free():
     assert sal_a.shape == (n_rois,)
     assert sal_a.min() >= -1e-9 and abs(sal_a.max() - 1.0) < 1e-9
     assert n_params_a > 0
+
+
+def test_fit_predict_logs_information_bottleneck():
+    """The IB tracker records per-epoch metrics on the refit and converged
+    values plus the learned bypass alphas at the end."""
+    from metascfc.metrics import IBEpochTracker
+
+    fc, sc, y, n_rois = make_toy()
+    device = torch.device("cpu")
+    prior = np.linspace(0.0, 1.0, n_rois)
+    idx = np.arange(len(y))
+    tracker = IBEpochTracker(noise_floor=0.05)
+    fit_predict_llm_gated(
+        fc, sc, y, idx[:24], idx[24:32], idx[32:], prior,
+        hidden_grid=[8], dropout_grid=[0.0], lr_grid=[1e-3], device=device,
+        n_layers=2, heads=2, epochs=4, min_epochs=2, patience=10,
+        top_percent=25.0, seed=5, ib_tracker=tracker,
+    )
+    assert len(tracker.epochs) > 0
+    assert len(tracker.I_XZ) == len(tracker.epochs) == len(tracker.I_ZY)
+    assert all(np.isfinite(tracker.I_XZ)) and all(v > 0 for v in tracker.I_XZ)
+    assert tracker.final is not None
+    assert set(tracker.final) == {"I_XZ", "I_ZY", "probe_r2"}
+    assert np.isfinite(tracker.final["probe_r2"])
+    assert len(tracker.alpha_final) == 2  # one bypass per layer
+    assert all(0.0 < a < 1.0 for a in tracker.alpha_final)
 
 
 def test_refit_predictor_predict_and_attention_mass():

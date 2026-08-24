@@ -653,6 +653,8 @@ class NetworkConstrainedRidge:
         self.pairs_ = _whitened_pairs(x[:, active_all], self._eig) if len(active_all) else []
 
         quad = _quadratic_form(self.pairs_, self.alpha1, self.alpha2)
+        if quad.shape[0] == 0:  # no prior -> pure ridge (empty active block)
+            quad = np.zeros((len(y_z), len(y_z)), dtype=np.float64)
         if self.x_inactive_.shape[1] > 0:
             quad = quad + (self.x_inactive_ @ self.x_inactive_.T) / self.alpha1
         quad = quad / self.kernel_scale_
@@ -718,6 +720,7 @@ def fit_predict_network_constrained(
     alpha1_grid: Iterable[float],
     alpha2_grid: Iterable[float],
     laplacian_eig: Optional[_LaplacianEig] = None,
+    ib_tracker: Optional[object] = None,
 ) -> Tuple[np.ndarray, float, float, float, np.ndarray]:
     """Nested hyperparameter selection for the network-constrained ridge.
 
@@ -742,6 +745,11 @@ def fit_predict_network_constrained(
     laplacian_eig : _LaplacianEig, optional
         Precomputed eigen-decomposition of the Laplacian (recomputed from
         edge_laplacian if omitted).
+    ib_tracker : IBEpochTracker, optional
+        The ridge solve is closed-form (no epochs); when a tracker is given,
+        the converged Information Bottleneck metrics are computed once on the
+        model's latent representation z = x_fit^std @ beta and stored in
+        ``tracker.final``.
 
     Returns
     -------
@@ -839,6 +847,8 @@ def fit_predict_network_constrained(
         pairs_fit = _whitened_pairs(x_fit[:, active_all], eig)
         x_inactive_fit = x_fit[:, inactive_mask]
     quad_fit = _quadratic_form(pairs_fit, best_alpha1, best_alpha2)
+    if quad_fit.shape[0] == 0:  # no prior -> pure ridge (empty active block)
+        quad_fit = np.zeros((len(y_fit_z), len(y_fit_z)), dtype=np.float64)
     quad_fit = quad_fit + (x_inactive_fit @ x_inactive_fit.T) / best_alpha1
     quad_fit = quad_fit / scale
     alpha = np.linalg.solve(quad_fit + np.eye(len(y_fit_z)), y_fit_z)
@@ -861,5 +871,20 @@ def fit_predict_network_constrained(
         beta_dev[edge_laplacian.active_indices + n_edges] = beta_sc
     if x_inactive_fit.shape[1] > 0:
         beta_dev[inactive_mask] = (x_inactive_fit.T @ alpha) / (best_alpha1 * scale)
+
+    if ib_tracker is not None:
+        from metascfc.metrics import information_bottleneck_metrics
+        latent = x_fit @ beta_dev  # scalar model representation z = X beta
+        reference_var = float(x_fit.var(axis=0, ddof=1).mean())
+        noise_floor = 0.05
+        sigma_nu_sq = max(noise_floor, 1e-8) * max(reference_var, 1e-12)
+        rate = float(0.5 * np.log1p(float(latent.var(ddof=1)) / sigma_nu_sq))
+        probe = information_bottleneck_metrics(latent, y_fit_z, noise_floor=noise_floor)
+        ib_tracker.final = {
+            "I_XZ": rate,
+            "I_ZY": probe["I_ZY"],
+            "probe_r2": probe["probe_r2"],
+        }
+        ib_tracker.alpha_final = [float(best_alpha2 / best_alpha1)]
 
     return np.asarray(pred), best_alpha1, best_alpha2, best_rmse, beta_dev

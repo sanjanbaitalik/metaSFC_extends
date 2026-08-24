@@ -3,30 +3,31 @@
 
 The ICLR 2027 pivot replaces the Neurosynth meta-analysis prior with
 zero-shot LLM-generated semantic scores (scripts/46) and injects them into a
-transformer-style graph attention stack.  For every directed edge (i -> j)
-of the split structural graph:
+transformer-style graph attention stack with *adaptive prior routing*.  For
+every directed edge (i -> j) of the split structural graph:
 
-    e_ij = LeakyReLU(a^T [W h_i || W h_j]) + lambda * (p_i + p_j)
+    e_ij = (1 - alpha) * LeakyReLU(a^T [W_f h_i | W_s h_j])
+         + alpha * (p_i + p_j)
 
-where p is the min-max normalized LLM prior score and lambda is a *learnable*
-per-layer temperature (init ``lambda_init``).  As in MetaGAT, the gate lives
-outside the LeakyReLU in logit space so the prior cannot be washed out by the
-learned attention; unlike Meta-GAT the layer is wrapped in transformer blocks
+where p is the min-max normalized LLM prior score and ``alpha = sigmoid(rho)``
+is a learnable per-layer bypass gate (init ``alpha_init``): alpha -> 1 routes
+information purely along the prior (trusting it), alpha -> 0 ignores it.
+The learned alpha is logged per run and is expected to approach 1 for
+target-matched priors and 0 for mismatched ones.
 
     h <- LayerNorm(h + PriorGatedAttention(h))
     h <- LayerNorm(h + FFN(h))
 
 so deeper stacks remain trainable, and the FC/SC node features are projected
-by modality-specific linear maps before concatenation ("cross-modal"
-attention: each head can weight functional and structural evidence
-differently while sharing one routing decision per edge).
-
 Everything else mirrors Method 2 exactly: leakage-free split graph (row-wise
 top-10% positive group-average SC of the inner training partition,
 self-loops), standardized [FC_row | SC_row] node features, nested CV with
 inner-validation selection by RMSE and fixed-epoch refit on train+val,
 gradient node saliency biomarker, and a refit predictor exposing
-``predict``/``attention_mass`` for the faithfulness protocol.
+``predict``/``attention_mass`` for the faithfulness protocol.  Optional
+Information Bottleneck tracking (per-epoch I(X;Z) / I(Z;Y) on the pooled
+latent, plus the converged values and learned bypass alphas) is enabled by
+passing an ``IBEpochTracker``.
 """
 from __future__ import annotations
 
@@ -39,6 +40,7 @@ import torch.nn as nn
 import torch.nn.functional as F
 
 from metascfc.benchmark_utils import set_all_seeds
+from metascfc.metrics import IBEpochTracker
 from metascfc.models.iclr_backbones.meta_gat import build_split_graph
 
 
@@ -53,7 +55,7 @@ class LLMGatedConfig:
     n_layers: int = 2
     heads: int = 4
     dropout: float = 0.2
-    lambda_init: float = 1.0
+    alpha_init: float = 0.5
     learning_rate: float = 1e-3
     weight_decay: float = 1e-4
     epochs: int = 60
@@ -84,14 +86,19 @@ def build_candidate_grid(
 # LLM-gated attention layer (the paper equation)
 # ---------------------------------------------------------------------------
 class LLMPriorGatedGATLayer(nn.Module):
-    """Cross-modal graph attention whose logits are biased by the LLM prior.
+    """Cross-modal graph attention with adaptive prior routing (bypass gate).
 
-        e_uv = LeakyReLU(a^T [W_f h_u | W_s h_v]) + lambda * (p_u + p_v)
+        e_uv = (1 - alpha) * LeakyReLU(a^T [W_f h_u | W_s h_v] ...)
+             + alpha * (p_u + p_v)
         alpha_uv = softmax over incoming edges of v (stable segment softmax)
 
-    W_f / W_s are modality-specific projections applied to the functional and
-    structural halves of the node features (cross-modal); a is shared across
-    modalities; lambda is a learnable scalar per layer.
+    ``alpha = sigmoid(rho)`` is a learnable scalar per layer (init
+    ``alpha_init``): the adaptive prior-routing / bypass mechanism.
+    alpha -> 1 routes purely along the prior (trusts the LLM prior);
+    alpha -> 0 ignores it (pure learned attention).  W_f / W_s are
+    modality-specific projections applied to the functional and structural
+    halves of the node features (cross-modal); a is shared across
+    modalities.
     """
 
     def __init__(
@@ -103,7 +110,7 @@ class LLMPriorGatedGATLayer(nn.Module):
         prior: np.ndarray,
         edge_src: np.ndarray,
         edge_dst: np.ndarray,
-        lambda_init: float = 1.0,
+        alpha_init: float = 0.5,
         leaky: float = 0.2,
         dropout: float = 0.0,
         concat: bool = True,
@@ -111,6 +118,8 @@ class LLMPriorGatedGATLayer(nn.Module):
         super().__init__()
         if heads < 1 or out_dim < 1 or in_dim < 2:
             raise ValueError("heads/out_dim must be >= 1 and in_dim >= 2")
+        if not 0.0 < float(alpha_init) < 1.0:
+            raise ValueError(f"alpha_init must be in (0, 1), got {alpha_init}")
         self.heads = heads
         self.concat = concat
         self.out_dim = out_dim
@@ -128,10 +137,12 @@ class LLMPriorGatedGATLayer(nn.Module):
             nn.init.xavier_uniform_(w)
         nn.init.xavier_uniform_(self.a.view(heads, 3 * out_dim))
 
-        # Learnable prior temperature (one scalar per layer).
-        self.lambda_gate = nn.Parameter(
-            torch.tensor(float(lambda_init), dtype=torch.float32)
+        # Learnable bypass gate: alpha = sigmoid(rho), bounded in (0, 1).
+        self.register_buffer(
+            "_alpha_init", torch.tensor(float(alpha_init), dtype=torch.float32)
         )
+        rho = float(np.log(float(alpha_init) / (1.0 - float(alpha_init))))
+        self.rho = nn.Parameter(torch.tensor(rho, dtype=torch.float32))
 
         prior = np.asarray(prior, dtype=np.float32).reshape(-1)
         if prior.shape[0] != n_nodes:
@@ -144,15 +155,17 @@ class LLMPriorGatedGATLayer(nn.Module):
         self.register_buffer("edge_dst_onehot", torch.from_numpy(dst_onehot))
         self.dropout = nn.Dropout(float(dropout)) if float(dropout) > 0.0 else nn.Identity()
 
+    @property
+    def bypass_alpha(self) -> float:
+        """Current learned bypass value alpha = sigmoid(rho) (Python float)."""
+        return float(torch.sigmoid(self.rho).detach())
+
     def forward(self, x: torch.Tensor) -> torch.Tensor:
         batch, n_nodes, _ = x.shape
         device, dtype = x.device, x.dtype
         edge_src, edge_dst = self.edge_src, self.edge_dst
         n_edges = edge_src.shape[0]
         half = x.shape[-1] // 2
-
-        # Gate: lambda * (p_src + p_dst), broadcast over batch and heads.
-        gate = self.lambda_gate * (self.prior[edge_src] + self.prior[edge_dst])
 
         h_fc, h_sc = x[..., :half], x[..., half:]
         proj_fc = torch.einsum("bnd,hdq->bnhq", h_fc, self.W_fc)
@@ -164,9 +177,15 @@ class LLMPriorGatedGATLayer(nn.Module):
              0.5 * (proj_fc + proj_sc).gather(1, src)],
             dim=-1,
         )  # (batch, n_edges, heads, 3*out_dim): [W_f h_i | W_s h_j | pooled i]
-        logit = torch.einsum("behd,hd->beh", pair, self.a)
-        logit = F.leaky_relu(logit, negative_slope=self.leaky)
-        logit = logit + gate.reshape(1, n_edges, 1)
+        learned_logit = F.leaky_relu(
+            torch.einsum("behd,hd->beh", pair, self.a), negative_slope=self.leaky
+        )
+
+        # Adaptive prior routing: convex mix of learned attention and the
+        # LLM-prior gate (p_src + p_dst), alpha learnable per layer.
+        alpha = torch.sigmoid(self.rho)
+        prior_gate = self.prior[edge_src] + self.prior[edge_dst]
+        logit = (1.0 - alpha) * learned_logit + alpha * prior_gate.reshape(1, -1, 1)
 
         # Stable segment softmax over the incoming edges of each node.
         neg_inf = torch.finfo(dtype).min
@@ -184,10 +203,10 @@ class LLMPriorGatedGATLayer(nn.Module):
         sum_per_edge = torch.einsum(
             "bnh,en->beh", torch.einsum("beh,en->bnh", exp_logit, A), A
         )
-        alpha = exp_logit / sum_per_edge.clamp_min(1e-8)
-        self._last_alpha = alpha.detach()
+        attn = exp_logit / sum_per_edge.clamp_min(1e-8)
+        self._last_attention = attn.detach()
 
-        msg = alpha.unsqueeze(-1) * (
+        msg = attn.unsqueeze(-1) * (
             proj_fc.gather(1, src) + proj_sc.gather(1, src)
         )
         agg = torch.einsum("behd,en->bnhd", msg, A)
@@ -211,7 +230,7 @@ class LLMGatedTransformerBlock(nn.Module):
         prior: np.ndarray,
         edge_src: np.ndarray,
         edge_dst: np.ndarray,
-        lambda_init: float,
+        alpha_init: float,
         dropout: float,
         ffn_mult: int,
     ) -> None:
@@ -219,7 +238,7 @@ class LLMGatedTransformerBlock(nn.Module):
         self.attn = LLMPriorGatedGATLayer(
             in_dim=dim, out_dim=out_dim, heads=heads, n_nodes=n_nodes,
             prior=prior, edge_src=edge_src, edge_dst=edge_dst,
-            lambda_init=lambda_init, dropout=dropout, concat=True,
+            alpha_init=alpha_init, dropout=dropout, concat=True,
         )
         self.norm1 = nn.LayerNorm(dim)
         self.norm2 = nn.LayerNorm(dim)
@@ -261,7 +280,7 @@ class LLMGatedTransformer(nn.Module):
             LLMGatedTransformerBlock(
                 dim=self.d_model, out_dim=config.hidden, heads=config.heads,
                 n_nodes=n_nodes, prior=prior, edge_src=edge_src,
-                edge_dst=edge_dst, lambda_init=config.lambda_init,
+                edge_dst=edge_dst, alpha_init=config.alpha_init,
                 dropout=config.dropout, ffn_mult=config.ffn_mult,
             )
             for _ in range(config.n_layers)
@@ -273,11 +292,23 @@ class LLMGatedTransformer(nn.Module):
             nn.Linear(self.d_model, 1),
         )
 
-    def forward(self, x: torch.Tensor) -> torch.Tensor:
+    def encode(self, x: torch.Tensor) -> torch.Tensor:
+        """Pooled penultimate representation Z (batch, d_model).
+
+        The Information Bottleneck metrics are computed on this latent:
+        I(X; Z) against the input features and I(Z; Y) against the target.
+        """
         h = F.elu(self.input_proj(x))
         for block in self.blocks:
             h = block(h)
-        pooled = self.final_norm(h).mean(dim=1)
+        return self.final_norm(h).mean(dim=1)
+
+    def bypass_alphas(self) -> list[float]:
+        """Learned bypass value alpha = sigmoid(rho) of every layer."""
+        return [block.attn.bypass_alpha for block in self.blocks]
+
+    def forward(self, x: torch.Tensor) -> torch.Tensor:
+        pooled = self.encode(x)
         return self.readout(self.dropout(pooled)).squeeze(-1)
 
 
@@ -285,7 +316,8 @@ class LLMGatedTransformer(nn.Module):
 # Training helpers (identical protocol to meta_gat.py)
 # ---------------------------------------------------------------------------
 def _train_with_early_stopping(model, x_train, y_train_z, x_val, y_val_raw,
-                               y_val_mean, y_val_std, config, device):
+                               y_val_mean, y_val_std, config, device,
+                               ib_tracker=None):
     model = model.to(device)
     x_train, y_train_z = x_train.to(device), y_train_z.to(device)
     x_val, y_val_raw = x_val.to(device), y_val_raw.to(device)
@@ -302,6 +334,12 @@ def _train_with_early_stopping(model, x_train, y_train_z, x_val, y_val_raw,
         loss.backward()
         torch.nn.utils.clip_grad_norm_(model.parameters(), config.grad_clip)
         optimizer.step()
+        if ib_tracker is not None:
+            model.eval()
+            with torch.no_grad():
+                latent = model.encode(x_train)
+            ib_tracker.log_epoch(epoch, latent.detach().cpu().numpy(),
+                                 y_train_z.detach().cpu().numpy())
         if epoch + 1 < config.min_epochs:
             continue
         model.eval()
@@ -321,13 +359,14 @@ def _train_with_early_stopping(model, x_train, y_train_z, x_val, y_val_raw,
     return best_rmse, best_epoch
 
 
-def _train_fixed_epochs(model, x_fit, y_fit_z, config, n_epochs, device):
+def _train_fixed_epochs(model, x_fit, y_fit_z, config, n_epochs, device,
+                        ib_tracker=None):
     model = model.to(device)
     x_fit, y_fit_z = x_fit.to(device), y_fit_z.to(device)
     optimizer = torch.optim.Adam(model.parameters(), lr=config.learning_rate,
                                  weight_decay=config.weight_decay)
     mse = nn.MSELoss()
-    for _ in range(int(n_epochs)):
+    for epoch in range(int(n_epochs)):
         model.train()
         optimizer.zero_grad(set_to_none=True)
         loss = mse(model(x_fit), y_fit_z)
@@ -336,6 +375,12 @@ def _train_fixed_epochs(model, x_fit, y_fit_z, config, n_epochs, device):
         loss.backward()
         torch.nn.utils.clip_grad_norm_(model.parameters(), config.grad_clip)
         optimizer.step()
+        if ib_tracker is not None:
+            model.eval()
+            with torch.no_grad():
+                latent = model.encode(x_fit)
+            ib_tracker.log_epoch(epoch, latent.detach().cpu().numpy(),
+                                 y_fit_z.detach().cpu().numpy())
     model.eval()
 
 
@@ -384,9 +429,10 @@ def fit_predict_llm_gated(
     epochs: int = 60,
     patience: int = 15,
     min_epochs: int = 10,
-    lambda_init: float = 1.0,
+    alpha_init: float = 0.5,
     grad_clip: float = 5.0,
     seed: Optional[int] = None,
+    ib_tracker: Optional["IBEpochTracker"] = None,
 ) -> Tuple[np.ndarray, Dict[str, float], float, int, np.ndarray, int]:
     """Nested selection + refit for one outer split (leakage-free).
 
@@ -395,6 +441,12 @@ def fit_predict_llm_gated(
     (hidden, dropout, lr) candidate by inner-validation RMSE, refit on
     train+val for the selected epoch budget, predict raw-unit test scores,
     export gradient node saliency.
+
+    When ``ib_tracker`` (an ``IBEpochTracker``) is given, per-epoch
+    Information Bottleneck metrics are recorded during selection training of
+    every candidate, and after the final refit the converged values plus the
+    learned bypass alphas are stored in it (``tracker.final``,
+    ``tracker.alpha_final``).
 
     Returns
     -------
@@ -434,7 +486,7 @@ def fit_predict_llm_gated(
     candidates = build_candidate_grid(
         hidden_grid, dropout_grid, lr_grid, n_layers=n_layers, heads=heads,
         weight_decay=weight_decay, epochs=epochs, patience=patience,
-        min_epochs=min_epochs, lambda_init=lambda_init, grad_clip=grad_clip,
+        min_epochs=min_epochs, alpha_init=alpha_init, grad_clip=grad_clip,
     )
     best_rmse, best_cfg, best_epoch = float("inf"), None, 0
     for cfg in candidates:
@@ -459,8 +511,14 @@ def fit_predict_llm_gated(
 
     edge_src, edge_dst = build_split_graph(sc[fit_idx], top_percent)
     final_model = LLMGatedTransformer(n_rois, x.shape[2], best_cfg, prior, edge_src, edge_dst)
-    _train_fixed_epochs(final_model, x_fit, y_fit_z, best_cfg, best_epoch, device)
+    _train_fixed_epochs(final_model, x_fit, y_fit_z, best_cfg, best_epoch, device,
+                        ib_tracker=ib_tracker)
     final_model.eval()
+    if ib_tracker is not None:
+        with torch.no_grad():
+            latent_fit = final_model.encode(x_fit.to(device))
+        ib_tracker.log_final(latent_fit.cpu().numpy(), y_fit_z.numpy())
+        ib_tracker.alpha_final = final_model.bypass_alphas()
     with torch.no_grad():
         pred = (final_model(x_test.to(device)).detach().cpu().numpy() * fit_std
                 + fit_mean).astype(np.float64)
@@ -510,7 +568,7 @@ class RefitLLMGatedPredictor:
         masses = []
         for block in self.model.blocks:
             layer = block.attn
-            alpha = layer._last_alpha.mean(dim=(0, 2)).cpu().numpy()
+            alpha = layer._last_attention.mean(dim=(0, 2)).cpu().numpy()
             A_dst = layer.edge_dst_onehot.cpu().numpy()
             A_src = np.zeros_like(A_dst)
             A_src[np.arange(A_src.shape[0]), layer.edge_src.cpu().numpy()] = 1.0
