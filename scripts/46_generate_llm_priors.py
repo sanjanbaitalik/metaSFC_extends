@@ -43,7 +43,7 @@ outputs/priors/random_prior/aal116/roi_prior.csv shared by all methods.
 Example
 -------
     python scripts/46_generate_llm_priors.py --task "Working Memory" \
-        --provider ollama --model llama3 --controls
+        --provider ollama --model qwen3:32b --controls
 """
 from __future__ import annotations
 
@@ -65,23 +65,22 @@ DEFAULT_LABELS = "inputs/atlases/AAL116_labels.csv"
 DEFAULT_OUT_ROOT = "outputs/priors/llm"
 CANONICAL_RANDOM_PRIOR = "outputs/priors/random_prior/aal116/roi_prior.csv"
 
-PROMPT_TEMPLATE = """You are an expert cognitive neuroscientist with deep knowledge of \
-human functional neuroimaging literature (fMRI/PET activation studies, lesion data, \
-meta-analyses such as Neurosynth and BrainMap).
+# ---------------------------------------------------------------------------
+# UPDATED: Chain-of-Thought (CoT) Prompt Template
+# ---------------------------------------------------------------------------
+PROMPT_TEMPLATE = """You are an expert cognitive neuroscientist and neuroimaging researcher with deep knowledge of the AAL116 atlas and fMRI meta-analyses (Neurosynth, BrainMap).
 
-Task: rate how strongly each of the following {n_rois} brain regions (AAL atlas labels) \
-is implicated in the cognitive domain "{task}".
+Task: rate how strongly each of the following {n_rois} brain regions (AAL atlas labels) is implicated in the cognitive domain "{task}".
 
-Instructions:
-- Assign EACH region exactly one continuous relevance score between 0.0 and 1.0.
-- 1.0 = core hub repeatedly reported in imaging studies of this domain;
-- around 0.5 = moderate / supporting involvement;
-- 0.0 = no meaningful association with the domain.
-- Consider the hemisphere suffixes (_L / _R) and use lateralization knowledge where \
-the literature supports it.
-- Base ratings on established neuroscience literature, not on the labels alone.
-- Respond with STRICT JSON only - no prose before or after - using exactly this schema:
-{{"scores": {{"<AAL label>": <float>, ...}}}} covering ALL {n_rois} regions listed below.
+INSTRUCTIONS:
+1. First, briefly reason about the core neural networks involved in "{task}" (e.g., frontoparietal, default mode, cerebellar loops). Put this reasoning in the "reasoning" field.
+2. Then, assign EACH region exactly one continuous relevance score between 0.0 and 1.0 based on your reasoning and established neuroscience literature. 
+   - 1.0 = core hub repeatedly reported in imaging studies of this domain.
+   - 0.5 = moderately involved / secondary network.
+   - 0.0 = not involved (e.g., primary visual/sensory cortex for cognitive tasks).
+3. Consider the hemisphere suffixes (_L / _R) and use lateralization knowledge where the literature supports it.
+4. Respond with STRICT JSON only - no prose before or after - using exactly this schema:
+{{"reasoning": "<your brief neuroanatomical reasoning here>", "scores": {{"<AAL label>": <float>, ...}}}} covering ALL {n_rois} regions listed below.
 
 Regions:
 {region_list}
@@ -194,12 +193,36 @@ def call_llm(provider: str, prompt: str, model: str, ollama_url: str,
 _JSON_BLOCK = re.compile(r"\{.*\}", re.DOTALL)
 
 
+def _extract_via_raw_decode(text: str) -> Dict:
+    """Parse the FIRST balanced JSON object, ignoring surrounding chatter."""
+    start = text.find("{")
+    if start < 0:
+        raise ValueError("no '{' found")
+    decoder = json.JSONDecoder()
+    obj, _ = decoder.raw_decode(text[start:])
+    if not isinstance(obj, dict):
+        raise ValueError("first JSON value is not an object")
+    return obj
+
+
 def extract_json_object(text: str) -> Dict:
+    """Robustly pull a JSON object out of a possibly chatty LLM reply.
+
+    Handles markdown code fences, conversational filler ("Here is the JSON
+    you requested: ..."), and trailing prose.  Strategy: (1) strip code
+    fences and try strict loads; (2) JSON-decode forward from the first '{'
+    (balanced-brace aware); (3) greedy regex from the first '{' to the LAST
+    '}' as a final fallback.
+    """
     text = text.strip()
     text = re.sub(r"^```(?:json)?\s*|\s*```$", "", text, flags=re.IGNORECASE)
     try:
         return json.loads(text)
     except json.JSONDecodeError:
+        pass
+    try:
+        return _extract_via_raw_decode(text)
+    except (ValueError, json.JSONDecodeError):
         pass
     match = _JSON_BLOCK.search(text)
     if match is None:
@@ -209,6 +232,8 @@ def extract_json_object(text: str) -> Dict:
 
 def parse_scores(payload: Dict, labels: List[str]) -> Tuple[np.ndarray, List[str]]:
     """Map the model's JSON onto the atlas order (case-insensitive keys)."""
+    # payload.get("scores", payload) gracefully handles both the new CoT schema 
+    # {"reasoning": "...", "scores": {...}} and the old schema {"<AAL>": <float>}
     raw = payload.get("scores", payload)
     if not isinstance(raw, dict):
         raise ValueError(f"Expected a 'scores' object, got {type(raw).__name__}")
@@ -285,29 +310,63 @@ def main() -> None:
 
     print(f"Generating '{args.task}' prior with {args.provider}:{model} "
           f"({len(labels)} regions)...", flush=True)
+
+    repair_hint = (
+        "\n\nIMPORTANT: Your previous reply was not usable. Respond with "
+        "STRICT JSON ONLY - no prose, no markdown, no commentary - using "
+        'exactly {{"scores": {{"<AAL label>": <float>, ...}}}} and include '
+        f"ALL {len(labels)} regions listed above."
+    )
+
+    payload: Dict | None = None
     last_error: Exception | None = None
-    for attempt in range(1, max(args.retries, 1) + 1):
+    max_attempts = max(args.retries, 1)
+    for attempt in range(1, max_attempts + 1):
         try:
             text = call_llm(
-                args.provider, prompt, model, args.ollama_url,
+                args.provider,
+                prompt + (repair_hint if attempt > 1 else ""),
+                model, args.ollama_url,
                 args.temperature, args.seed, args.timeout,
             )
-            payload = extract_json_object(text)
-            break
-        except Exception as exc:  # noqa: BLE001 - retry any backend failure
+            candidate = extract_json_object(text)
+
+            # --- Print the LLM's Chain-of-Thought Reasoning when present ---
+            if "reasoning" in candidate and isinstance(candidate["reasoning"], str):
+                print("\n--- LLM Chain-of-Thought Reasoning ---")
+                print(candidate["reasoning"])
+                print("--------------------------------------\n", flush=True)
+            # ---------------------------------------------------------------
+
+            # A response is only accepted when it maps EVERY region to a
+            # finite float - incomplete mappings trigger another attempt
+            # with the escalating repair hint.
+            scores_attempt, missing_attempt = parse_scores(candidate, labels)
+            n_finite = int(np.isfinite(scores_attempt).sum())
+            if n_finite == len(labels) or args.fill_missing is not None:
+                payload = candidate
+                if attempt > 1:
+                    print(f"[attempt {attempt}/{max_attempts}] recovered a "
+                          f"usable response ({n_finite}/{len(labels)} regions).",
+                          flush=True)
+                break
+            raise ValueError(
+                f"incomplete region mapping: {n_finite}/{len(labels)} regions "
+                f"(missing e.g. {missing_attempt[:5]})"
+            )
+        except Exception as exc:  # noqa: BLE001 - retry any backend/parse failure
             last_error = exc
-            print(f"[attempt {attempt}/{args.retries}] failed: {exc}", flush=True)
+            print(f"[attempt {attempt}/{max_attempts}] failed: {exc}", flush=True)
             time.sleep(2.0 * attempt)
-    else:
-        raise RuntimeError(f"All {args.retries} attempts failed") from last_error
+    if payload is None:
+        raise RuntimeError(
+            f"All {max_attempts} attempts failed to produce a valid AAL116 "
+            f"region mapping"
+        ) from last_error
 
     scores, missing = parse_scores(payload, labels)
     if missing:
-        if args.fill_missing is None:
-            raise ValueError(
-                f"{len(missing)} regions missing from the LLM response "
-                f"(e.g. {missing[:5]}...). Pass --fill-missing 0.0 to fill them."
-            )
+        # fill_missing was set (otherwise the loop would have retried).
         scores[~np.isfinite(scores)] = float(args.fill_missing)
         print(f"[WARN] filled {len(missing)} missing regions with "
               f"{args.fill_missing}: {missing}", file=sys.stderr)
@@ -331,6 +390,11 @@ def main() -> None:
         "fill_missing": args.fill_missing,
         "missing_regions": missing,
     }
+    
+    # Save the reasoning in the provenance file as well
+    if "reasoning" in payload and isinstance(payload["reasoning"], str):
+        provenance["llm_reasoning"] = payload["reasoning"]
+
     (out_dir / "provenance.json").write_text(
         json.dumps(provenance, indent=2), encoding="utf-8"
     )

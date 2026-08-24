@@ -873,18 +873,8 @@ def fit_predict_network_constrained(
         beta_dev[inactive_mask] = (x_inactive_fit.T @ alpha) / (best_alpha1 * scale)
 
     if ib_tracker is not None:
-        from metascfc.metrics import information_bottleneck_metrics
         latent = x_fit @ beta_dev  # scalar model representation z = X beta
-        reference_var = float(x_fit.var(axis=0, ddof=1).mean())
-        noise_floor = 0.05
-        sigma_nu_sq = max(noise_floor, 1e-8) * max(reference_var, 1e-12)
-        rate = float(0.5 * np.log1p(float(latent.var(ddof=1)) / sigma_nu_sq))
-        probe = information_bottleneck_metrics(latent, y_fit_z, noise_floor=noise_floor)
-        ib_tracker.final = {
-            "I_XZ": rate,
-            "I_ZY": probe["I_ZY"],
-            "probe_r2": probe["probe_r2"],
-        }
+        ib_tracker.log_final(latent, y_fit_z, x=x_fit)
         ib_tracker.alpha_final = [float(best_alpha2 / best_alpha1)]
 
     return np.asarray(pred), best_alpha1, best_alpha2, best_rmse, beta_dev

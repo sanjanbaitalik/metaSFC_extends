@@ -75,7 +75,7 @@ def load_hcp_behavior(behavior_csv: str | Path) -> pd.DataFrame:
             f"HCP behavior table not found: {path}. Export the 'unrestricted' "
             "behavioral data CSV from the ConnectomeDB / BALSA and pass its path."
         )
-    df = pd.read_csv(path)
+    df = pd.read_csv(path, on_bad_lines='skip')
     col = _subject_column(df, path)
     df[col] = df[col].astype(str)
     return df.set_index(col)
@@ -124,6 +124,61 @@ def load_task_target(
         "value": values,
     })
     return values, meta
+
+
+def dual_target_qc(
+    subject_ids: list[str] | pd.Series,
+    behavior_csv: str | Path,
+    targets: tuple[str, ...] = ("PMAT24_A_CR", "ListSort_Unadj"),
+) -> tuple[list[str], Dict[str, object]]:
+    """Intersection QC across multiple behavioral targets.
+
+    Real HCP data has NaN measures for subjects who skipped a task
+    (e.g. ``ListSort_Unadj``).  This returns the subjects that have finite
+    values for EVERY requested target plus a structured drop log with the
+    exact counts per exclusion reason - never silent imputation.
+
+    Returns
+    -------
+    (kept_ids, log)
+        log keys: ``n_input``, ``n_kept``, ``n_dropped``,
+        ``dropped_missing_behavior_row``, ``dropped_nan_per_target``
+        (dict target -> count), ``dropped_ids_by_reason``.
+    """
+    canonical_targets = [resolve_target(t) for t in targets]
+    ids = [str(s) for s in subject_ids]
+    beh = load_hcp_behavior(behavior_csv)
+    for col in canonical_targets:
+        if col not in beh.columns:
+            raise ValueError(f"Column '{col}' not found in {behavior_csv}")
+
+    dropped_rows = sorted(set(ids) - set(beh.index))
+    present = [s for s in ids if s not in set(dropped_rows)]
+    nan_counts: Dict[str, int] = {}
+    nan_ids: Dict[str, list[str]] = {col: [] for col in canonical_targets}
+    keep = np.ones(len(present), dtype=bool)
+    for j, col in enumerate(canonical_targets):
+        values = beh.loc[present, col].to_numpy(np.float64)
+        mask = ~np.isfinite(values)
+        nan_counts[col] = int(mask.sum())
+        for k in np.where(mask)[0]:
+            nan_ids[col].append(present[k])
+        keep &= ~mask
+
+    kept = [s for s, k in zip(present, keep) if k]
+    log: Dict[str, object] = {
+        "n_input": len(ids),
+        "n_kept": len(kept),
+        "n_dropped": len(ids) - len(kept),
+        "dropped_missing_behavior_row": dropped_rows,
+        "dropped_nan_per_target": nan_counts,
+        "dropped_ids_by_reason": {
+            "missing_row": dropped_rows,
+            **{col: nan_ids[col] for col in canonical_targets},
+        },
+        "targets": canonical_targets,
+    }
+    return kept, log
 
 
 def build_task_labels(

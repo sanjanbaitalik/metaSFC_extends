@@ -151,6 +151,43 @@ with `alpha = sigmoid(rho)` learned per layer. The final value is recorded
 per split (`bypass_alpha` column): alpha -> 1 means "trust the prior"
 (matched), alpha -> 0 means "ignore the prior" (mismatched).
 
+### 5. Production run on real HCP data
+
+```bash
+# (a) Dual-target label extraction + packing with intersection QC.
+#     Subjects missing EITHER PMAT24_A_CR or ListSort_Unadj are dropped,
+#     with exact per-reason drop counts logged:
+python scripts/21_prepare_hcp_labels.py   # writes both target columns
+python scripts/24_pack_hcp_arrays.py      # packs FC/SC + both label arrays
+
+# (b) Generate the real LLM priors (local Ollama / llama3.1):
+python scripts/46_generate_llm_priors.py --task "Working Memory" \
+    --provider ollama --model llama3.1 --controls
+python scripts/46_generate_llm_priors.py --task "Fluid Intelligence" \
+    --provider ollama --model llama3.1 --controls
+# Robust to conversational filler: JSON is recovered from the first balanced
+# '{' via raw_decode, and incomplete AAL116 mappings are retried (3 attempts)
+# with an escalating strict-JSON repair hint.
+
+# (c) Full dual-task matrix with checkpoints and neural IB estimation:
+python scripts/50_run_dual_task_matrix.py --save-checkpoints --ib-method mine
+# (--ib-method gaussian, the default, uses the deterministic VIB proxy)
+
+# (d) Zero-shot cross-cohort transfer (e.g. HCP-Development), frozen model:
+python scripts/51_run_cross_cohort_transfer.py --auto-best \
+    --target working_memory \
+    --fc inputs/dataset_hcpd_FC/FC_all.npy \
+    --sc inputs/dataset_hcpd_SC/SC_all.npy \
+    --y inputs/dataset_hcpd_SC/label_all.npy
+```
+
+Transfer enforces strict AAL116 checks: the new cohort must be exactly
+[n, 116, 116] and match the checkpoint's parcellation; different cohort
+sizes are fine, wrong dimensions or non-finite values are hard errors.
+Results land in `outputs/iclr/cross_cohort_transfer/transfer_metrics.csv`
+(Pearson r / RMSE / MAE per checkpoint) plus per-subject prediction CSVs.
+
+
 
 
 ## Experiment matrix

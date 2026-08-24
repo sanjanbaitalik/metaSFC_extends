@@ -16,13 +16,16 @@ from .core import (
 )
 from .information_bottleneck import (
     IBEpochTracker,
+    MINEEstimator,
     compression_mi,
     information_bottleneck_metrics,
     predictive_mi,
+    random_project,
 )
 
 __all__ = [
     "IBEpochTracker",
+    "MINEEstimator",
     "classification_metrics",
     "compression_mi",
     "compute_prediction_metrics",
@@ -32,6 +35,7 @@ __all__ = [
     "mae",
     "pearson_corr",
     "predictive_mi",
+    "random_project",
     "rmse",
     "spearman_corr",
     "topk_jaccard",

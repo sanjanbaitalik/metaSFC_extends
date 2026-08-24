@@ -1,0 +1,14 @@
+{
+  "task": "Working Memory",
+  "slug": "working_memory",
+  "provider": "ollama",
+  "model": "qwen3.8:27b",
+  "temperature": 0.2,
+  "seed": 42,
+  "n_regions": 116,
+  "prompt_sha256": "fcdf0271c7eb1ad9785fe6d9d0747dc044078abe4bc57eb7fe0bc99735415150",
+  "generated_utc": "2026-08-24T13:15:52Z",
+  "fill_missing": null,
+  "missing_regions": [],
+  "llm_reasoning": "Working Memory (WM) is subserved primarily by the frontoparietal executive control network. Core hubs include the dorsolateral prefrontal cortex (DLPFC: BA 9/10 in Frontal_Sup, BA 6/8/9 in Frontal_Mid, BA 44/46 in Frontal_Inf_Oper), the lateral parietal cortex (IPS: BA 7 in Parietal_Sup, BA 40 in SupraMarginal/Parietal_Inf, BA 39 in Angular), and the anterior cingulate (conflict/error monitoring). The supplementary motor area and precentral cortex contribute to motor WM. The phonological loop recruits left superior temporal cortex. Lateralization: left DLPFC and left STS dominate verbal/phonological WM; right DLPFC and right IPS dominate spatial/visuospatial WM. The cerebellum (especially Crus I/II, lobules 6, 7b, 8, 9, 10) participates via cerebello-thalamo-cortical loops, with posterior lobules connecting to prefrontal and parietal WM circuits. Subcortical relays (thalamus, caudate, putamen) support WM via cortico-striato-thalamo-cortical loops. The default mode network (precuneus, posterior cingulate, medial PFC, hippocampus) shows task-negative deactivation during WM, earning low positive scores. Primary sensory cortices (calcarine, Heschl, postcentral, olfactory) and orbitofrontal regions (reward/decision) have minimal direct WM involvement. Vermis regions have the weakest association."
+}

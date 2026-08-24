@@ -101,6 +101,7 @@ def main() -> None:
                     help="Optional seed override for smoke/partial runs")
     ap.add_argument("--methods", nargs="*", help="Optional method-ID override")
     ap.add_argument("--folds", nargs="*", type=int, help="Optional fold-index override")
+    ap.add_argument("--ib-method", choices=("gaussian", "mine"), default="gaussian")
     ap.add_argument("--track-ib", action="store_true",
                     help="Record per-epoch/converged Information Bottleneck "
                          "metrics and the learned bypass alpha per split")
@@ -170,7 +171,8 @@ def main() -> None:
                 print(f"SKIP {method_id} {split_id}")
                 continue
             started = time.time()
-            tracker = IBEpochTracker() if args.track_ib else None
+            tracker = (IBEpochTracker(method=args.ib_method)
+                       if args.track_ib else None)
             pred, best_cfg, best_val_rmse, best_epoch, saliency, n_params = fit_predict_llm_gated(
                 fc, sc, y, train_idx, val_idx, test_idx,
                 priors[method_id],

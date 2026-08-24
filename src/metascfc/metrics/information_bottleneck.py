@@ -46,6 +46,119 @@ from typing import Dict, Optional
 import numpy as np
 
 
+# ---------------------------------------------------------------------------
+# MINE: Mutual Information Neural Estimation (lightweight critic)
+# ---------------------------------------------------------------------------
+class MINEEstimator:
+    """Neural MI estimator with a small MLP critic (Donsker-Varadhan bound).
+
+        I(X; Y) >= E_joint[T(x, y)] - log E_marginal[exp T(x, y')]
+
+    where the marginal pairs are formed by permuting y against x.  The critic
+    is intentionally tiny (two ``hidden``-unit layers by default) so that a
+    handful of full-batch gradient steps add well under ~10% overhead to a
+    training epoch at our sample sizes (n ~ 300).
+
+    The log-mean-exp is max-shifted for numerical stability.  Estimates are
+    lower bounds with finite-sample bias; as with the Gaussian proxy, only
+    *relative* comparisons across matched runs are interpreted.
+    """
+
+    def __init__(
+        self,
+        x_dim: int,
+        y_dim: int,
+        hidden: int = 32,
+        n_steps: int = 50,
+        learning_rate: float = 1e-2,
+        batch_size: int = 256,
+        seed: int = 0,
+    ) -> None:
+        import torch
+
+        self.torch = torch
+        if min(x_dim, y_dim) < 1 or hidden < 1 or n_steps < 1:
+            raise ValueError("dims/hidden/n_steps must be positive")
+        self.x_dim, self.y_dim = int(x_dim), int(y_dim)
+        self.hidden, self.n_steps = int(hidden), int(n_steps)
+        self.learning_rate = float(learning_rate)
+        self.batch_size = int(batch_size)
+        generator = torch.Generator().manual_seed(int(seed))
+        self._generator = generator
+        self.critic = torch.nn.Sequential(
+            torch.nn.Linear(x_dim + y_dim, hidden),
+            torch.nn.ReLU(),
+            torch.nn.Linear(hidden, hidden),
+            torch.nn.ReLU(),
+            torch.nn.Linear(hidden, 1),
+        )
+        for p in self.critic.parameters():  # deterministic init
+            torch.nn.init.normal_(p, std=0.1, generator=generator)
+
+    def estimate(self, x: np.ndarray, y: np.ndarray) -> float:
+        torch = self.torch
+        x_arr = np.asarray(x, dtype=np.float64)
+        y_arr = np.asarray(y, dtype=np.float64)
+        if y_arr.ndim == 1:
+            y_arr = y_arr.reshape(-1, 1)
+        if len(x_arr) != len(y_arr):
+            raise ValueError(f"x/y length mismatch: {len(x_arr)} vs {len(y_arr)}")
+        x_arr = _as_2d(x_arr)
+        if x_arr.std() > 0:
+            x_arr = (x_arr - x_arr.mean(0)) / np.where(
+                x_arr.std(0) > 0, x_arr.std(0), 1.0
+            )
+        y2 = _as_2d(y_arr)
+        y_mu, y_sd = y2.mean(0), y2.std(0)
+        y2 = (y2 - y_mu) / np.where(y_sd > 0, y_sd, 1.0)
+        xt = torch.from_numpy(x_arr.astype(np.float32))
+        yt = torch.from_numpy(y2.astype(np.float32))
+        n = len(xt)
+
+        opt = torch.optim.Adam(self.critic.parameters(), lr=self.learning_rate)
+        joint = torch.cat([xt, yt], dim=1)
+        for _ in range(self.n_steps):
+            if self.batch_size < n:
+                idx = torch.randint(
+                    n, (self.batch_size,), generator=self._generator
+                )
+                j_batch, xb, yb = joint[idx], xt[idx], yt[idx]
+            else:
+                j_batch, xb, yb = joint, xt, yt
+            # Marginal pairing: permute y WITHIN the sampled batch.
+            perm = torch.randperm(len(xb), generator=self._generator)
+            marg = torch.cat([xb, yb[perm]], dim=1)
+            t_joint = self.critic(j_batch).mean()
+            t_marg = self.critic(marg)
+            shift = t_marg.max().detach()
+            log_e_t = shift + torch.log(torch.exp(t_marg - shift).mean())
+            loss = -(t_joint - log_e_t)
+            opt.zero_grad(set_to_none=True)
+            loss.backward()
+            opt.step()
+
+        with torch.no_grad():
+            perm = torch.randperm(n, generator=self._generator)
+            t_j = float(self.critic(joint).mean())
+            t_m = self.critic(torch.cat([xt, yt[perm]], dim=1))
+            shift = t_m.max()
+            mi = t_j - (shift + torch.log(torch.exp(t_m - shift).mean()))
+        return float(max(mi.item(), 0.0))
+
+
+def random_project(x: np.ndarray, dims: int = 16, seed: int = 0) -> np.ndarray:
+    """Fixed seeded Gaussian sketch of high-dim features (JL projection).
+
+    Used to make I(X; Z) tractable for edge-space inputs (26k+ dims): MI is
+    estimated against this low-dim summary, identically across all compared
+    runs.
+    """
+    arr = _as_2d(x)
+    rng = np.random.default_rng(seed)
+    proj = rng.standard_normal((arr.shape[1], int(dims))) / np.sqrt(arr.shape[1])
+    return arr @ proj
+
+
 def _as_2d(z: np.ndarray) -> np.ndarray:
     arr = np.asarray(z, dtype=np.float64)
     if arr.ndim == 1:
@@ -120,28 +233,93 @@ def information_bottleneck_metrics(
 
 
 class IBEpochTracker:
-    """Accumulates per-epoch IB metrics inside a training loop."""
+    """Accumulates per-epoch IB metrics inside a training loop.
 
-    def __init__(self, noise_floor: float = 0.05) -> None:
+    ``method`` selects the estimator:
+
+    - ``"gaussian"`` (default): deterministic Gaussian/VIB proxy - the
+      compression rate bound needs only Z, and I(Z;Y) uses a linear probe.
+    - ``"mine"``: neural estimation with a small MLP critic.  I(Z;Y) is
+      estimated between Z and Y; I(X;Z) is estimated between Z and a fixed
+      random projection of the input features (``x_summary_dims``), which
+      keeps the critic tiny and the overhead negligible.
+
+    Both paths share the same call sites; switching method changes no other
+    protocol detail, so cross-method comparisons of *trends* remain valid
+    but exact values are not comparable (different estimands in the strict
+    sense) - pick one method per experiment and report it.
+    """
+
+    def __init__(
+        self,
+        noise_floor: float = 0.05,
+        method: str = "gaussian",
+        mine_hidden: int = 32,
+        mine_steps: int = 50,
+        x_summary_dims: int = 16,
+        seed: int = 0,
+    ) -> None:
+        if method not in ("gaussian", "mine"):
+            raise ValueError(f"Unknown IB method '{method}'")
         self.noise_floor = float(noise_floor)
+        self.method = method
+        self.mine_hidden = int(mine_hidden)
+        self.mine_steps = int(mine_steps)
+        self.x_summary_dims = int(x_summary_dims)
+        self.seed = int(seed)
         self.epochs: list[int] = []
         self.I_XZ: list[float] = []
         self.I_ZY: list[float] = []
         self.final: Optional[Dict[str, float]] = None
+        self.alpha_final: Optional[list[float]] = None
 
-    def log_epoch(self, epoch: int, z: np.ndarray, y: np.ndarray) -> None:
-        metrics = information_bottleneck_metrics(z, y, noise_floor=self.noise_floor)
+    def _estimate(self, z: np.ndarray, y: np.ndarray,
+                  x: Optional[np.ndarray]) -> Dict[str, float]:
+        if self.method == "gaussian":
+            z_arr = _as_2d(z)
+            # Reference scale for the encoder noise floor: the input feature
+            # variance when X is available (correct even for scalar latents
+            # like z = X beta), otherwise the latent's own variance.
+            if x is not None:
+                reference = float(
+                    np.asarray(x, dtype=np.float64).reshape(len(x), -1)
+                    .var(axis=0, ddof=1).mean()
+                )
+            else:
+                reference = float(z_arr.var(axis=0, ddof=1).mean())
+            sigma_nu_sq = max(self.noise_floor, 1e-8) * max(reference, 1e-12)
+            i_xz = float(0.5 * np.log1p(z_arr.var(axis=0, ddof=1) / sigma_nu_sq).sum())
+            probe = predictive_mi(z, y)
+            return {"I_XZ": i_xz, "I_ZY": probe["I_ZY"], "probe_r2": probe["probe_r2"]}
+        from .information_bottleneck import MINEEstimator, random_project
+        zy = MINEEstimator(
+            x_dim=_as_2d(z).shape[1], y_dim=1, hidden=self.mine_hidden,
+            n_steps=self.mine_steps, seed=self.seed,
+        ).estimate(z, y)
+        summary = random_project(x, dims=self.x_summary_dims, seed=self.seed) \
+            if x is not None else z
+        xz = MINEEstimator(
+            x_dim=_as_2d(summary).shape[1], y_dim=_as_2d(z).shape[1],
+            hidden=self.mine_hidden, n_steps=self.mine_steps, seed=self.seed + 1,
+        ).estimate(summary, z)
+        return {"I_XZ": xz, "I_ZY": zy, "probe_r2": float("nan")}
+
+    def log_epoch(self, epoch: int, z: np.ndarray, y: np.ndarray,
+                  x: Optional[np.ndarray] = None) -> None:
+        metrics = self._estimate(z, y, x)
         self.epochs.append(int(epoch))
         self.I_XZ.append(metrics["I_XZ"])
         self.I_ZY.append(metrics["I_ZY"])
 
-    def log_final(self, z: np.ndarray, y: np.ndarray) -> Dict[str, float]:
-        self.final = information_bottleneck_metrics(z, y, noise_floor=self.noise_floor)
+    def log_final(self, z: np.ndarray, y: np.ndarray,
+                  x: Optional[np.ndarray] = None) -> Dict[str, float]:
+        self.final = self._estimate(z, y, x)
         return dict(self.final)
 
     def to_dict(self) -> Dict:
         return {
             "noise_floor": self.noise_floor,
+            "method": self.method,
             "epochs": self.epochs,
             "I_XZ": self.I_XZ,
             "I_ZY": self.I_ZY,
@@ -151,7 +329,9 @@ class IBEpochTracker:
 
 __all__ = [
     "IBEpochTracker",
+    "MINEEstimator",
     "compression_mi",
     "information_bottleneck_metrics",
     "predictive_mi",
+    "random_project",
 ]

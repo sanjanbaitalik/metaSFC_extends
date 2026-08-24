@@ -133,6 +133,12 @@ def main() -> None:
     ap.add_argument("--priors", nargs="*", choices=PRIORS, default=list(PRIORS))
     ap.add_argument("--targets", nargs="*", choices=TARGETS, default=list(TARGETS))
     ap.add_argument("--overwrite", action="store_true")
+    ap.add_argument("--save-checkpoints", action="store_true",
+                    help="Serialize refit LLM-gated models (weights + frozen "
+                         "scalers/graph/prior) for cross-cohort transfer")
+    ap.add_argument("--ib-method", choices=("gaussian", "mine"), default="gaussian",
+                    help="Information Bottleneck estimator (gaussian proxy or "
+                         "small-critic MINE)")
     ap.add_argument("--prior-overrides", default=None,
                     help="Optional JSON dict overriding prior paths, e.g. "
                          "'{\"llm_wm\": \"outputs/priors/working_memory/aal116/roi_prior.csv\"}' "
@@ -248,7 +254,7 @@ def main() -> None:
                     split_id = f"seed{seed:02d}_fold{fold:02d}"
                     split_seed = seed * 1000 + fold
                     started = time.time()
-                    tracker = IBEpochTracker()
+                    tracker = IBEpochTracker(method=args.ib_method)
                     row: Dict = {
                         "model": model, "prior": prior, "target": target,
                         "seed": seed, "fold": fold, "split_id": split_id,
@@ -269,6 +275,12 @@ def main() -> None:
                                 "best_val_rmse": float(val_rmse),
                             })
                         else:
+                            ckpt_extra: Dict = {}
+                            if args.save_checkpoints:
+                                ckpt_dir = out_root / "checkpoints"
+                                ckpt_extra["checkpoint_path"] = str(
+                                    ckpt_dir / f"llm_gated_{prior}_{target}_seed{seed:02d}_fold{fold:02d}.pt"
+                                )
                             pred, best_cfg, best_val_rmse, best_epoch, _, n_params = (
                                 fit_predict_llm_gated(
                                     fc, sc, y, train_idx, val_idx, test_idx,
@@ -277,7 +289,7 @@ def main() -> None:
                                     dropout_grid=[float(d) for d in llm_cfg["dropout_grid"]],
                                     lr_grid=[float(l) for l in llm_cfg["lr_grid"]],
                                     device=device, seed=split_seed,
-                                    ib_tracker=tracker, **llm_fixed,
+                                    ib_tracker=tracker, **llm_fixed, **ckpt_extra,
                                 )
                             )
                             row.update({
@@ -348,6 +360,7 @@ def main() -> None:
         "n_evaluations": int(len(df)), "device": str(device),
         "ncr_config": args.ncr_config, "llm_config": args.llm_config,
         "ib_noise_floor": IBEpochTracker().noise_floor,
+        "ib_method": args.ib_method,
     }, out_root / "run_metadata.json")
     print(f"Saved {len(df)} evaluations ({total} new this run) to {out_root}")
 

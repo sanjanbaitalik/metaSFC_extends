@@ -7,6 +7,7 @@ from .connectome_dataset import (
 from .hcp_targets import (
     KNOWN_TARGETS,
     build_task_labels,
+    dual_target_qc,
     load_hcp_behavior,
     load_task_target,
     resolve_target,
@@ -17,6 +18,7 @@ __all__ = [
     "KNOWN_TARGETS",
     "SyntheticConnectomeDataset",
     "build_task_labels",
+    "dual_target_qc",
     "load_fc_sc_arrays",
     "load_hcp_behavior",
     "load_task_target",

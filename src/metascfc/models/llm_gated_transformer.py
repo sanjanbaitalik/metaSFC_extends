@@ -31,7 +31,8 @@ passing an ``IBEpochTracker``.
 """
 from __future__ import annotations
 
-from dataclasses import dataclass
+from dataclasses import asdict, dataclass
+from pathlib import Path
 from typing import Dict, List, Optional, Sequence, Tuple
 
 import numpy as np
@@ -380,7 +381,8 @@ def _train_fixed_epochs(model, x_fit, y_fit_z, config, n_epochs, device,
             with torch.no_grad():
                 latent = model.encode(x_fit)
             ib_tracker.log_epoch(epoch, latent.detach().cpu().numpy(),
-                                 y_fit_z.detach().cpu().numpy())
+                                 y_fit_z.detach().cpu().numpy(),
+                                 x=x_fit.detach().cpu().numpy())
     model.eval()
 
 
@@ -433,6 +435,7 @@ def fit_predict_llm_gated(
     grad_clip: float = 5.0,
     seed: Optional[int] = None,
     ib_tracker: Optional["IBEpochTracker"] = None,
+    checkpoint_path: Optional[str | Path] = None,
 ) -> Tuple[np.ndarray, Dict[str, float], float, int, np.ndarray, int]:
     """Nested selection + refit for one outer split (leakage-free).
 
@@ -517,13 +520,37 @@ def fit_predict_llm_gated(
     if ib_tracker is not None:
         with torch.no_grad():
             latent_fit = final_model.encode(x_fit.to(device))
-        ib_tracker.log_final(latent_fit.cpu().numpy(), y_fit_z.numpy())
+        ib_tracker.log_final(latent_fit.cpu().numpy(), y_fit_z.numpy(),
+                             x=x_fit.numpy())
         ib_tracker.alpha_final = final_model.bypass_alphas()
     with torch.no_grad():
         pred = (final_model(x_test.to(device)).detach().cpu().numpy() * fit_std
                 + fit_mean).astype(np.float64)
 
     saliency = gradient_node_saliency(final_model, x_fit, device)
+    if checkpoint_path is not None:
+        # Frozen-inference checkpoint for cross-cohort zero-shot transfer:
+        # weights plus EVERYTHING needed to reproduce the feature pipeline
+        # (fit scalers, target de-normalization, split graph, prior, config).
+        payload = {
+            "format_version": 1,
+            "model_family": "llm_gated_transformer",
+            "state_dict": {k: v.detach().cpu() for k, v in final_model.state_dict().items()},
+            "config": asdict(best_cfg),
+            "n_rois": int(n_rois),
+            "in_dim": int(x.shape[2]),
+            "prior": np.asarray(prior, dtype=np.float64),
+            "edge_src": edge_src,
+            "edge_dst": edge_dst,
+            "x_mean": mean.reshape(1, -1),
+            "x_std": std.reshape(1, -1),
+            "fit_mean": float(fit_mean),
+            "fit_std": float(fit_std),
+            "seed": int(seed) if seed is not None else None,
+        }
+        ckpt = Path(checkpoint_path)
+        ckpt.parent.mkdir(parents=True, exist_ok=True)
+        torch.save(payload, ckpt)
     n_params = sum(p.numel() for p in final_model.parameters())
     best_cfg_dict = {
         "hidden": best_cfg.hidden, "dropout": best_cfg.dropout,
