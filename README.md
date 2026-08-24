@@ -4,6 +4,80 @@ MetaSCFC investigates whether external neuroimaging meta-analysis priors can imp
 
 The current AAAI-27 experiment uses an MS-Inter-GCN-style corresponding-ROI FC-SC coupling model on HCP Young Adult data with AAL116 parcellation and PMAT fluid-intelligence prediction.
 
+## ICLR 2027 pivot: LLM-generated semantic priors + dual-task matrix
+
+The next phase replaces (and complements) the Neurosynth maps with
+**zero-shot LLM semantic scores** and evaluates every method on **two HCP
+tasks**: fluid intelligence (`PMAT24_A_CR`) and working memory
+(`ListSort_Unadj`).
+
+### Zero-shot LLM prior generator
+
+```bash
+# Working Memory prior (+ anatomically shuffled control), local llama3 via Ollama:
+python scripts/46_generate_llm_priors.py --task "Working Memory" \
+    --provider ollama --model llama3 --controls
+
+# Fluid Intelligence prior, hosted gpt-4o-mini:
+OPENAI_API_KEY=... python scripts/46_generate_llm_priors.py \
+    --task "Fluid Intelligence" --provider openai --model gpt-4o-mini
+```
+
+The prompt lists all 116 AAL regions and requests continuous relevance
+scores in [0, 1]; the response is parsed as strict JSON, clamped, min-max
+normalized, and saved **in the exact Neurosynth schema**
+(`roi_index, roi_label, raw_score, prior_score`) to
+`outputs/priors/llm/{task_slug}/roi_prior.csv` plus a `provenance.json`
+(model, seed, prompt hash). `--dry-run` prints the prompt without calling
+the API; `--fill-missing` controls handling of unreturned regions (default:
+fail loudly).
+
+### Dual-task targets
+
+```bash
+python -m metascfc.data.hcp_targets --behavior-csv <HCP_unrestricted.csv> \
+    --targets fluid_intelligence working_memory wm_nback
+```
+
+`src/metascfc/data/hcp_targets.py` aligns behavioral measures to the used
+cohort order and writes per-task `label_all.npy` +
+`label_metadata.json` under `inputs/dataset_SC/task_labels/<TARGET>/`, so
+every existing loader (`benchmark_utils.load_connectomes`, the AAAI loop,
+scripts 40-47) consumes the new tasks by simply pointing `data.y_path` at
+the generated file. Known targets/aliases: `fluid_intelligence`
+(`PMAT24_A_CR`), `working_memory` / `listsort` (`ListSort_Unadj`),
+`wm_nback` (`WM_Task_2back_Acc`).
+
+### Method 4: LLM-Gated Cross-Modal Graph Attention Transformer
+
+New model in `src/metascfc/models/llm_gated_transformer.py`. The attention
+logits are biased directly by the LLM prior:
+
+```
+e_ij = LeakyReLU(a^T [W_f h_i | W_s h_j] ...) + lambda * (p_i + p_j)
+```
+
+with modality-specific FC/SC projections inside each head (cross-modal) and
+a learnable per-layer temperature lambda; layers are wrapped in residual
+transformer blocks (LayerNorm + FFN). Nested-CV entry points mirror Method 2
+exactly (`fit_predict_llm_gated`, `refit_llm_gated_predictor`,
+gradient node saliency), so the faithfulness and biomarker-stability
+pipelines work unchanged.
+
+Run (10 seeds x 5 folds x 3 variants per task, resumable):
+
+```bash
+python scripts/47_run_llm_gated_transformer.py --config configs/iclr/llm_wm_prior.yaml
+python scripts/47_run_llm_gated_transformer.py --config configs/iclr/llm_fluid_prior.yaml
+# smoke test:
+python scripts/47_run_llm_gated_transformer.py \
+    --config configs/iclr/llm_fluid_prior.yaml --seeds 0 --methods LLMT_TRUE --folds 0
+```
+
+Outputs land in `outputs/iclr/<experiment>/` with the identical split /
+summary / prediction / saliency schema as Methods 1-3.
+
+
 ## Experiment matrix
 
 - E0: baseline

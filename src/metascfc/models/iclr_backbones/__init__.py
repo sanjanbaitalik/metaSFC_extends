@@ -20,9 +20,28 @@ Two-Stage Biomarker-Guided Kernel Ridge: per-split Stage-1 node saliency
 explicit feature-space projector; a Kernel Ridge (RBF) is trained on the
 gated features.
 
+Method 4 (implemented, ICLR 2027 LLM-prior pivot)
+-------------------------------------------------
+LLM-Gated Cross-Modal Graph Attention Transformer: zero-shot LLM-generated
+semantic priors (scripts/46) enter the attention logits of a transformer-
+style graph attention stack, e_ij = LeakyReLU(a^T [W h_i || W h_j]) +
+lambda * (p_i + p_j), with lambda a learnable per-layer temperature and
+modality-specific FC/SC projections inside each head.
+
 See README.md -> "ICLR 2027 Methodological Extensions" and docs/.
 """
 
+from ..llm_gated_transformer import (
+    LLMGatedConfig,
+    LLMGatedTransformer,
+    LLMGatedTransformerBlock,
+    LLMPriorGatedGATLayer,
+    RefitLLMGatedPredictor,
+    build_candidate_grid as build_llm_gated_grid,
+    fit_predict_llm_gated,
+    gradient_node_saliency as llm_gated_node_saliency,
+    refit_llm_gated_predictor,
+)
 from .meta_gat import (
     MetaGAT,
     MetaGATConfig,
@@ -56,25 +75,34 @@ from .two_stage_kernel_ridge import (
 __all__ = [
     "EdgeLaplacian",
     "KRRConfig",
+    "LLMGatedConfig",
+    "LLMGatedTransformer",
+    "LLMGatedTransformerBlock",
+    "LLMPriorGatedGATLayer",
     "MetaGAT",
     "MetaGATConfig",
     "NetworkConstrainedRidge",
     "PriorGatedGATLayer",
     "RefitKRRPredictor",
+    "RefitLLMGatedPredictor",
     "RefitMetaGATPredictor",
     "build_candidate_grid",
     "build_edge_laplacian",
+    "build_llm_gated_grid",
     "build_prior_adjacency",
     "build_split_graph",
     "extract_upper",
+    "fit_predict_llm_gated",
     "fit_predict_meta_gat",
     "fit_predict_network_constrained",
     "fit_predict_two_stage_krr",
     "gradient_node_saliency",
     "lift_node_saliency_to_edges",
+    "llm_gated_node_saliency",
     "load_split_node_saliency",
     "node_saliency_from_beta",
     "refit_krr_predictor",
+    "refit_llm_gated_predictor",
     "refit_meta_gat_predictor",
     "upper_triangle_indices",
 ]

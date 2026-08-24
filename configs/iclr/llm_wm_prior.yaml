@@ -1,0 +1,56 @@
+# ICLR 2027 pivot - LLM-Gated Transformer, Working Memory task.
+#
+# Target: HCP List Sorting working memory (ListSort_Unadj), aligned to the
+# shared FC/SC cohort via src/metascfc/data/hcp_targets.py:
+#
+#   python -m metascfc.data.hcp_targets --behavior-csv <HCP_unrestricted.csv> \
+#       --targets working_memory
+#
+# Prior: zero-shot LLM-generated semantic scores for "Working Memory"
+# (scripts/46_generate_llm_priors.py), stored in the exact Neurosynth
+# roi_prior.csv schema so scripts 40-47 consume it unchanged.
+#
+# Protocol: identical nested CV as Methods 1-3 (10 seeds x 5 outer folds,
+# 15% inner validation, leakage-free scalers/graph, inner-validation model
+# selection, refit on train+val).  TRUE / SHUFFLED / RANDOM share seeds,
+# folds, grids, and selection rules.
+experiment_name: llm_gated_transformer_listsort_wm
+seeds: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]
+n_folds: 5
+val_fraction: 0.15
+device: auto
+alignment_topk: 10
+top_percent_sc: 10.0        # row-wise SC threshold for the split graph
+
+# LLM-gated attention architecture (e_ij = LeakyReLU(a^T[Wh_i||Wh_j]) + lambda*(p_i+p_j))
+n_layers: 2                 # transformer-style blocks (residual + FFN + LayerNorm)
+heads1: 4
+heads2: 1
+lambda_init: 1.0            # initial learnable prior temperature per layer
+weight_decay: 0.0001
+epochs: 60
+patience: 15
+min_epochs: 10
+grad_clip: 5.0
+hidden_grid: [16, 32]       # inner-CV selection grid (cartesian product)
+dropout_grid: [0.2, 0.5]
+lr_grid: [0.001, 0.003]
+
+methods:
+  LLMT_TRUE:
+    name: LLM-Gated Transformer (LLM working-memory prior)
+    path: outputs/priors/llm/working_memory/roi_prior.csv
+  LLMT_SHUFFLED:
+    name: LLM-Gated Transformer (shuffled LLM prior)
+    path: outputs/priors/llm/working_memory_shuffled/roi_prior.csv
+  LLMT_RANDOM:
+    name: LLM-Gated Transformer (random prior)
+    path: outputs/priors/random_prior/aal116/roi_prior.csv
+
+data:
+  fc_path: inputs/dataset_FC/FC_all.npy
+  sc_path: inputs/dataset_SC/SC_all.npy
+  y_path: inputs/dataset_SC/task_labels/ListSort_Unadj/label_all.npy
+  subjects_path: inputs/dataset_SC/hcp_subjects_used.csv
+target_measure: ListSort_Unadj
+output_dir: outputs/iclr/llm_gated_transformer_listsort_wm
