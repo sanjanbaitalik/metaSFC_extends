@@ -187,6 +187,50 @@ sizes are fine, wrong dimensions or non-finite values are hard errors.
 Results land in `outputs/iclr/cross_cohort_transfer/transfer_metrics.csv`
 (Pearson r / RMSE / MAE per checkpoint) plus per-subject prediction CSVs.
 
+## ICLR Production Run (Real AAAI Data)
+
+One command chains the entire definitive experiment on the real HCP-YA
+cohort (`data/hcp/processed`, dual-target intersection QC):
+
+```bash
+bash scripts/60_run_real_iclr_pipeline.sh                 # full 10-seed run
+
+# Faster single-seed verification pass (same stages):
+SEEDS="0" bash scripts/60_run_real_iclr_pipeline.sh
+```
+
+Stages executed (all output appended to `outputs/iclr/production_run.log`):
+
+1. **Repack with robust QC** - `scripts/21_prepare_hcp_labels.py` +
+   `scripts/24_pack_hcp_arrays.py`. Subjects missing *either*
+   `PMAT24_A_CR` or `ListSort_Unadj` are dropped before packing, with exact
+   per-reason drop counts logged. On the current data drop: 1191
+   behavior-complete subjects -> 779 without FC/SC files -> **412 packed**
+   (the imaging cohort has complete ListSort scores; nothing was lost to
+   NaNs). Both provenance CSVs are written:
+   `data/hcp/behavior/targets_fluid_intelligence.csv` and
+   `targets_working_memory.csv` (row-aligned to
+   `inputs/dataset_SC/hcp_subjects_used.csv`).
+2. **Real zero-shot priors** - `scripts/46_generate_llm_priors.py` with
+   Ollama (`OLLAMA_MODEL`, default `qwen2.5:32b`), three-tier JSON recovery,
+   shuffled controls included. No synthetic priors, no overrides.
+3. **Dual-task matrix** - `scripts/50_run_dual_task_matrix.py` with
+   `--ib-method mine` (neural MINE estimator active) and
+   `--save-checkpoints` for later transfer experiments.
+4. **IB figure** - `scripts/61_plot_information_bottleneck.py` renders the
+   Inductive-Bottleneck plane ($I(X;Z)$ compression vs $I(Z;Y)$ prediction;
+   color = prior type, marker = target task, mismatched true-prior cells
+   annotated) to `outputs/iclr/figures/ib_tradeoff.{png,pdf,tex}` (TikZ
+   snippet ready for the paper).
+
+Config note: `configs/iclr/llm_wm_prior.yaml` /
+`llm_fluid_prior.yaml` consume the packed arrays
+(`inputs/dataset_FC|SC`) produced by stage 1 and the aligned label files it
+writes (`task_labels/ListSort_Unadj/label_all.npy` for WM,
+`label_all.npy` for fluid) - the loaders therefore always see the exact
+intersection-QC cohort.
+
+
 
 
 

@@ -161,6 +161,15 @@ def random_project(x: np.ndarray, dims: int = 16, seed: int = 0) -> np.ndarray:
 
 def _as_2d(z: np.ndarray) -> np.ndarray:
     arr = np.asarray(z, dtype=np.float64)
+    
+    # --- NEW FIX: Auto-pool 3D node-level embeddings to 2D graph-level ---
+    # The LLM-Gated Transformer outputs (batch_size, num_nodes, hidden_dim).
+    # MINE/Gaussian estimators require (batch_size, feature_dim).
+    # We globally average across the node dimension (axis=1).
+    if arr.ndim == 3:
+        arr = arr.mean(axis=1)
+    # ---------------------------------------------------------------------
+    
     if arr.ndim == 1:
         arr = arr.reshape(-1, 1)
     if arr.ndim != 2:

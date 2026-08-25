@@ -80,5 +80,13 @@ np.save(task_dir / "label_all.npy", wm_all)
     "target": "ListSort_Unadj", "globally_standardized": False,
     "mean": float(wm_all.mean()), "std": float(wm_all.std()),
     "n_subjects": int(len(wm_all))}, indent=2))
+
+# Human-readable provenance copies of both packed targets (exactly the rows
+# of hcp_subjects_used.csv - the intersection-QC cohort).
+behavior_out = Path("data/hcp/behavior"); behavior_out.mkdir(parents=True, exist_ok=True)
+pd.DataFrame({"subject_id": kept, "target": "PMAT24_A_CR",
+              "value": label_all}).to_csv(behavior_out / "targets_fluid_intelligence.csv", index=False)
+pd.DataFrame({"subject_id": kept, "target": "ListSort_Unadj",
+              "value": wm_all}).to_csv(behavior_out / "targets_working_memory.csv", index=False)
 print("FC",FC_all.shape,"SC",SC_all.shape,"Y",label_all.shape,"range",(label_all.min(),label_all.max()))
 print("WM task labels:", wm_all.shape, "range", (wm_all.min(), wm_all.max()))

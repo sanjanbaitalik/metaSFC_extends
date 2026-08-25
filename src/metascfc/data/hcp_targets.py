@@ -186,8 +186,14 @@ def build_task_labels(
     behavior_csv: str | Path,
     target: str,
     out_dir: Optional[str | Path] = None,
+    csv_path: Optional[str | Path] = None,
 ) -> Path:
-    """Write label_all.npy + label_metadata.json for one cognitive task."""
+    """Write label_all.npy + label_metadata.json (+ readable CSV) for one task.
+
+    The CSV (``targets_<slug>.csv`` by default, columns ``subject_id`` /
+    ``value``) is the human-readable provenance copy of exactly the aligned,
+    NaN-free vector packed into ``label_all.npy``.
+    """
     canonical = resolve_target(target)
     y, _ = load_task_target(subjects_csv, behavior_csv, target)
     out_path = Path(out_dir) if out_dir else Path(DEFAULT_OUT_ROOT) / canonical
@@ -200,8 +206,16 @@ def build_task_labels(
         "std": float(y.std()),
         "n_subjects": int(len(y)),
     }, indent=2))
+    csv_out = Path(csv_path) if csv_path else \
+        out_path / f"targets_{canonical.lower()}.csv"
+    pd.DataFrame({
+        "subject_id": pd.read_csv(subjects_csv).iloc[:, 0].astype(str),
+        "target": canonical,
+        "value": y,
+    }).to_csv(csv_out, index=False)
     print(f"Wrote {out_path / 'label_all.npy'} "
           f"[{len(y)} subjects, mean={y.mean():.3f}, std={y.std():.3f}]")
+    print(f"Wrote {csv_out}")
     return out_path
 
 
