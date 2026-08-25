@@ -27,7 +27,8 @@ top_percent_sc: 10.0        # row-wise SC threshold for the split graph
 n_layers: 2                 # transformer-style blocks (residual + FFN + LayerNorm)
 heads1: 4
 heads2: 1
-alpha_init: 0.5             # initial bypass gate (alpha=sigmoid(rho); 1=trust prior, 0=ignore)
+alpha_init: 0.1             # start trusting the DATA; anti-dead-zone term lets it migrate
+alpha_explore_weight: 0.0001 # reward |alpha-0.5| distance (sign-corrected; see model docstring)
 weight_decay: 0.0001
 epochs: 60
 patience: 15

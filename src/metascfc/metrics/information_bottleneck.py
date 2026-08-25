@@ -279,8 +279,13 @@ class IBEpochTracker:
         self.epochs: list[int] = []
         self.I_XZ: list[float] = []
         self.I_ZY: list[float] = []
+        self.alpha_epochs: list[list[float]] = []
         self.final: Optional[Dict[str, float]] = None
         self.alpha_final: Optional[list[float]] = None
+
+    def log_alpha_epoch(self, epoch: int, alphas: list[float]) -> None:
+        """Record the bypass-gate trajectory (one entry per layer per epoch)."""
+        self.alpha_epochs.append([float(a) for a in alphas])
 
     def _estimate(self, z: np.ndarray, y: np.ndarray,
                   x: Optional[np.ndarray]) -> Dict[str, float]:
@@ -332,6 +337,7 @@ class IBEpochTracker:
             "epochs": self.epochs,
             "I_XZ": self.I_XZ,
             "I_ZY": self.I_ZY,
+            "alpha_epochs": self.alpha_epochs,
             "final": self.final,
         }
 

@@ -230,6 +230,51 @@ writes (`task_labels/ListSort_Unadj/label_all.npy` for WM,
 `label_all.npy` for fluid) - the loaders therefore always see the exact
 intersection-QC cohort.
 
+## Model Card / Provenance
+
+- **Zero-shot semantic priors**: generated with the **`qwen2.5:32b`**
+  foundation model served locally via **Ollama** (`localhost:11434`), from
+  prompts listing all 116 AAL region labels with strict-JSON scoring
+  instructions (temperature 0.2, seed 42, three-tier JSON recovery,
+  116/116 regions returned). *This is the actual generation model recorded
+  in every `outputs/priors/llm/*/provenance.json` (with prompt SHA-256);
+  `qwen3.8:27b` is installed on the serving machine but was **not** used
+  for the saved production priors.* No fine-tuning, no task training data
+  shown to the model; the priors are pure zero-shot scores.
+- **Prior discriminability caveat**: the WM and Fluid zero-shot priors
+  correlate at r = 0.86 (6/10 top-10 overlap) - qwen2.5:32b produces
+  substantially similar "generic cognitive" maps across tasks. This bounds
+  the match/mismatch contrast available to adaptive prior routing (see
+  `scripts/62_run_alpha_rescue.py`, which prints this diagnostic).
+- **Information Bottleneck**: MINE neural estimation (small MLP critic,
+  Donsker-Varadhan bound, max-shifted log-mean-exp) with the Gaussian/VIB
+  proxy as deterministic fallback; `I(X;Z)` is estimated against a fixed
+  random projection of the 26,680-dim edge features (JL sketch, identical
+  across all cells). Implementation:
+  `src/metascfc/metrics/information_bottleneck.py`.
+- **Bypass gate ($\alpha$)**: `alpha = sigmoid(rho)` per layer, initialized
+  at **0.1** (data-first), trained with a sign-corrected anti-dead-zone
+  reward `-1e-4 * |alpha - 0.5|` (an *additive* `+|alpha-0.5|` penalty
+  would pin the gate AT 0.5 - the dead-zone it is meant to escape).
+  Per-epoch trajectories are stored in the IB tracker
+  (`tracker.alpha_epochs`) and the per-split JSON logs. Verified outcome
+  (`outputs/iclr/alpha_rescue/alpha_rescue.json`): the gate is
+  quasi-stationary at the standard budget at both 0.1 and 0.5 inits - the
+  loss surface along rho is flat (the learned branch absorbs gate changes)
+  and the near-duplicate priors (r = 0.86) leave little routing contrast
+  to express.
+- **Environment**: DGX-class workstation (Arm64), conda env
+  `metascfc-hcp`, PyTorch 2.13+cu130, CUDA for the transformer backbones;
+  nested CV is CPU-parallel-friendly and fully deterministic per seed
+  (`set_all_seeds`). Full protocol:
+  `docs/ICLR27_REPRODUCIBILITY_OVERVIEW.md`.
+- **Paper tables**: regenerate with
+  `python scripts/70_generate_iclr_latex_tables.py` ->
+  `outputs/iclr/tables/table{1,2}_*.tex` (Table 1 reads the dual-task
+  summary; Table 2 re-reads `provenance.json` so the documented model can
+  never drift from the artifacts).
+
+
 
 
 

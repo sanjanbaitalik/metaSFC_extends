@@ -56,7 +56,16 @@ class LLMGatedConfig:
     n_layers: int = 2
     heads: int = 4
     dropout: float = 0.2
-    alpha_init: float = 0.5
+    # Start by trusting the DATA (alpha low); the anti-dead-zone term then
+    # lets the gate migrate toward either extreme (bypass / trust).
+    alpha_init: float = 0.1
+    # Reward for moving the bypass gate away from the 0.5 dead-zone:
+    #   loss -= alpha_explore_weight * |sigmoid(rho) - 0.5|
+    # NOTE on signs: an ADDITIVE penalty +w*|alpha-0.5| would be minimized
+    # AT 0.5 and pin the gate in the dead-zone; the distance must be
+    # SUBTRACTED to encourage escaping it.  Keep the weight small (1e-4)
+    # so the MSE term always dominates.
+    alpha_explore_weight: float = 1e-4
     learning_rate: float = 1e-3
     weight_decay: float = 1e-4
     epochs: int = 60
@@ -111,7 +120,7 @@ class LLMPriorGatedGATLayer(nn.Module):
         prior: np.ndarray,
         edge_src: np.ndarray,
         edge_dst: np.ndarray,
-        alpha_init: float = 0.5,
+        alpha_init: float = 0.1,
         leaky: float = 0.2,
         dropout: float = 0.0,
         concat: bool = True,
@@ -276,6 +285,7 @@ class LLMGatedTransformer(nn.Module):
     ) -> None:
         super().__init__()
         self.d_model = config.hidden * config.heads
+        self.alpha_explore_weight = float(config.alpha_explore_weight)
         self.input_proj = nn.Linear(in_dim, self.d_model)
         self.blocks = nn.ModuleList([
             LLMGatedTransformerBlock(
@@ -308,6 +318,20 @@ class LLMGatedTransformer(nn.Module):
         """Learned bypass value alpha = sigmoid(rho) of every layer."""
         return [block.attn.bypass_alpha for block in self.blocks]
 
+    def alpha_explore_penalty(self) -> torch.Tensor:
+        """Anti-dead-zone reward: -w * sum_l |alpha_l - 0.5|.
+
+        Subtracted from the training loss (see LLMGatedConfig docstring):
+        this REWARDS moving each layer's gate away from 0.5 while the MSE
+        term decides the direction (toward trust for informative priors,
+        toward bypass for uninformative ones).  The magnitude stays tiny
+        (w = 1e-4) so it can never destabilize the MSE objective.
+        """
+        if self.alpha_explore_weight <= 0.0:
+            return torch.zeros((), device=next(self.parameters()).device)
+        alphas = torch.stack([torch.sigmoid(block.attn.rho) for block in self.blocks])
+        return -self.alpha_explore_weight * (alphas - 0.5).abs().sum()
+
     def forward(self, x: torch.Tensor) -> torch.Tensor:
         pooled = self.encode(x)
         return self.readout(self.dropout(pooled)).squeeze(-1)
@@ -329,18 +353,14 @@ def _train_with_early_stopping(model, x_train, y_train_z, x_val, y_val_raw,
     for epoch in range(config.epochs):
         model.train()
         optimizer.zero_grad(set_to_none=True)
-        loss = mse(model(x_train), y_train_z)
+        loss = mse(model(x_train), y_train_z) + model.alpha_explore_penalty()
         if not torch.isfinite(loss):
             raise FloatingPointError(f"Non-finite loss at epoch {epoch + 1}: {loss.item()}")
         loss.backward()
         torch.nn.utils.clip_grad_norm_(model.parameters(), config.grad_clip)
         optimizer.step()
         if ib_tracker is not None:
-            model.eval()
-            with torch.no_grad():
-                latent = model.encode(x_train)
-            ib_tracker.log_epoch(epoch, latent.detach().cpu().numpy(),
-                                 y_train_z.detach().cpu().numpy())
+            ib_tracker.log_alpha_epoch(epoch, model.bypass_alphas())
         if epoch + 1 < config.min_epochs:
             continue
         model.eval()
@@ -370,13 +390,14 @@ def _train_fixed_epochs(model, x_fit, y_fit_z, config, n_epochs, device,
     for epoch in range(int(n_epochs)):
         model.train()
         optimizer.zero_grad(set_to_none=True)
-        loss = mse(model(x_fit), y_fit_z)
+        loss = mse(model(x_fit), y_fit_z) + model.alpha_explore_penalty()
         if not torch.isfinite(loss):
             raise FloatingPointError(f"Non-finite loss: {loss.item()}")
         loss.backward()
         torch.nn.utils.clip_grad_norm_(model.parameters(), config.grad_clip)
         optimizer.step()
         if ib_tracker is not None:
+            ib_tracker.log_alpha_epoch(epoch, model.bypass_alphas())
             model.eval()
             with torch.no_grad():
                 latent = model.encode(x_fit)
@@ -431,7 +452,8 @@ def fit_predict_llm_gated(
     epochs: int = 60,
     patience: int = 15,
     min_epochs: int = 10,
-    alpha_init: float = 0.5,
+    alpha_init: float = 0.1,
+    alpha_explore_weight: float = 1e-4,
     grad_clip: float = 5.0,
     seed: Optional[int] = None,
     ib_tracker: Optional["IBEpochTracker"] = None,
@@ -489,7 +511,8 @@ def fit_predict_llm_gated(
     candidates = build_candidate_grid(
         hidden_grid, dropout_grid, lr_grid, n_layers=n_layers, heads=heads,
         weight_decay=weight_decay, epochs=epochs, patience=patience,
-        min_epochs=min_epochs, alpha_init=alpha_init, grad_clip=grad_clip,
+        min_epochs=min_epochs, alpha_init=alpha_init,
+        alpha_explore_weight=alpha_explore_weight, grad_clip=grad_clip,
     )
     best_rmse, best_cfg, best_epoch = float("inf"), None, 0
     for cfg in candidates:
