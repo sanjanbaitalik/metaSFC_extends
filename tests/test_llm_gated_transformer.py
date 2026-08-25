@@ -46,11 +46,11 @@ def test_prior_gate_biases_attention():
     edge_src, edge_dst = _toy_edges()
     half = in_dim // 2
 
-    def make_layer(alpha_init: float) -> LLMPriorGatedGATLayer:
+    def make_layer(alpha: float) -> LLMPriorGatedGATLayer:
         torch.manual_seed(11)
         return LLMPriorGatedGATLayer(
             in_dim, out_dim, heads=1, n_nodes=n_nodes, prior=prior,
-            edge_src=edge_src, edge_dst=edge_dst, alpha_init=alpha_init,
+            edge_src=edge_src, edge_dst=edge_dst, alpha=alpha,
         )
 
     # Same seed -> identical learned weights; only the bypass differs.
@@ -64,10 +64,10 @@ def test_prior_gate_biases_attention():
     assert not torch.allclose(strong, weak)
 
     # alpha -> 1: incoming attention of node 1 = softmax over prior gates
-    # {edge 0->1: p0+p1 = 1, edge 1->1: p1+p1 = 0} = softmax([1, 0]).
-    w = torch.sigmoid(strong_layer.rho).detach()
+    # {edge 0->1: p0+p1 = 1, edge 1->1: p1+p1 = 0} = softmax([alpha, 0]).
+    w = strong_layer.alpha
     assert w > 0.99
-    attn = torch.softmax(torch.tensor([w.item() * 1.0, w.item() * 0.0]), dim=0)
+    attn = torch.softmax(torch.tensor([w * 1.0, w * 0.0]), dim=0)
     proj = lambda xi: x[0, xi, :half] @ strong_layer.W_fc[0] \
         + x[0, xi, half:] @ strong_layer.W_sc[0]
     target = torch.nn.functional.elu(
@@ -76,20 +76,23 @@ def test_prior_gate_biases_attention():
     assert torch.allclose(strong, target, atol=1e-4)
 
 
-def test_bypass_alpha_is_learnable_and_bounded():
+def test_alpha_is_fixed_scalar_hyperparameter():
+    """The gate receives no gradient flow: it is a plain float chosen by
+    inner-validation selection, not a Parameter (Gradient-Absorption fix)."""
     layer = LLMPriorGatedGATLayer(
         4, 4, heads=1, n_nodes=2, prior=np.ones(2),
-        edge_src=_toy_edges()[0], edge_dst=_toy_edges()[1], alpha_init=0.7,
+        edge_src=_toy_edges()[0], edge_dst=_toy_edges()[1], alpha=0.7,
     )
-    assert isinstance(layer.rho, torch.nn.Parameter)
-    init = float(torch.sigmoid(layer.rho))
-    assert init == pytest.approx(0.7, abs=1e-5)
-    with torch.no_grad():
-        layer.rho.fill_(3.0)
-    assert layer.bypass_alpha == pytest.approx(1.0 / (1.0 + np.exp(-3.0)), abs=1e-5)
-    with torch.no_grad():
-        layer.rho.fill_(-8.0)
-    assert layer.bypass_alpha < 1e-3  # mismatch regime: prior ignored
+    assert not isinstance(getattr(layer, "rho", None), torch.nn.Parameter)
+    assert not any(isinstance(p, torch.nn.Parameter) and p.shape == ()
+                   and p.requires_grad and float(p) == 0.7
+                   for p in layer.parameters())
+    assert layer.bypass_alpha == pytest.approx(0.7)
+    with pytest.raises(ValueError):
+        LLMPriorGatedGATLayer(
+            4, 4, heads=1, n_nodes=2, prior=np.ones(2),
+            edge_src=_toy_edges()[0], edge_dst=_toy_edges()[1], alpha=1.5,
+        )
 
 
 def test_stable_softmax_under_extreme_logits():
@@ -136,7 +139,7 @@ def test_transformer_residual_shapes_and_depth():
 def test_candidate_grid_cartesian_product():
     grid = build_llm_gated_grid(
         [8, 16], [0.2], [1e-3], n_layers=2, heads=4, weight_decay=1e-4,
-        epochs=5, patience=2, min_epochs=1, alpha_init=0.5, grad_clip=5.0,
+        epochs=5, patience=2, min_epochs=1, alpha=0.5, grad_clip=5.0,
     )
     assert len(grid) == 2
     assert {c.hidden for c in grid} == {8, 16}
@@ -193,8 +196,9 @@ def test_fit_predict_logs_information_bottleneck():
     assert tracker.final is not None
     assert set(tracker.final) == {"I_XZ", "I_ZY", "probe_r2"}
     assert np.isfinite(tracker.final["probe_r2"])
-    assert len(tracker.alpha_final) == 2  # one bypass per layer
-    assert all(0.0 < a < 1.0 for a in tracker.alpha_final)
+    assert len(tracker.alpha_final) == 2  # one gate per layer
+    assert tracker.selected_alpha is not None
+    assert 0.0 <= tracker.selected_alpha <= 1.0
 
 
 def test_refit_predictor_predict_and_attention_mass():

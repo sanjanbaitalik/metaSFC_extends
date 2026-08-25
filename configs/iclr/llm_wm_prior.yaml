@@ -27,8 +27,9 @@ top_percent_sc: 10.0        # row-wise SC threshold for the split graph
 n_layers: 2                 # transformer-style blocks (residual + FFN + LayerNorm)
 heads1: 4
 heads2: 1
-alpha_init: 0.1             # start trusting the DATA; anti-dead-zone term lets it migrate
-alpha_explore_weight: 0.0001 # reward |alpha-0.5| distance (sign-corrected; see model docstring)
+# Validation-Selected Discrete Routing: alpha is a fixed hyperparameter
+# chosen per split from this grid by inner-validation RMSE (no gradients).
+alpha_grid: [0.0, 0.25, 0.5, 0.75, 1.0]
 weight_decay: 0.0001
 epochs: 60
 patience: 15

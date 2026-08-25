@@ -156,7 +156,8 @@ def main() -> None:
         "epochs": int(cfg.get("epochs", 60)),
         "patience": int(cfg.get("patience", 15)),
         "min_epochs": int(cfg.get("min_epochs", 10)),
-        "alpha_init": float(cfg.get("alpha_init", cfg.get("lambda_init", 0.5))),
+        "alpha_grid": [float(a) for a in cfg.get(
+            "alpha_grid", [0.0, 0.25, 0.5, 0.75, 1.0])],
         "grad_clip": float(cfg.get("grad_clip", 5.0)),
     }
 
@@ -205,6 +206,8 @@ def main() -> None:
                     row["probe_r2_final"] = float(tracker.final["probe_r2"])
                 if getattr(tracker, "alpha_final", None):
                     row["bypass_alpha_mean"] = float(np.mean(tracker.alpha_final))
+                if getattr(tracker, "selected_alpha", None) is not None:
+                    row["selected_alpha"] = float(tracker.selected_alpha)
                 (out_dir / "ib_tracking").mkdir(parents=True, exist_ok=True)
                 save_json(
                     {"config": {k: tracker.to_dict()[k] for k in ("noise_floor", "epochs", "I_XZ", "I_ZY")},

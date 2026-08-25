@@ -269,17 +269,32 @@ intersection-QC cohort.
   random projection of the 26,680-dim edge features (JL sketch, identical
   across all cells). Implementation:
   `src/metascfc/metrics/information_bottleneck.py`.
-- **Bypass gate ($\alpha$)**: `alpha = sigmoid(rho)` per layer, initialized
-  at **0.1** (data-first), trained with a sign-corrected anti-dead-zone
-  reward `-1e-4 * |alpha - 0.5|` (an *additive* `+|alpha-0.5|` penalty
-  would pin the gate AT 0.5 - the dead-zone it is meant to escape).
-  Per-epoch trajectories are stored in the IB tracker
-  (`tracker.alpha_epochs`) and the per-split JSON logs. Verified outcome
-  (`outputs/iclr/alpha_rescue/alpha_rescue.json`): the gate is
-  quasi-stationary at the standard budget at both 0.1 and 0.5 inits - the
-  loss surface along rho is flat (the learned branch absorbs gate changes)
-  and the near-duplicate priors (r = 0.86) leave little routing contrast
-  to express.
+- **Bypass gate ($\alpha$): from Gradient Absorption to Validation-Selected
+  Discrete Routing.** The continuous learnable gate
+  ($\alpha = \sigma(\rho)$) failed for a structural reason we call
+  **Gradient Absorption**: the downstream learned branch can absorb any
+  gate change, so the loss surface along $\rho$ is flat and its gradient is
+  noise-dominated - $\alpha$ stayed quasi-stationary (0.100 -> 0.101) under
+  every initialization and regularization weight we tried
+  (`outputs/iclr/alpha_rescue/`, `outputs/iclr/contrastive_qwen3/`). The
+  final model therefore treats $\alpha$ as a **fixed hyperparameter
+  selected per split from the discrete grid
+  $\{0, 0.25, 0.5, 0.75, 1.0\}$ by inner-validation RMSE** (staged
+  selection: architecture at neutral $\alpha=0.5$, then $\alpha$ with the
+  chosen architecture; refit on train+val). No gradient flows through the
+  gate, so absorption is impossible by construction. In the verification
+  matrix ($\alpha^*$ now ranges 0.25-1.0 across splits - the gate finally
+  moves) the 1-seed selection distributions were still identical across
+  prior arms, i.e. split-level training noise currently outweighs the
+  prior-identity signal; the full 10-seed run quantifies this with
+  `selected_alpha_mean/std` per cell.
+- **Final-run priors**: all priors for the definitive discrete-routing
+  experiment were generated with **Qwen 3.8 27B via Ollama under
+  Contrastive Prompting**
+  (`outputs/priors/llm/*_contrastive_qwen3/`, provenance-tagged; cross-task
+  correlation 0.794 vs the 0.862 zero-shot baseline). Run everything with
+  `bash scripts/80_run_discrete_routing_matrix.sh` (defaults to 10 seeds x
+  5 folds; `SEEDS="0"` for a verification pass).
 - **Environment**: DGX-class workstation (Arm64), conda env
   `metascfc-hcp`, PyTorch 2.13+cu130, CUDA for the transformer backbones;
   nested CV is CPU-parallel-friendly and fully deterministic per seed

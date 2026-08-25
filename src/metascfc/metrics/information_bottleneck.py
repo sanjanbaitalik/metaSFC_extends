@@ -282,6 +282,7 @@ class IBEpochTracker:
         self.alpha_epochs: list[list[float]] = []
         self.final: Optional[Dict[str, float]] = None
         self.alpha_final: Optional[list[float]] = None
+        self.selected_alpha: Optional[float] = None
 
     def log_alpha_epoch(self, epoch: int, alphas: list[float]) -> None:
         """Record the bypass-gate trajectory (one entry per layer per epoch)."""

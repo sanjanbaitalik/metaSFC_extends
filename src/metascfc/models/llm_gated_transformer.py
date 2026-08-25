@@ -31,7 +31,7 @@ passing an ``IBEpochTracker``.
 """
 from __future__ import annotations
 
-from dataclasses import asdict, dataclass
+from dataclasses import asdict, dataclass, replace as dataclasses_replace
 from pathlib import Path
 from typing import Dict, List, Optional, Sequence, Tuple
 
@@ -56,16 +56,15 @@ class LLMGatedConfig:
     n_layers: int = 2
     heads: int = 4
     dropout: float = 0.2
-    # Start by trusting the DATA (alpha low); the anti-dead-zone term then
-    # lets the gate migrate toward either extreme (bypass / trust).
+    # Validation-Selected Discrete Routing: alpha is a FIXED scalar
+    # hyperparameter (no gradient flow), selected per split from a discrete
+    # grid by inner-validation RMSE.  0.0 = pure data-driven attention
+    # (bypass the prior), 1.0 = pure prior routing.
+    alpha: float = 0.5
+    # --- deprecated fields of the continuous-gate era (kept ONLY so that
+    # --- existing checkpoints / configs deserialize); unused at runtime.
     alpha_init: float = 0.1
-    # Reward for moving the bypass gate away from the 0.5 dead-zone:
-    #   loss -= alpha_explore_weight * |sigmoid(rho) - 0.5|
-    # NOTE on signs: an ADDITIVE penalty +w*|alpha-0.5| would be minimized
-    # AT 0.5 and pin the gate in the dead-zone; the distance must be
-    # SUBTRACTED to encourage escaping it.  Keep the weight small (1e-4)
-    # so the MSE term always dominates.
-    alpha_explore_weight: float = 1e-4
+    alpha_explore_weight: float = 0.0
     learning_rate: float = 1e-3
     weight_decay: float = 1e-4
     epochs: int = 60
@@ -102,13 +101,15 @@ class LLMPriorGatedGATLayer(nn.Module):
              + alpha * (p_u + p_v)
         alpha_uv = softmax over incoming edges of v (stable segment softmax)
 
-    ``alpha = sigmoid(rho)`` is a learnable scalar per layer (init
-    ``alpha_init``): the adaptive prior-routing / bypass mechanism.
-    alpha -> 1 routes purely along the prior (trusts the LLM prior);
-    alpha -> 0 ignores it (pure learned attention).  W_f / W_s are
-    modality-specific projections applied to the functional and structural
-    halves of the node features (cross-modal); a is shared across
-    modalities.
+    ``alpha`` is a FIXED scalar hyperparameter (Validation-Selected Discrete
+    Routing): it receives no gradient flow and is chosen per split from a
+    discrete grid by inner-validation RMSE.  alpha = 1 routes purely along
+    the prior (trusts the LLM prior); alpha = 0 ignores it (pure learned
+    attention).  This removes the Gradient-Absorption failure mode of the
+    continuous gate, whose rho-gradient was flat because the learned branch
+    can absorb any gate change.  W_f / W_s are modality-specific projections
+    applied to the functional and structural halves of the node features
+    (cross-modal); a is shared across modalities.
     """
 
     def __init__(
@@ -120,7 +121,7 @@ class LLMPriorGatedGATLayer(nn.Module):
         prior: np.ndarray,
         edge_src: np.ndarray,
         edge_dst: np.ndarray,
-        alpha_init: float = 0.1,
+        alpha: float = 0.5,
         leaky: float = 0.2,
         dropout: float = 0.0,
         concat: bool = True,
@@ -128,8 +129,8 @@ class LLMPriorGatedGATLayer(nn.Module):
         super().__init__()
         if heads < 1 or out_dim < 1 or in_dim < 2:
             raise ValueError("heads/out_dim must be >= 1 and in_dim >= 2")
-        if not 0.0 < float(alpha_init) < 1.0:
-            raise ValueError(f"alpha_init must be in (0, 1), got {alpha_init}")
+        if not 0.0 <= float(alpha) <= 1.0:
+            raise ValueError(f"alpha must be in [0, 1], got {alpha}")
         self.heads = heads
         self.concat = concat
         self.out_dim = out_dim
@@ -147,12 +148,8 @@ class LLMPriorGatedGATLayer(nn.Module):
             nn.init.xavier_uniform_(w)
         nn.init.xavier_uniform_(self.a.view(heads, 3 * out_dim))
 
-        # Learnable bypass gate: alpha = sigmoid(rho), bounded in (0, 1).
-        self.register_buffer(
-            "_alpha_init", torch.tensor(float(alpha_init), dtype=torch.float32)
-        )
-        rho = float(np.log(float(alpha_init) / (1.0 - float(alpha_init))))
-        self.rho = nn.Parameter(torch.tensor(rho, dtype=torch.float32))
+        # Fixed bypass gate (hyperparameter - NOT a Parameter, no gradients).
+        self.alpha = float(alpha)
 
         prior = np.asarray(prior, dtype=np.float32).reshape(-1)
         if prior.shape[0] != n_nodes:
@@ -167,8 +164,8 @@ class LLMPriorGatedGATLayer(nn.Module):
 
     @property
     def bypass_alpha(self) -> float:
-        """Current learned bypass value alpha = sigmoid(rho) (Python float)."""
-        return float(torch.sigmoid(self.rho).detach())
+        """The fixed bypass value alpha of this layer (Python float)."""
+        return float(self.alpha)
 
     def forward(self, x: torch.Tensor) -> torch.Tensor:
         batch, n_nodes, _ = x.shape
@@ -193,7 +190,7 @@ class LLMPriorGatedGATLayer(nn.Module):
 
         # Adaptive prior routing: convex mix of learned attention and the
         # LLM-prior gate (p_src + p_dst), alpha learnable per layer.
-        alpha = torch.sigmoid(self.rho)
+        alpha = self.alpha  # fixed hyperparameter (no gradient flow)
         prior_gate = self.prior[edge_src] + self.prior[edge_dst]
         logit = (1.0 - alpha) * learned_logit + alpha * prior_gate.reshape(1, -1, 1)
 
@@ -240,7 +237,7 @@ class LLMGatedTransformerBlock(nn.Module):
         prior: np.ndarray,
         edge_src: np.ndarray,
         edge_dst: np.ndarray,
-        alpha_init: float,
+        alpha: float,
         dropout: float,
         ffn_mult: int,
     ) -> None:
@@ -248,7 +245,7 @@ class LLMGatedTransformerBlock(nn.Module):
         self.attn = LLMPriorGatedGATLayer(
             in_dim=dim, out_dim=out_dim, heads=heads, n_nodes=n_nodes,
             prior=prior, edge_src=edge_src, edge_dst=edge_dst,
-            alpha_init=alpha_init, dropout=dropout, concat=True,
+            alpha=alpha, dropout=dropout, concat=True,
         )
         self.norm1 = nn.LayerNorm(dim)
         self.norm2 = nn.LayerNorm(dim)
@@ -291,7 +288,7 @@ class LLMGatedTransformer(nn.Module):
             LLMGatedTransformerBlock(
                 dim=self.d_model, out_dim=config.hidden, heads=config.heads,
                 n_nodes=n_nodes, prior=prior, edge_src=edge_src,
-                edge_dst=edge_dst, alpha_init=config.alpha_init,
+                edge_dst=edge_dst, alpha=config.alpha,
                 dropout=config.dropout, ffn_mult=config.ffn_mult,
             )
             for _ in range(config.n_layers)
@@ -315,22 +312,17 @@ class LLMGatedTransformer(nn.Module):
         return self.final_norm(h).mean(dim=1)
 
     def bypass_alphas(self) -> list[float]:
-        """Learned bypass value alpha = sigmoid(rho) of every layer."""
+        """Fixed bypass alpha of every layer (identical; hyperparameter)."""
         return [block.attn.bypass_alpha for block in self.blocks]
 
     def alpha_explore_penalty(self) -> torch.Tensor:
-        """Anti-dead-zone reward: -w * sum_l |alpha_l - 0.5|.
+        """Deprecated no-op from the continuous-gate era.
 
-        Subtracted from the training loss (see LLMGatedConfig docstring):
-        this REWARDS moving each layer's gate away from 0.5 while the MSE
-        term decides the direction (toward trust for informative priors,
-        toward bypass for uninformative ones).  The magnitude stays tiny
-        (w = 1e-4) so it can never destabilize the MSE objective.
+        With Validation-Selected Discrete Routing the gate receives no
+        gradient flow, so there is nothing to regularize; kept so existing
+        training loops and checkpoints remain compatible.
         """
-        if self.alpha_explore_weight <= 0.0:
-            return torch.zeros((), device=next(self.parameters()).device)
-        alphas = torch.stack([torch.sigmoid(block.attn.rho) for block in self.blocks])
-        return -self.alpha_explore_weight * (alphas - 0.5).abs().sum()
+        return torch.zeros((), device=next(self.parameters()).device)
 
     def forward(self, x: torch.Tensor) -> torch.Tensor:
         pooled = self.encode(x)
@@ -452,8 +444,7 @@ def fit_predict_llm_gated(
     epochs: int = 60,
     patience: int = 15,
     min_epochs: int = 10,
-    alpha_init: float = 0.1,
-    alpha_explore_weight: float = 1e-4,
+    alpha_grid: Optional[Sequence[float]] = None,
     grad_clip: float = 5.0,
     seed: Optional[int] = None,
     ib_tracker: Optional["IBEpochTracker"] = None,
@@ -461,23 +452,33 @@ def fit_predict_llm_gated(
 ) -> Tuple[np.ndarray, Dict[str, float], float, int, np.ndarray, int]:
     """Nested selection + refit for one outer split (leakage-free).
 
-    Protocol identical to ``fit_predict_meta_gat``: standardize on inner
-    train only, threshold the split graph on inner-train SC only, select the
-    (hidden, dropout, lr) candidate by inner-validation RMSE, refit on
-    train+val for the selected epoch budget, predict raw-unit test scores,
-    export gradient node saliency.
+    Validation-Selected Discrete Routing protocol:
 
-    When ``ib_tracker`` (an ``IBEpochTracker``) is given, per-epoch
-    Information Bottleneck metrics are recorded during selection training of
-    every candidate, and after the final refit the converged values plus the
-    learned bypass alphas are stored in it (``tracker.final``,
-    ``tracker.alpha_final``).
+      1. Standardize on inner train only; threshold the split graph on
+         inner-train SC only.
+      2. Architecture selection: the (hidden, dropout, lr) candidates are
+         trained with the gate at its neutral value alpha = 0.5 and scored
+         by inner-validation RMSE.
+      3. Alpha selection: with the selected architecture, one model per
+         ``alpha_grid`` value (default {0.0, 0.25, 0.5, 0.75, 1.0}) is
+         trained on the inner-training split; the alpha with the lowest
+         inner-validation RMSE wins.  The gate is a fixed scalar - no
+         gradient flow, hence no Gradient Absorption.
+      4. The (architecture, alpha) winner is refit on train+val for its
+         selected epoch budget, predicts the outer test split in raw units,
+         and exports gradient node saliency.
+
+    ``tracker.alpha_final`` holds the selected alpha per layer and
+    ``tracker.selected_alpha`` the scalar itself.
 
     Returns
     -------
     (test predictions, best config dict, best val RMSE, best epoch,
      node saliency, number of parameters)
     """
+    grid = list(alpha_grid) if alpha_grid is not None else [0.0, 0.25, 0.5, 0.75, 1.0]
+    if not grid or not all(0.0 <= float(a) <= 1.0 for a in grid):
+        raise ValueError(f"alpha_grid values must lie in [0, 1], got {grid}")
     train_idx = np.asarray(train_idx, dtype=int)
     val_idx = np.asarray(val_idx, dtype=int)
     test_idx = np.asarray(test_idx, dtype=int)
@@ -508,11 +509,11 @@ def fit_predict_llm_gated(
     y_val_raw = torch.from_numpy(y[val_idx].astype(np.float32))
 
     edge_src, edge_dst = build_split_graph(sc[train_idx], top_percent)
+    # ---- stage 1: architecture selection at the neutral gate alpha = 0.5 ----
     candidates = build_candidate_grid(
         hidden_grid, dropout_grid, lr_grid, n_layers=n_layers, heads=heads,
         weight_decay=weight_decay, epochs=epochs, patience=patience,
-        min_epochs=min_epochs, alpha_init=alpha_init,
-        alpha_explore_weight=alpha_explore_weight, grad_clip=grad_clip,
+        min_epochs=min_epochs, alpha=0.5, grad_clip=grad_clip,
     )
     best_rmse, best_cfg, best_epoch = float("inf"), None, 0
     for cfg in candidates:
@@ -524,6 +525,21 @@ def fit_predict_llm_gated(
             best_rmse, best_cfg, best_epoch = val_rmse, cfg, epoch_used
     if best_cfg is None:
         raise RuntimeError("No candidate configuration was selected")
+
+    # ---- stage 2: discrete alpha selection with the selected architecture ----
+    best_alpha, best_alpha_rmse, best_alpha_epoch = None, float("inf"), 0
+    for alpha_candidate in grid:
+        cfg = dataclasses_replace(best_cfg, alpha=float(alpha_candidate))
+        model = LLMGatedTransformer(n_rois, x.shape[2], cfg, prior, edge_src, edge_dst)
+        val_rmse, epoch_used = _train_with_early_stopping(
+            model, x_train, y_train_z, x_val, y_val_raw, y_mean, y_std, cfg, device,
+        )
+        if val_rmse < best_alpha_rmse - 1e-12:
+            best_alpha = float(alpha_candidate)
+            best_alpha_rmse, best_alpha_epoch = val_rmse, epoch_used
+    if best_alpha is None:
+        raise RuntimeError("No alpha candidate was selected")
+    best_cfg = dataclasses_replace(best_cfg, alpha=best_alpha)
 
     fit_idx = np.concatenate([train_idx, val_idx])
     fit_flat = x[fit_idx].reshape(len(fit_idx), -1)
@@ -546,6 +562,7 @@ def fit_predict_llm_gated(
         ib_tracker.log_final(latent_fit.cpu().numpy(), y_fit_z.numpy(),
                              x=x_fit.numpy())
         ib_tracker.alpha_final = final_model.bypass_alphas()
+        ib_tracker.selected_alpha = best_alpha
     with torch.no_grad():
         pred = (final_model(x_test.to(device)).detach().cpu().numpy() * fit_std
                 + fit_mean).astype(np.float64)
@@ -578,6 +595,7 @@ def fit_predict_llm_gated(
     best_cfg_dict = {
         "hidden": best_cfg.hidden, "dropout": best_cfg.dropout,
         "learning_rate": best_cfg.learning_rate, "n_layers": best_cfg.n_layers,
+        "selected_alpha": best_alpha,
     }
     return pred, best_cfg_dict, best_rmse, best_epoch, saliency, n_params
 

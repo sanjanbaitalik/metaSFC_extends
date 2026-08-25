@@ -47,8 +47,27 @@ def _fmt(mean: float, std: float, digits: int = 3) -> str:
     return f"${mean:.{digits}f} \\pm {std:.{digits}f}$"
 
 
-def make_table1(summary_csv: Path) -> str:
+def make_table1(summary_csv: Path, splits_csv: Path | None = None) -> str:
     df = pd.read_csv(summary_csv)
+    # Per-split selected-alpha distribution (Validation-Selected Discrete
+    # Routing): most frequent alpha per cell + selection count.
+    alpha_dist: dict[tuple, str] = {}
+    if splits_csv is not None and Path(splits_csv).exists():
+        sp = pd.read_csv(splits_csv)
+        if "selected_alpha" in sp.columns and sp.selected_alpha.notna().any():
+            for key, g in sp[sp.model == "llm_gated"].groupby(
+                    ["prior", "target"]):
+                counts = g.selected_alpha.value_counts()
+                top_alpha, top_n = counts.index[0], int(counts.iloc[0])
+                alpha_dist[(key[0], key[1])] = (
+                    f"${top_alpha:.2f}$ ({top_n}/{len(g)})")
+    else:
+        for r in df.itertuples():
+            if r.model == "llm_gated" and "selected_alpha_mean" in df.columns:
+                if np.isfinite(getattr(r, "selected_alpha_mean", np.nan)):
+                    alpha_dist[(r.prior, r.target)] = (
+                        f"${r.selected_alpha_mean:.2f} \\pm "
+                        f"{r.selected_alpha_std:.2f}$")
     required = {"model", "prior", "target", "pearson_mean", "pearson_std",
                 "rmse_mean", "rmse_std", "I_XZ_final_mean", "I_XZ_final_std",
                 "I_ZY_final_mean", "I_ZY_final_std"}
@@ -71,12 +90,14 @@ def make_table1(summary_csv: Path) -> str:
                   else "Bottleneck zone")
         model_cell = (f"\\textbf{{{MODEL_NAMES[r.model]}}}"
                       if r.model == "ncr" else MODEL_NAMES[r.model])
+        alpha_cell = alpha_dist.get((r.prior, r.target), "--")
         rows.append(
             f"{model_cell} & {PRIOR_NAMES[r.prior]} & {TARGET_NAMES[r.target]} & "
             f"{_fmt(r.pearson_mean, r.pearson_std)} & "
             f"{_fmt(r.rmse_mean, r.rmse_std)} & "
             f"{_fmt(r.I_XZ_final_mean, r.I_XZ_final_std)} & "
-            f"{_fmt(r.I_ZY_final_mean, r.I_ZY_final_std)} & {regime} \\\\"
+            f"{_fmt(r.I_ZY_final_mean, r.I_ZY_final_std)} & "
+            f"{alpha_cell} & {regime} \\\\"
         )
 
     body = "\n".join(rows)
@@ -94,10 +115,10 @@ sits in the Bottleneck Zone (high compression, low predictive capacity),
 independent of prior type.}}
 \\label{{tab:ib_tradeoff}}
 \\resizebox{{\\textwidth}}{{!}}{{%
-\\begin{{tabular}}{{lllccccc}}
+\\begin{{tabular}}{{lllcccccc}}
 \\toprule
 Model & Prior & Target & Pearson $r \\uparrow$ & RMSE $\\downarrow$ &
-$I(X;Z) \\downarrow$ & $I(Z;Y) \\uparrow$ & Regime \\\\
+$I(X;Z) \\downarrow$ & $I(Z;Y) \\uparrow$ & Selected $\\alpha$ & Regime \\\\
 \\midrule
 {body}
 \\bottomrule
@@ -178,6 +199,9 @@ $r$ vs Neurosynth & Top-10 overlap \\\\
 def main() -> None:
     ap = argparse.ArgumentParser()
     ap.add_argument("--summary", default=DEFAULT_SUMMARY)
+    ap.add_argument("--splits", default=None,
+                    help="split_metrics.csv for the selected-alpha "
+                         "distribution column (Table 1)")
     ap.add_argument("--tables-dir", default=DEFAULT_TABLES)
     ap.add_argument("--prior-root", default=PRIOR_ROOT)
     ap.add_argument("--include-contrastive", action="store_true",
@@ -188,7 +212,8 @@ def main() -> None:
     out_dir = Path(args.tables_dir)
     out_dir.mkdir(parents=True, exist_ok=True)
 
-    t1 = make_table1(Path(args.summary))
+    t1 = make_table1(Path(args.summary),
+                     Path(args.splits) if args.splits else None)
     (out_dir / "table1_ib_tradeoff.tex").write_text(t1, encoding="utf-8")
     print(f"Wrote {out_dir / 'table1_ib_tradeoff.tex'}")
 

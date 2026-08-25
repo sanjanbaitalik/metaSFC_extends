@@ -213,7 +213,8 @@ def main() -> None:
         epochs=int(llm_cfg.get("epochs", 60)),
         patience=int(llm_cfg.get("patience", 15)),
         min_epochs=int(llm_cfg.get("min_epochs", 10)),
-        alpha_init=float(llm_cfg.get("alpha_init", 0.5)),
+        alpha_grid=[float(a) for a in llm_cfg.get(
+            "alpha_grid", [0.0, 0.25, 0.5, 0.75, 1.0])],
         grad_clip=float(llm_cfg.get("grad_clip", 5.0)),
     )
 
@@ -308,6 +309,8 @@ def main() -> None:
                         alphas = getattr(tracker, "alpha_final", None)
                         if alphas:
                             row["bypass_alpha"] = float(np.mean(alphas))
+                        if getattr(tracker, "selected_alpha", None) is not None:
+                            row["selected_alpha"] = float(tracker.selected_alpha)
                         rows.append(row)
                         completed.add(key)
                         total += 1
@@ -332,7 +335,7 @@ def main() -> None:
         print("No evaluations recorded.")
         return
     metric_cols = ["pearson", "rmse", "mae", "I_XZ_final", "I_ZY_final",
-                   "probe_r2_final", "bypass_alpha"]
+                   "probe_r2_final", "bypass_alpha", "selected_alpha"]
     agg = (
         df.groupby(["model", "prior", "target"])
         .agg(n_splits=("fold", "size"),

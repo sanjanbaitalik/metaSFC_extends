@@ -1,0 +1,27 @@
+{
+  "models": [
+    "llm_gated",
+    "ncr"
+  ],
+  "priors": [
+    "llm_wm",
+    "llm_fluid",
+    "random_control",
+    "no_prior"
+  ],
+  "targets": [
+    "fluid_intelligence",
+    "working_memory"
+  ],
+  "seeds": [
+    0
+  ],
+  "n_folds": 5,
+  "val_fraction": 0.15,
+  "n_evaluations": 80,
+  "device": "cuda",
+  "ncr_config": "configs/aaai/network_constrained_ridge.yaml",
+  "llm_config": "/tmp/opencode/llm_discrete_smoke.yaml",
+  "ib_noise_floor": 0.05,
+  "ib_method": "mine"
+}
