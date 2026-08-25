@@ -62,6 +62,12 @@ def main() -> None:
                          "control (prior has influence at init, so the MSE "
                          "gradient can actually steer the gate).")
     ap.add_argument("--out-dir", default="outputs/iclr/alpha_rescue")
+    ap.add_argument("--matched-prior", default=None,
+                    help="Override the matched-prior CSV (default: the "
+                         "qwen2.5:32b zero-shot fluid prior)")
+    ap.add_argument("--mismatched-prior", default=None,
+                    help="Override the mismatched-prior CSV (default: the "
+                         "qwen2.5:32b zero-shot WM prior)")
     args = ap.parse_args()
 
     out_dir = Path(args.out_dir)
@@ -84,8 +90,10 @@ def main() -> None:
           f"train={len(train_idx)} val={len(val_idx)} test={len(test_idx)}")
 
     cells = {
-        "matched_llm_fluid": "outputs/priors/llm/fluid_intelligence/roi_prior.csv",
-        "mismatched_llm_wm": "outputs/priors/llm/working_memory/roi_prior.csv",
+        "matched_llm_fluid": args.matched_prior
+        or "outputs/priors/llm/fluid_intelligence/roi_prior.csv",
+        "mismatched_llm_wm": args.mismatched_prior
+        or "outputs/priors/llm/working_memory/roi_prior.csv",
     }
     results = {}
     for name, path in cells.items():

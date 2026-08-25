@@ -1,0 +1,19 @@
+{
+  "task": "Working Memory",
+  "slug": "working_memory_contrastive_qwen3",
+  "provider": "ollama",
+  "model": "qwen3.8:27b",
+  "temperature": 0.2,
+  "seed": 42,
+  "n_regions": 116,
+  "prompt_sha256": "401dd235adb030ca0498bc35e011430c95fa570bb75d356b56659c20873133ad",
+  "generated_utc": "2026-08-25T10:44:42Z",
+  "fill_missing": null,
+  "missing_regions": [],
+  "prompting": "contrastive",
+  "contrastive_clause": "Focus strictly on phonological/visuospatial maintenance hubs. EXCLUDE regions that are only involved in general fluid intelligence or abstract relational reasoning.",
+  "llm_reasoning": "Working Memory (WM) is defined by the active maintenance of a limited set of items over seconds, implemented by two subsystems: the phonological loop (left DLPFC + Broca's area for articulatory rehearsal + left supramarginal/temporal for phonological storage) and the visuospatial sketchpad (bilateral DLPFC + intraparietal/posterior parietal cortex). The frontoparietal control network (DLPFC \u2194 IPS) is the core maintenance circuit, repeatedly identified in Neurosynth/BrainMap meta-analyses as the most consistent WM activation. The mediodorsal thalamus closes the prefrontal loop. The cerebellum (crus I/II, lobule 6, 7b) and basal ganglia provide secondary timing/sequencing support. The anterior cingulate contributes attentional monitoring but is not a maintenance hub per se. Critically, the default-mode network (precuneus, posterior cingulate, medial PFC) is DEACTIVATED during WM, and primary sensory/motor cortices, orbitofrontal cortex, amygdala, and olfactory regions are not part of the WM maintenance circuit. Regions implicated only in general fluid intelligence or abstract relational reasoning (e.g., lateral temporal pole, fusiform, broad prefrontal orbitofrontal) are scored low. Lateralization: left-hemisphere advantage for phonological WM (left DLPFC, left Broca's, left supramarginal, left temporal superior); right-hemisphere advantage for visuospatial WM (right IPS, right DLPFC).",
+  "control_of": "working_memory_contrastive_qwen3",
+  "control_type": "anatomically_shuffled",
+  "shuffle_seed": 42
+}

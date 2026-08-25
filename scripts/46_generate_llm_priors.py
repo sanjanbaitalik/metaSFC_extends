@@ -86,6 +86,53 @@ Regions:
 {region_list}
 """
 
+# ---------------------------------------------------------------------------
+# Contrastive prompting (Semantic-Blurring fix).
+#
+# Standard zero-shot scoring makes the LLM emit near-identical "generic
+# cognitive" maps for adjacent domains (measured: r = 0.86 between the WM
+# and Fluid priors under qwen2.5:32b), which leaves the adaptive routing
+# gate no match/mismatch contrast to learn.  These clauses FORCE
+# discriminative maps by excluding regions only supporting the adjacent
+# domain.  Tasks not listed fall back to a generic exclusion clause.
+# ---------------------------------------------------------------------------
+CONTRASTIVE_CLAUSES = {
+    "working memory": (
+        "Focus strictly on phonological/visuospatial maintenance hubs. "
+        "EXCLUDE regions that are only involved in general fluid "
+        "intelligence or abstract relational reasoning."
+    ),
+    "fluid intelligence": (
+        "Focus on abstract reasoning and novel problem-solving hubs. "
+        "EXCLUDE regions strictly dedicated to short-term working memory "
+        "maintenance."
+    ),
+}
+CONTRASTIVE_GENERIC = (
+    "Focus strictly on hubs specific to \"{task}\". EXCLUDE regions that "
+    "are only involved in semantically adjacent cognitive domains rather "
+    "than \"{task}\" itself."
+)
+
+
+def contrastive_clause(task: str) -> str:
+    key = task.strip().lower()
+    for domain, clause in CONTRASTIVE_CLAUSES.items():
+        if domain in key:
+            return clause
+    return CONTRASTIVE_GENERIC.format(task=task)
+
+
+CONTRASTIVE_BLOCK = """
+CONTRASTIVE SCORING CRITERION (mandatory):
+{clause}
+Your scores must be DISCRIMINATIVE for "{task}" specifically: a region that
+merely supports ANY demanding cognitive task must NOT receive a high score.
+Before scoring, silently contrast "{task}" against its adjacent domains and
+let the contrast drive the scores. The strict-JSON schema and the
+all-{n_rois}-regions requirement are unchanged.
+"""
+
 
 def slugify(name: str) -> str:
     slug = re.sub(r"[^a-z0-9]+", "_", name.strip().lower()).strip("_")
@@ -104,9 +151,14 @@ def load_region_labels(path: str | Path) -> pd.DataFrame:
     return df.sort_values("roi_index").reset_index(drop=True)
 
 
-def build_prompt(task: str, labels: List[str]) -> str:
+def build_prompt(task: str, labels: List[str], contrastive: bool = False) -> str:
     region_list = "\n".join(f"- {label}" for label in labels)
-    return PROMPT_TEMPLATE.format(n_rois=len(labels), task=task, region_list=region_list)
+    prompt = PROMPT_TEMPLATE.format(n_rois=len(labels), task=task, region_list=region_list)
+    if contrastive:
+        prompt += CONTRASTIVE_BLOCK.format(
+            clause=contrastive_clause(task), task=task, n_rois=len(labels),
+        )
+    return prompt
 
 
 # ---------------------------------------------------------------------------
@@ -290,6 +342,10 @@ def main() -> None:
     ap.add_argument("--ollama-url", default="http://localhost:11434")
     ap.add_argument("--fill-missing", type=float, default=None,
                     help="Fill unreturned regions with this score instead of failing")
+    ap.add_argument("--contrastive", action="store_true",
+                    help="Inject domain-exclusion criteria (Semantic-Blurring "
+                         "fix): forces discriminative maps for adjacent "
+                         "cognitive domains")
     ap.add_argument("--controls", action="store_true",
                     help="Also write an anatomically shuffled control prior")
     ap.add_argument("--dry-run", action="store_true", help="Print prompt and exit")
@@ -300,7 +356,7 @@ def main() -> None:
 
     df = load_region_labels(args.labels)
     labels = df.roi_label.tolist()
-    prompt = build_prompt(args.task, labels)
+    prompt = build_prompt(args.task, labels, contrastive=args.contrastive)
 
     if args.dry_run:
         print(prompt)
@@ -389,6 +445,8 @@ def main() -> None:
         "generated_utc": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()),
         "fill_missing": args.fill_missing,
         "missing_regions": missing,
+        "prompting": "contrastive" if args.contrastive else "zero_shot",
+        "contrastive_clause": contrastive_clause(args.task) if args.contrastive else None,
     }
     
     # Save the reasoning in the provenance file as well

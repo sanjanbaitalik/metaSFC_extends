@@ -3,23 +3,25 @@
 \centering
 \small
 \caption{Zero-shot LLM semantic prior generation. Priors were produced by a
-local foundation model served via Ollama (model recorded per prior in
-\texttt{provenance.json}; actual model used: \texttt{qwen2.5:32b}),
-prompted with all 116 AAL region labels and strict-JSON scoring instructions
-(three-tier JSON recovery; no fine-tuning, no task training data shown).
-Agreement is measured against the Neurosynth working-memory meta-analysis
-map. The high cross-task similarity of the zero-shot priors is itself a
-finding: it bounds how much match/mismatch signal adaptive routing can
-express.}
+local foundation model served via Ollama (model and prompting method recorded
+per prior in \texttt{provenance.json}; actual model used:
+\texttt{qwen2.5:32b, qwen3.8:27b}; methods: Contrastive + Zero-shot), prompted with all 116 AAL
+region labels and strict-JSON scoring instructions (three-tier JSON recovery;
+no fine-tuning, no task training data shown). Contrastive rows add explicit
+domain-exclusion criteria to break the Semantic-Blurring correlation between
+adjacent cognitive domains. Agreement is measured against the Neurosynth
+working-memory meta-analysis map.}
 \label{tab:prior_provenance}
 \resizebox{\columnwidth}{!}{%
-\begin{tabular}{lccclccc}
+\begin{tabular}{llccclccc}
 \toprule
-Task & Model & Temp & Seed & Prompt SHA & Top-3 regions &
+Task & Model & Method & Temp & Seed & Prompt SHA & Top-3 regions &
 $r$ vs Neurosynth & Top-10 overlap \\
 \midrule
-Working Memory & \texttt{qwen2.5:32b} & 0.2 & 42 & \texttt{fcdf0271c7} & Frontal_Mid_L, Frontal_Mid_R, Cerebelum_Crus1_L... & 0.51 & 3/10 \\
-Fluid Intelligence & \texttt{qwen2.5:32b} & 0.2 & 42 & \texttt{b1058bd071} & Frontal_Mid_L, Frontal_Mid_R, Frontal_Sup_L... & 0.49 & 3/10 \\
+Working Memory & \texttt{qwen2.5:32b} & Zero-shot & 0.2 & 42 & \texttt{fcdf0271c7} & Frontal_Mid_L, Frontal_Mid_R, Cerebelum_Crus1_L... & 0.51 & 3/10 \\
+Fluid Intelligence & \texttt{qwen2.5:32b} & Zero-shot & 0.2 & 42 & \texttt{b1058bd071} & Frontal_Mid_L, Frontal_Mid_R, Frontal_Sup_L... & 0.49 & 3/10 \\
+Working Memory (contr.) & \texttt{qwen3.8:27b} & Contrastive & 0.2 & 42 & \texttt{401dd235ad} & Frontal_Sup_L, Frontal_Sup_R, Frontal_Mid_L... & 0.48 & 4/10 \\
+Fluid Intell. (contr.) & \texttt{qwen3.8:27b} & Contrastive & 0.2 & 42 & \texttt{63048f8c64} & Frontal_Sup_L, Frontal_Sup_R, Parietal_Sup_R... & 0.54 & 4/10 \\
 \bottomrule
 \end{tabular}}
 \end{table}

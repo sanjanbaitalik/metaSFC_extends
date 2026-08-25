@@ -1,0 +1,19 @@
+{
+  "task": "Fluid Intelligence",
+  "slug": "fluid_intelligence_contrastive_qwen3",
+  "provider": "ollama",
+  "model": "qwen3.8:27b",
+  "temperature": 0.2,
+  "seed": 42,
+  "n_regions": 116,
+  "prompt_sha256": "63048f8c649de5f6ff5abeffbebe300818a8c71b221a1680dd833b58ed8b8d8e",
+  "generated_utc": "2026-08-25T10:52:15Z",
+  "fill_missing": null,
+  "missing_regions": [],
+  "prompting": "contrastive",
+  "contrastive_clause": "Focus on abstract reasoning and novel problem-solving hubs. EXCLUDE regions strictly dedicated to short-term working memory maintenance.",
+  "llm_reasoning": "Fluid Intelligence (Gf) is the capacity for novel problem-solving, abstract pattern detection, rule induction, and mental manipulation of unfamiliar information. The dominant neural substrate is the frontoparietal network (FPN): dorsolateral prefrontal cortex (superior/middle frontal lateral) for rule manipulation, strategy generation, and abstract reasoning; superior and inferior parietal cortex (supramarginal, angular) for spatial-abstract pattern integration and relational reasoning. The dorsal anterior cingulate contributes conflict monitoring and adaptive control during novel problem-solving. Cerebellar lateral hemispheres (Crus I/II, lobules 6, 7b, 8, 9, 10) participate in cognitive-motor loops supporting procedural aspects of reasoning. Basal ganglia (caudate > putamen) and thalamus provide gating and sequencing for executive loops. The precuneus and posterior cingulate show modest Gf-related activation during mental manipulation. By contrast, orbitofrontal cortex (reward/emotion), temporal pole and middle/inferior temporal (semantic/crystallized knowledge), primary sensory cortices (visual, auditory, somatosensory, olfactory), hippocampal/amygdala (declarative memory, emotion), and vermis (motor/balance) are NOT core Gf hubs. Regions strictly dedicated to short-term WM maintenance (e.g., posterior parietal maintenance, some DLPFC subregions) are scored lower than those supporting active manipulation and novel reasoning. Lateralization: slight left advantage in DLPFC for sequential/verbal reasoning; slight right advantage in superior parietal for spatial-abstract reasoning; cerebellar and subcortical involvement is largely bilateral.",
+  "control_of": "fluid_intelligence_contrastive_qwen3",
+  "control_type": "anatomically_shuffled",
+  "shuffle_seed": 42
+}

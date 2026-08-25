@@ -246,6 +246,23 @@ intersection-QC cohort.
   substantially similar "generic cognitive" maps across tasks. This bounds
   the match/mismatch contrast available to adaptive prior routing (see
   `scripts/62_run_alpha_rescue.py`, which prints this diagnostic).
+- **Semantic Blurring & Contrastive Prompting (methodological refinement)**:
+  the r = 0.86 cross-task correlation above is the *Semantic Blurring*
+  effect. `scripts/46_generate_llm_priors.py --contrastive` injects
+  domain-exclusion criteria (e.g. WM: "EXCLUDE regions that are only
+  involved in general fluid intelligence"); `scripts/71_run_qwen3_contrastive.sh`
+  regenerates both priors with **qwen3.8:27b** under this regime
+  (`outputs/priors/llm/*_contrastive_qwen3/`, provenance-tagged
+  `"prompting": "contrastive"`). Measured outcome: cross-task correlation
+  drops 0.862 -> **0.794** (top-10 overlap 6/10 -> 8/10) - a real but
+  modest decorrelation. **The alpha gate remained quasi-stationary in all
+  four rescue conditions** (`outputs/iclr/contrastive_qwen3/alpha_rescue/`),
+  establishing that prior discriminability was not the binding constraint:
+  the rho-loss surface is flat (the learned branch absorbs gate changes and
+  the ~11-epoch refit gradient is noise-dominated). Expressing adaptive
+  routing therefore requires a mechanical change - validation-selected
+  alpha, a detached/scaled gate parameterization, or substantially longer
+  training - rather than better priors alone.
 - **Information Bottleneck**: MINE neural estimation (small MLP critic,
   Donsker-Varadhan bound, max-shifted log-mean-exp) with the Gaussian/VIB
   proxy as deterministic fallback; `I(X;Z)` is estimated against a fixed
