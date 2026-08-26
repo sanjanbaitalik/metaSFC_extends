@@ -14,14 +14,23 @@
     "working_memory"
   ],
   "seeds": [
-    0
+    0,
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7,
+    8,
+    9
   ],
   "n_folds": 5,
   "val_fraction": 0.15,
-  "n_evaluations": 80,
+  "n_evaluations": 800,
   "device": "cuda",
   "ncr_config": "configs/aaai/network_constrained_ridge.yaml",
-  "llm_config": "/tmp/opencode/llm_discrete_smoke.yaml",
+  "llm_config": "configs/iclr/llm_fluid_prior.yaml",
   "ib_noise_floor": 0.05,
   "ib_method": "mine"
 }

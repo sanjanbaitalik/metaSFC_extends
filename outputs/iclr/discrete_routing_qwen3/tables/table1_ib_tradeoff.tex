@@ -17,22 +17,22 @@ independent of prior type.}
 Model & Prior & Target & Pearson $r \uparrow$ & RMSE $\downarrow$ &
 $I(X;Z) \downarrow$ & $I(Z;Y) \uparrow$ & Selected $\alpha$ & Regime \\
 \midrule
-\textbf{Network-Constrained Ridge (linear)} & LLM WM (true) & Fluid Intell. ($\mathrm{PMAT24}_{A\_CR}$) & $0.320 \pm 0.118$ & $4.705 \pm 0.488$ & $0.234 \pm 0.041$ & $1.687 \pm 0.555$ & $1.00$ (3/5) & \textbf{Optimal} \\
-\textbf{Network-Constrained Ridge (linear)} & LLM WM (true) & Working Memory (ListSort) & $0.200 \pm 0.065$ & $11.727 \pm 0.843$ & $0.324 \pm 0.204$ & $1.335 \pm 1.012$ & $0.75$ (2/5) & \textbf{Optimal} \\
-\textbf{Network-Constrained Ridge (linear)} & LLM Fluid (true) & Fluid Intell. ($\mathrm{PMAT24}_{A\_CR}$) & $0.339 \pm 0.119$ & $4.660 \pm 0.467$ & $0.234 \pm 0.040$ & $1.690 \pm 0.552$ & $1.00$ (3/5) & \textbf{Optimal} \\
-\textbf{Network-Constrained Ridge (linear)} & LLM Fluid (true) & Working Memory (ListSort) & $0.192 \pm 0.073$ & $11.776 \pm 0.787$ & $0.322 \pm 0.204$ & $1.300 \pm 1.025$ & $0.75$ (2/5) & \textbf{Optimal} \\
-\textbf{Network-Constrained Ridge (linear)} & Random control & Fluid Intell. ($\mathrm{PMAT24}_{A\_CR}$) & $0.353 \pm 0.112$ & $4.645 \pm 0.461$ & $0.233 \pm 0.042$ & $1.579 \pm 0.701$ & $1.00$ (3/5) & \textbf{Optimal} \\
-\textbf{Network-Constrained Ridge (linear)} & Random control & Working Memory (ListSort) & $0.209 \pm 0.058$ & $11.617 \pm 1.017$ & $0.330 \pm 0.197$ & $1.340 \pm 1.017$ & $0.75$ (2/5) & \textbf{Optimal} \\
-\textbf{Network-Constrained Ridge (linear)} & No prior & Fluid Intell. ($\mathrm{PMAT24}_{A\_CR}$) & $0.346 \pm 0.124$ & $4.651 \pm 0.466$ & $0.231 \pm 0.044$ & $1.568 \pm 0.683$ & $1.00$ (3/5) & \textbf{Optimal} \\
-\textbf{Network-Constrained Ridge (linear)} & No prior & Working Memory (ListSort) & $0.209 \pm 0.058$ & $11.617 \pm 1.017$ & $0.330 \pm 0.197$ & $1.340 \pm 1.017$ & $0.75$ (2/5) & \textbf{Optimal} \\
-LLM-Gated Transformer & LLM WM (true) & Fluid Intell. ($\mathrm{PMAT24}_{A\_CR}$) & $0.237 \pm 0.067$ & $4.811 \pm 0.355$ & $2.209 \pm 0.318$ & $0.448 \pm 0.039$ & $1.00$ (3/5) & Bottleneck zone \\
-LLM-Gated Transformer & LLM WM (true) & Working Memory (ListSort) & $0.166 \pm 0.083$ & $11.670 \pm 1.125$ & $2.209 \pm 0.236$ & $0.415 \pm 0.061$ & $0.75$ (2/5) & Bottleneck zone \\
-LLM-Gated Transformer & LLM Fluid (true) & Fluid Intell. ($\mathrm{PMAT24}_{A\_CR}$) & $0.238 \pm 0.067$ & $4.810 \pm 0.358$ & $2.106 \pm 0.216$ & $0.454 \pm 0.018$ & $1.00$ (3/5) & Bottleneck zone \\
-LLM-Gated Transformer & LLM Fluid (true) & Working Memory (ListSort) & $0.166 \pm 0.083$ & $11.669 \pm 1.120$ & $2.157 \pm 0.185$ & $0.444 \pm 0.041$ & $0.75$ (2/5) & Bottleneck zone \\
-LLM-Gated Transformer & Random control & Fluid Intell. ($\mathrm{PMAT24}_{A\_CR}$) & $0.239 \pm 0.069$ & $4.803 \pm 0.364$ & $2.366 \pm 0.245$ & $0.451 \pm 0.028$ & $1.00$ (3/5) & Bottleneck zone \\
-LLM-Gated Transformer & Random control & Working Memory (ListSort) & $0.165 \pm 0.078$ & $11.666 \pm 1.160$ & $2.247 \pm 0.206$ & $0.446 \pm 0.051$ & $0.75$ (2/5) & Bottleneck zone \\
-LLM-Gated Transformer & No prior & Fluid Intell. ($\mathrm{PMAT24}_{A\_CR}$) & $0.238 \pm 0.069$ & $4.805 \pm 0.363$ & $2.244 \pm 0.348$ & $0.437 \pm 0.020$ & $1.00$ (3/5) & Bottleneck zone \\
-LLM-Gated Transformer & No prior & Working Memory (ListSort) & $0.165 \pm 0.080$ & $11.671 \pm 1.148$ & $2.432 \pm 0.280$ & $0.422 \pm 0.066$ & $0.75$ (2/5) & Bottleneck zone \\
+\textbf{Network-Constrained Ridge (linear)} & LLM WM (true) & Fluid Intell. ($\mathrm{PMAT24}_{A\_CR}$) & $0.340 \pm 0.086$ & $4.666 \pm 0.250$ & $0.247 \pm 0.111$ & $1.122 \pm 0.666$ & $1.00$ (11/50) & \textbf{Optimal} \\
+\textbf{Network-Constrained Ridge (linear)} & LLM WM (true) & Working Memory (ListSort) & $0.220 \pm 0.101$ & $11.403 \pm 0.745$ & $0.360 \pm 0.201$ & $0.846 \pm 0.717$ & $0.50$ (12/50) & \textbf{Optimal} \\
+\textbf{Network-Constrained Ridge (linear)} & LLM Fluid (true) & Fluid Intell. ($\mathrm{PMAT24}_{A\_CR}$) & $0.344 \pm 0.086$ & $4.661 \pm 0.249$ & $0.248 \pm 0.111$ & $1.143 \pm 0.703$ & $0.75$ (12/50) & \textbf{Optimal} \\
+\textbf{Network-Constrained Ridge (linear)} & LLM Fluid (true) & Working Memory (ListSort) & $0.217 \pm 0.100$ & $11.414 \pm 0.759$ & $0.364 \pm 0.201$ & $0.832 \pm 0.723$ & $0.50$ (12/50) & \textbf{Optimal} \\
+\textbf{Network-Constrained Ridge (linear)} & Random control & Fluid Intell. ($\mathrm{PMAT24}_{A\_CR}$) & $0.342 \pm 0.084$ & $4.670 \pm 0.257$ & $0.245 \pm 0.111$ & $1.164 \pm 0.708$ & $1.00$ (14/50) & \textbf{Optimal} \\
+\textbf{Network-Constrained Ridge (linear)} & Random control & Working Memory (ListSort) & $0.224 \pm 0.099$ & $11.333 \pm 0.727$ & $0.344 \pm 0.195$ & $0.845 \pm 0.667$ & $0.25$ (14/50) & \textbf{Optimal} \\
+\textbf{Network-Constrained Ridge (linear)} & No prior & Fluid Intell. ($\mathrm{PMAT24}_{A\_CR}$) & $0.347 \pm 0.085$ & $4.650 \pm 0.248$ & $0.245 \pm 0.111$ & $1.137 \pm 0.683$ & $1.00$ (13/50) & \textbf{Optimal} \\
+\textbf{Network-Constrained Ridge (linear)} & No prior & Working Memory (ListSort) & $0.223 \pm 0.103$ & $11.352 \pm 0.757$ & $0.366 \pm 0.199$ & $0.820 \pm 0.706$ & $0.25$ (11/50) & \textbf{Optimal} \\
+LLM-Gated Transformer & LLM WM (true) & Fluid Intell. ($\mathrm{PMAT24}_{A\_CR}$) & $0.245 \pm 0.078$ & $4.999 \pm 0.356$ & $2.218 \pm 0.300$ & $0.422 \pm 0.099$ & $1.00$ (11/50) & Bottleneck zone \\
+LLM-Gated Transformer & LLM WM (true) & Working Memory (ListSort) & $0.152 \pm 0.091$ & $11.678 \pm 0.714$ & $2.221 \pm 0.305$ & $0.362 \pm 0.082$ & $0.50$ (12/50) & Bottleneck zone \\
+LLM-Gated Transformer & LLM Fluid (true) & Fluid Intell. ($\mathrm{PMAT24}_{A\_CR}$) & $0.246 \pm 0.080$ & $4.997 \pm 0.361$ & $2.214 \pm 0.288$ & $0.433 \pm 0.108$ & $0.75$ (12/50) & Bottleneck zone \\
+LLM-Gated Transformer & LLM Fluid (true) & Working Memory (ListSort) & $0.147 \pm 0.090$ & $11.755 \pm 0.798$ & $2.163 \pm 0.251$ & $0.366 \pm 0.075$ & $0.50$ (12/50) & Bottleneck zone \\
+LLM-Gated Transformer & Random control & Fluid Intell. ($\mathrm{PMAT24}_{A\_CR}$) & $0.248 \pm 0.068$ & $4.974 \pm 0.336$ & $2.153 \pm 0.304$ & $0.423 \pm 0.100$ & $1.00$ (14/50) & Bottleneck zone \\
+LLM-Gated Transformer & Random control & Working Memory (ListSort) & $0.150 \pm 0.088$ & $11.721 \pm 0.765$ & $2.177 \pm 0.277$ & $0.364 \pm 0.081$ & $0.25$ (14/50) & Bottleneck zone \\
+LLM-Gated Transformer & No prior & Fluid Intell. ($\mathrm{PMAT24}_{A\_CR}$) & $0.250 \pm 0.078$ & $4.989 \pm 0.367$ & $2.208 \pm 0.297$ & $0.410 \pm 0.098$ & $1.00$ (13/50) & Bottleneck zone \\
+LLM-Gated Transformer & No prior & Working Memory (ListSort) & $0.149 \pm 0.091$ & $11.720 \pm 0.761$ & $2.219 \pm 0.319$ & $0.365 \pm 0.080$ & $0.25$ (11/50) & Bottleneck zone \\
 \bottomrule
 \end{tabular}}
 \end{table*}
