@@ -1,0 +1,10 @@
+{
+  "matched_prior_predictive_enrichment": true,
+  "best_edge_lifting": "mean",
+  "best_roi_threshold": 30,
+  "strongest_modality": "SC",
+  "marginal_enrichment_effect": 0.077138,
+  "ridge_coefficient_enrichment_effect": -0.027345,
+  "matched_prior_beats_controls": true,
+  "recommended_next_step": "redesign_ncr_penalty"
+}

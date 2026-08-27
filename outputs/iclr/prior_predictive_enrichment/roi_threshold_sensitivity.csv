@@ -1,0 +1,13 @@
+target,roi_threshold,n_active_rois,n_active_edges,pct_edges
+fluid_intelligence,10,10,1105,16.56671664167916
+working_memory,10,10,1105,16.56671664167916
+fluid_intelligence,15,18,1917,28.74062968515742
+working_memory,15,15,1620,24.28785607196402
+fluid_intelligence,20,24,2484,37.24137931034483
+working_memory,20,20,2110,31.63418290854573
+fluid_intelligence,25,29,2929,43.913043478260875
+working_memory,25,27,2754,41.289355322338835
+fluid_intelligence,30,32,3184,47.73613193403298
+working_memory,30,31,3100,46.476761619190405
+fluid_intelligence,continuous,116,6664,99.91004497751125
+working_memory,continuous,116,6669,99.98500749625188

@@ -1,0 +1,61 @@
+# Prior Predictive Enrichment Audit (ICLR 2027)
+#
+# Determines whether the continuous cognitive meta-analysis prior
+# concentrates edges that are predictive of the corresponding target.
+# All diagnostics use training-only data (no outer-test labels).
+experiment_name: prior_predictive_enrichment_audit
+seeds: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]
+n_folds: 5
+val_fraction: 0.15
+
+# Data
+data:
+  fc_path: inputs/dataset_FC/FC_all.npy
+  sc_path: inputs/dataset_SC/SC_all.npy
+  y_path: inputs/dataset_SC/label_all.npy
+  subjects_path: inputs/dataset_SC/hcp_subjects_used.csv
+  groups_path: null
+
+# Targets
+targets:
+  fluid_intelligence:
+    name: "Fluid Intelligence (PMAT24_A_CR)"
+    label_path: inputs/dataset_SC/label_all.npy
+  working_memory:
+    name: "Working Memory (ListSort_Unadj)"
+    label_path: inputs/dataset_SC/task_labels/ListSort_Unadj/label_all.npy
+
+# Priors per target: matched / unrelated / shuffled / random
+priors:
+  fluid_intelligence:
+    matched: outputs/priors/llm/fluid_intelligence_contrastive_qwen3/roi_prior.csv
+    unrelated: outputs/priors/llm/working_memory_contrastive_qwen3/roi_prior.csv
+    shuffled: outputs/priors/llm/fluid_intelligence_contrastive_qwen3_shuffled/roi_prior.csv
+    random: outputs/priors/random_prior/aal116/roi_prior.csv
+  working_memory:
+    matched: outputs/priors/llm/working_memory_contrastive_qwen3/roi_prior.csv
+    unrelated: outputs/priors/llm/fluid_intelligence_contrastive_qwen3/roi_prior.csv
+    shuffled: outputs/priors/llm/working_memory_contrastive_qwen3_shuffled/roi_prior.csv
+    random: outputs/priors/random_prior/aal116/roi_prior.csv
+
+# Edge lifting rules
+lifting_rules: [prod, mean, max, bridge]
+
+# Top-fraction enrichment (Diagnostic B)
+top_fractions: [0.05, 0.10, 0.20, 0.30]
+n_random_subsets: 1000
+
+# ROI threshold sensitivity (Diagnostic E)
+roi_thresholds: [10, 15, 20, 25, 30]
+include_continuous: true
+
+# Pilot Ridge (Diagnostic C)
+ridge_alphas: [0.01, 0.1, 1.0, 10.0, 100.0, 1000.0]
+
+# Bootstrap
+n_bootstrap: 1000
+bootstrap_ci: 0.95
+
+# Output paths
+output_dir: outputs/iclr/prior_predictive_enrichment
+figures_dir: figures/iclr/prior_predictive_enrichment
