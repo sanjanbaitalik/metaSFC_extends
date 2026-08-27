@@ -1,0 +1,23 @@
+{
+  "methods": [
+    "mt_ncr_independent",
+    "mt_ncr_joint_l21",
+    "no_prior_ridge"
+  ],
+  "targets": [
+    "fluid_intelligence",
+    "working_memory"
+  ],
+  "seeds": [
+    9
+  ],
+  "n_folds": 5,
+  "val_fraction": 0.15,
+  "n_evaluations": 395,
+  "ncr_config": "configs/aaai/network_constrained_ridge.yaml",
+  "l3_grid": [
+    0.0,
+    0.1,
+    1.0
+  ]
+}
