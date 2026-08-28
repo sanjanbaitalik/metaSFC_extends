@@ -1,0 +1,70 @@
+{
+  "per_task": {
+    "fluid_intelligence": {
+      "best_model": "A3",
+      "best_prior": "matched",
+      "delta_r_vs_A0": 0.030703,
+      "delta_r_vs_A4": 0.000875,
+      "delta_r_vs_strongest_no_prior": 0.000875,
+      "positive_seeds_vs_A4": 2,
+      "total_seeds": 3,
+      "A0_pearson": 0.327521,
+      "A1_pearson": 0.339127,
+      "A2_pearson": 0.358008,
+      "A3_pearson": 0.358224,
+      "A4_pearson": 0.357349,
+      "diagnostic_A1_vs_A2": "laplacian_dominates",
+      "recommended_next_step": "ct_mac_prior_rebuild"
+    },
+    "working_memory": {
+      "best_model": "A3",
+      "best_prior": "matched",
+      "delta_r_vs_A0": 0.048104,
+      "delta_r_vs_A4": 0.017065,
+      "delta_r_vs_strongest_no_prior": 0.017065,
+      "positive_seeds_vs_A4": 2,
+      "total_seeds": 3,
+      "A0_pearson": 0.223914,
+      "A1_pearson": 0.235481,
+      "A2_pearson": 0.258014,
+      "A3_pearson": 0.272018,
+      "A4_pearson": 0.254953,
+      "diagnostic_A1_vs_A2": "laplacian_dominates",
+      "recommended_next_step": "full_10x5_msancr"
+    }
+  },
+  "overall_recommendation": "refine_before_full_run",
+  "run_metadata": {
+    "seeds": [
+      0,
+      1,
+      2
+    ],
+    "n_folds": 5,
+    "val_fraction": 0.15,
+    "lifting_rules": [
+      "prod"
+    ],
+    "top_k": 10,
+    "gamma_grid": [
+      0.0,
+      1.0
+    ],
+    "lambda_l_grid": [
+      0.0,
+      1.0
+    ],
+    "lambda_fc_grid": [
+      0.1,
+      1.0,
+      10.0
+    ],
+    "lambda_sc_grid": [
+      0.1,
+      1.0,
+      10.0
+    ],
+    "config_hash": "18648422b187352a",
+    "elapsed_seconds": 16056.289320707321
+  }
+}

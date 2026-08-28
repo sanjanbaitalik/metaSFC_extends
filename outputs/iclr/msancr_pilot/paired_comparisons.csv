@@ -1,0 +1,13 @@
+target,model_id,vs,n_seeds,mean_delta,median_delta,n_positive
+fluid_intelligence,A1_aniso_ridge,A4,3,-0.018221730507159955,-0.006224599182326318,1
+fluid_intelligence,A1_aniso_ridge,A1_aniso_ridge_random,3,-0.009219060181006803,-0.0007248316609885785,1
+fluid_intelligence,A2_fc_laplacian,A4,3,0.0006587386803379447,0.0007484026793965759,2
+fluid_intelligence,A2_fc_laplacian,A2_fc_laplacian_random,3,0.0011097195013352417,0.0013831339763659134,2
+fluid_intelligence,A3_msancr,A4,3,0.0008749641293033054,0.000839010079462299,2
+fluid_intelligence,A3_msancr,A3_msancr_random,3,0.00439499455423048,0.005740141427229284,2
+working_memory,A1_aniso_ridge,A4,3,-0.01947167804743838,-0.017119958292340032,1
+working_memory,A1_aniso_ridge,A1_aniso_ridge_random,3,-0.027071123257058283,-0.012700071652281653,0
+working_memory,A2_fc_laplacian,A4,3,0.0030609234622492507,-0.0010427969012491434,1
+working_memory,A2_fc_laplacian,A2_fc_laplacian_random,3,0.0036597632251843906,0.002313846558898769,2
+working_memory,A3_msancr,A4,3,0.017064636374094888,0.02754981548805402,2
+working_memory,A3_msancr,A3_msancr_random,3,0.003508620486724965,0.0029295861724941974,2

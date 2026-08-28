@@ -1,0 +1,49 @@
+# MS-A-NCR Pilot: Modality-Selective Anisotropic Network-Constrained Ridge
+# 3-seed pilot (seeds 0, 1, 2; 5 folds)
+# Minimal grid for initial feasibility check (~2h estimated)
+
+experiment_name: msancr_pilot
+seeds: [0, 1, 2]
+n_folds: 5
+val_fraction: 0.15
+
+data:
+  fc_path: inputs/dataset_FC/FC_all.npy
+  sc_path: inputs/dataset_SC/SC_all.npy
+  y_path: inputs/dataset_SC/label_all.npy
+  subjects_path: inputs/dataset_SC/hcp_subjects_used.csv
+  groups_path: null
+
+targets:
+  fluid_intelligence:
+    name: "Fluid Intelligence (PMAT24_A_CR)"
+    label_path: inputs/dataset_SC/label_all.npy
+  working_memory:
+    name: "Working Memory (ListSort_Unadj)"
+    label_path: inputs/dataset_SC/task_labels/ListSort_Unadj/label_all.npy
+
+priors:
+  fluid_intelligence:
+    matched: outputs/priors/llm/fluid_intelligence_contrastive_qwen3/roi_prior.csv
+    unrelated: outputs/priors/llm/working_memory_contrastive_qwen3/roi_prior.csv
+    shuffled: outputs/priors/llm/fluid_intelligence_contrastive_qwen3_shuffled/roi_prior.csv
+    random: outputs/priors/random_prior/aal116/roi_prior.csv
+  working_memory:
+    matched: outputs/priors/llm/working_memory_contrastive_qwen3/roi_prior.csv
+    unrelated: outputs/priors/llm/fluid_intelligence_contrastive_qwen3/roi_prior.csv
+    shuffled: outputs/priors/llm/working_memory_contrastive_qwen3_shuffled/roi_prior.csv
+    random: outputs/priors/random_prior/aal116/roi_prior.csv
+
+lifting_rules: [prod]
+top_k: 10
+gamma_grid: [0.0, 1.0]
+lambda_laplacian_grid: [0.0, 1.0]
+lambda_fc_grid: [0.1, 1.0, 10.0]
+lambda_sc_grid: [0.1, 1.0, 10.0]
+pilot_prior_types: [matched, random]
+diagonal_epsilon: 0.001
+laplacian_weighting: binary
+laplacian_normalize: sym
+
+output_dir: outputs/iclr/msancr_pilot
+figures_dir: figures/iclr/msancr_pilot

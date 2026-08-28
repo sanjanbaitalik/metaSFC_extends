@@ -1,0 +1,7 @@
+target,model_id,control,n_seeds,mean_paired_delta,median_paired_delta,n_positive
+fluid_intelligence,A1_aniso_ridge,random,3,-0.009219060181006803,-0.0007248316609885785,1
+fluid_intelligence,A2_fc_laplacian,random,3,0.0011097195013352417,0.0013831339763659134,2
+fluid_intelligence,A3_msancr,random,3,0.00439499455423048,0.005740141427229284,2
+working_memory,A1_aniso_ridge,random,3,-0.027071123257058283,-0.012700071652281653,0
+working_memory,A2_fc_laplacian,random,3,0.0036597632251843906,0.002313846558898769,2
+working_memory,A3_msancr,random,3,0.003508620486724965,0.0029295861724941974,2
