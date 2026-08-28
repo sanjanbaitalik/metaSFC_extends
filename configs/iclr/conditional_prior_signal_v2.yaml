@@ -1,0 +1,56 @@
+# Conditional / Residual Prior-Signal Audit v2 (ICLR 2027)
+#
+# Fully nested, leakage-safe implementation.
+# All variant/eta selection uses inner cross-fitting within outer-training.
+# Per-task decisions.  All priors evaluated with identical candidate grids.
+
+experiment_name: conditional_prior_signal_audit_v2
+seeds: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]
+n_folds: 5
+val_fraction: 0.15
+
+data:
+  fc_path: inputs/dataset_FC/FC_all.npy
+  sc_path: inputs/dataset_SC/SC_all.npy
+  y_path: inputs/dataset_SC/label_all.npy
+  subjects_path: inputs/dataset_SC/hcp_subjects_used.csv
+  groups_path: null
+
+targets:
+  fluid_intelligence:
+    name: "Fluid Intelligence (PMAT24_A_CR)"
+    label_path: inputs/dataset_SC/label_all.npy
+  working_memory:
+    name: "Working Memory (ListSort_Unadj)"
+    label_path: inputs/dataset_SC/task_labels/ListSort_Unadj/label_all.npy
+
+priors:
+  fluid_intelligence:
+    matched: outputs/priors/llm/fluid_intelligence_contrastive_qwen3/roi_prior.csv
+    unrelated: outputs/priors/llm/working_memory_contrastive_qwen3/roi_prior.csv
+    shuffled: outputs/priors/llm/fluid_intelligence_contrastive_qwen3_shuffled/roi_prior.csv
+    random: outputs/priors/random_prior/aal116/roi_prior.csv
+  working_memory:
+    matched: outputs/priors/llm/working_memory_contrastive_qwen3/roi_prior.csv
+    unrelated: outputs/priors/llm/fluid_intelligence_contrastive_qwen3/roi_prior.csv
+    shuffled: outputs/priors/llm/working_memory_contrastive_qwen3_shuffled/roi_prior.csv
+    random: outputs/priors/random_prior/aal116/roi_prior.csv
+
+lifting_rules: [prod, mean, max, bridge]
+top_fractions: [0.05, 0.10, 0.20, 0.30]
+n_random_subsets: 1000
+
+ridge_alphas: [0.01, 1.0, 100.0, 10000.0, 1000000.0]
+n_inner_folds: 5
+
+# Candidate residual branch variants — identical grid for ALL prior types
+topk_fractions: [0.05, 0.10, 0.20]
+weighted_gammas: [0.5, 1.0, 2.0]
+weighted_epsilon: 0.001
+pca_n_components: [8, 16, 32, 64]
+
+# Eta additive combination grid
+eta_grid: [0.0, 0.25, 0.5, 0.75, 1.0]
+
+output_dir: outputs/iclr/conditional_prior_signal_v2
+figures_dir: figures/iclr/conditional_prior_signal_v2

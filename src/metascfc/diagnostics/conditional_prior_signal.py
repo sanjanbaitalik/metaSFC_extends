@@ -1,8 +1,8 @@
-"""Conditional / Residual Prior-Signal Audit — core computation.
+"""Conditional / Residual Prior-Signal Audit v2 — core computation.
 
-Determines whether the matched prior contains predictive information
-that is *not already captured* by the no-prior FC+SC Ridge baseline.
-All diagnostics use training-only data (no outer-test labels for selection).
+Fully nested, leakage-safe implementation.  All variant/eta selection
+occurs via inner cross-fitting within the outer-training set.
+No outer-test labels are used for any model selection.
 """
 from __future__ import annotations
 
@@ -13,12 +13,22 @@ from scipy.stats import pearsonr, spearmanr
 
 from metascfc.diagnostics.prior_predictive_enrichment import (
     bootstrap_ci,
-    fit_ridge_dual,
+    fit_ridge_dual as _fit_ridge_dual_orig,
     holm_correction,
     paired_effect_size,
     paired_wilcoxon,
-    roi_to_edge_prior,
 )
+
+
+def _robust_ridge(X: np.ndarray, y: np.ndarray, alpha: float) -> np.ndarray:
+    """Ridge regression that works for both n<p and n>p.
+
+    Uses sklearn Ridge which handles both cases robustly.
+    """
+    from sklearn.linear_model import Ridge
+    model = Ridge(alpha=alpha, fit_intercept=False, solver="cholesky")
+    model.fit(X, y)
+    return model.coef_.copy()
 
 
 # ---------------------------------------------------------------------------
@@ -38,10 +48,7 @@ def crossfit_ridge(
     For each inner fold the held-out fold is never used for alpha
     selection or fitting.
 
-    Returns
-    -------
-    pred : (len(indices),) out-of-fold predictions
-    residuals : y[indices] - pred
+    Returns (pred, residuals) where residuals = y[indices] - pred.
     """
     from sklearn.model_selection import KFold
     from sklearn.preprocessing import StandardScaler
@@ -59,6 +66,7 @@ def crossfit_ridge(
         train_global = indices[train_local]
         val_global = indices[val_local]
 
+        # Alpha selection: further split train into sub_train/sub_val
         n_tr = len(train_global)
         perm = rng.permutation(n_tr)
         n_sel = max(int(n_tr * 0.8), 1)
@@ -77,16 +85,17 @@ def crossfit_ridge(
 
         best_a, best_rmse = alpha_grid[0], float("inf")
         for a in alpha_grid:
-            beta = fit_ridge_dual(X_sel_tr, y_sel_tr, a)
+            beta = _robust_ridge(X_sel_tr, y_sel_tr, a)
             rmse = float(np.sqrt(np.mean((y_sel_val - X_sel_val @ beta) ** 2)))
             if rmse < best_rmse:
                 best_a, best_rmse = a, rmse
 
+        # Refit on train with best alpha
         X_tr = scaler.fit_transform(X[train_global])
         y_tr_mean = float(y[train_global].mean())
         y_tr_std = max(float(y[train_global].std()), 1e-8)
         y_tr = (y[train_global] - y_tr_mean) / y_tr_std
-        beta = fit_ridge_dual(X_tr, y_tr, best_a)
+        beta = _robust_ridge(X_tr, y_tr, best_a)
 
         X_val = scaler.transform(X[val_global])
         pred[val_local] = X_val @ beta * y_tr_std + y_tr_mean
@@ -128,12 +137,12 @@ def fit_ridge_baseline(
 
     best_a, best_rmse = alpha_grid[0], float("inf")
     for a in alpha_grid:
-        beta = fit_ridge_dual(X_tv[sel_tr], y_tv[sel_tr], a)
+        beta = _robust_ridge(X_tv[sel_tr], y_tv[sel_tr], a)
         rmse = float(np.sqrt(np.mean((y_tv[sel_val] - X_tv[sel_val] @ beta) ** 2)))
         if rmse < best_rmse:
             best_a, best_rmse = a, rmse
 
-    beta = fit_ridge_dual(X_tv, y_tv, best_a)
+    beta = _robust_ridge(X_tv, y_tv, best_a)
     X_test = scaler.transform(X_all[test_idx])
     pred_test = X_test @ beta * y_tv_std + y_tv_mean
     pred_trainval = X_tv @ beta * y_tv_std + y_tv_mean
@@ -141,7 +150,7 @@ def fit_ridge_baseline(
 
 
 # ---------------------------------------------------------------------------
-# Diagnostic A — residual marginal enrichment
+# Residual enrichment
 # ---------------------------------------------------------------------------
 
 def residual_enrichment(
@@ -178,7 +187,7 @@ def residual_enrichment(
 
 
 # ---------------------------------------------------------------------------
-# Diagnostic C — top-prior residual enrichment
+# Top-fraction enrichment
 # ---------------------------------------------------------------------------
 
 def fast_top_fraction(
@@ -200,7 +209,8 @@ def fast_top_fraction(
         top_idx = rank[:k]
         observed = float(m_e[top_idx].mean())
         rand_idx = rng.randint(0, p, size=(n_random, k))
-        null_means = np.array([m_e[ri].mean() for ri in rand_idx])
+        # Ensure no duplicates in random subsets
+        null_means = np.array([m_e[np.unique(ri)].mean() for ri in rand_idx])
         z = (observed - null_means.mean()) / max(null_means.std(), 1e-12)
         p_val = float(np.mean(null_means >= observed))
         results.append({
@@ -215,183 +225,309 @@ def fast_top_fraction(
 
 
 # ---------------------------------------------------------------------------
-# Diagnostic D — prior-only residual prediction variants
+# Residual branch candidates — all produce OOF predictions for selection
 # ---------------------------------------------------------------------------
 
-def _select_alpha_and_predict(
-    X_tv: np.ndarray,
-    y_norm: np.ndarray,
-    X_test: np.ndarray,
-    alpha_grid: Sequence[float],
-    rng: np.random.RandomState,
-) -> Tuple[np.ndarray, np.ndarray, float]:
-    n_tv = X_tv.shape[0]
-    perm = rng.permutation(n_tv)
-    n_sel = max(int(n_tv * 0.8), 1)
-    sel_tr, sel_val = perm[:n_sel], perm[n_sel:]
-
-    best_a, best_rmse = alpha_grid[0], float("inf")
-    for a in alpha_grid:
-        beta = fit_ridge_dual(X_tv[sel_tr], y_norm[sel_tr], a)
-        rmse = float(np.sqrt(np.mean((y_norm[sel_val] - X_tv[sel_val] @ beta) ** 2)))
-        if rmse < best_rmse:
-            best_a, best_rmse = a, rmse
-
-    beta = fit_ridge_dual(X_tv, y_norm, best_a)
-    return X_tv @ beta, X_test @ beta, best_a
-
-
-def fit_prior_topk_ridge(
-    X_all: np.ndarray,
-    y_res_tv: np.ndarray,
-    trainval_idx: np.ndarray,
-    test_idx: np.ndarray,
-    edge_prior: np.ndarray,
-    top_frac: float,
-    alpha_grid: Sequence[float],
-    scaler_tv=None,
-    rng: Optional[np.random.RandomState] = None,
-) -> Dict:
-    """D1: top-k Ridge on prior-selected features."""
+def _standardize_fit_transform(X_fit, y_fit_mean, y_fit_std):
     from sklearn.preprocessing import StandardScaler
+    scaler = StandardScaler()
+    Xs = scaler.fit_transform(X_fit)
+    return Xs, scaler
 
-    if rng is None:
-        rng = np.random.RandomState(42)
+
+def _standardize_transform(scaler, X):
+    return scaler.transform(X)
+
+
+def _normalize_target(y, mean, std):
+    return (y - mean) / max(std, 1e-8)
+
+
+def _denormalize(pred, mean, std):
+    return pred * std + mean
+
+
+def crossfit_residual_branch_topk(
+    X_all, y_res_tv, trainval_idx, test_idx,
+    edge_prior, top_frac, alpha_grid, n_inner_folds, rng,
+):
+    """OOF cross-fitted top-k Ridge residual branch within trainval."""
+    from sklearn.model_selection import KFold
+    from sklearn.preprocessing import StandardScaler
 
     k = max(1, int(len(edge_prior) * top_frac))
     top_features = np.argsort(np.abs(edge_prior))[-k:]
 
-    if scaler_tv is None:
-        scaler_tv = StandardScaler()
-        X_tv = scaler_tv.fit_transform(X_all[trainval_idx][:, top_features])
-    else:
-        X_tv = scaler_tv.transform(X_all[trainval_idx][:, top_features])
-    X_test = scaler_tv.transform(X_all[test_idx][:, top_features])
+    n_tv = len(trainval_idx)
+    kf = KFold(n_splits=n_inner_folds, shuffle=True, random_state=rng.randint(0, 2**31))
 
-    y_mean = float(y_res_tv.mean())
-    y_std = max(float(y_res_tv.std()), 1e-8)
-    y_norm = (y_res_tv - y_mean) / y_std
+    oof_pred = np.zeros(n_tv)
+    for tr_local, va_local in kf.split(np.zeros(n_tv)):
+        tr_global = trainval_idx[tr_local]
+        va_global = trainval_idx[va_local]
 
-    pv_train, pv_test, best_a = _select_alpha_and_predict(X_tv, y_norm, X_test, alpha_grid, rng)
+        scaler = StandardScaler()
+        X_tr = scaler.fit_transform(X_all[tr_global][:, top_features])
+        X_va = scaler.transform(X_all[va_global][:, top_features])
 
-    return {
-        "variant": "topk", "top_fraction": top_frac, "k": k,
-        "best_alpha": best_a,
-        "pred_test": pv_test * y_std + y_mean,
-        "pred_trainval": pv_train * y_std + y_mean,
-    }
+        y_mean = float(y_res_tv[tr_local].mean())
+        y_std = max(float(y_res_tv[tr_local].std()), 1e-8)
+        y_tr = _normalize_target(y_res_tv[tr_local], y_mean, y_std)
 
+        # Alpha selection on sub-split
+        n_tr = len(tr_local)
+        perm = rng.permutation(n_tr)
+        n_sel = max(int(n_tr * 0.8), 1)
+        s_tr, s_val = perm[:n_sel], perm[n_sel:]
+        best_a, best_rmse = alpha_grid[0], float("inf")
+        for a in alpha_grid:
+            beta = _robust_ridge(X_tr[s_tr], y_tr[s_tr], a)
+            rmse = float(np.sqrt(np.mean((y_tr[s_val] - X_tr[s_val] @ beta) ** 2)))
+            if rmse < best_rmse:
+                best_a, best_rmse = a, rmse
 
-def fit_prior_weighted_ridge(
-    X_all: np.ndarray,
-    y_res_tv: np.ndarray,
-    trainval_idx: np.ndarray,
-    test_idx: np.ndarray,
-    edge_prior: np.ndarray,
-    gamma: float,
-    epsilon: float,
-    alpha_grid: Sequence[float],
-    rng: Optional[np.random.RandomState] = None,
-) -> Dict:
-    """D2: prior-weighted Ridge."""
-    from sklearn.preprocessing import StandardScaler
+        beta = _robust_ridge(X_tr, y_tr, best_a)
+        oof_pred[va_local] = _denormalize(X_va @ beta, y_mean, y_std)
 
-    if rng is None:
-        rng = np.random.RandomState(42)
-
-    weights = (epsilon + np.abs(edge_prior)) ** gamma
-    X_w = X_all * weights[np.newaxis, :]
-
+    # Refit on full trainval for test prediction
     scaler = StandardScaler()
-    X_tv = scaler.fit_transform(X_w[trainval_idx])
-    X_test = scaler.transform(X_w[test_idx])
-
+    X_tv = scaler.fit_transform(X_all[trainval_idx][:, top_features])
+    X_te = scaler.transform(X_all[test_idx][:, top_features])
     y_mean = float(y_res_tv.mean())
     y_std = max(float(y_res_tv.std()), 1e-8)
-    y_norm = (y_res_tv - y_mean) / y_std
+    y_tv = _normalize_target(y_res_tv, y_mean, y_std)
 
-    pv_train, pv_test, best_a = _select_alpha_and_predict(X_tv, y_norm, X_test, alpha_grid, rng)
+    n_tv2 = len(trainval_idx)
+    perm = rng.permutation(n_tv2)
+    n_sel = max(int(n_tv2 * 0.8), 1)
+    s_tr2, s_val2 = perm[:n_sel], perm[n_sel:]
+    best_a2, best_rmse2 = alpha_grid[0], float("inf")
+    for a in alpha_grid:
+        beta = _robust_ridge(X_tv[s_tr2], y_tv[s_tr2], a)
+        rmse = float(np.sqrt(np.mean((y_tv[s_val2] - X_tv[s_val2] @ beta) ** 2)))
+        if rmse < best_rmse2:
+            best_a2, best_rmse2 = a, rmse
+
+    beta = _robust_ridge(X_tv, y_tv, best_a2)
+    pred_test = _denormalize(X_te @ beta, y_mean, y_std)
+    pred_tv_ins = _denormalize(X_tv @ beta, y_mean, y_std)
 
     return {
-        "variant": "weighted", "gamma": gamma, "epsilon": epsilon,
-        "best_alpha": best_a,
-        "pred_test": pv_test * y_std + y_mean,
-        "pred_trainval": pv_train * y_std + y_mean,
+        "variant": f"topk_{top_frac}", "alpha": best_a2,
+        "oof_pred_trainval": oof_pred,
+        "pred_test": pred_test,
+        "pred_trainval_ins": pred_tv_ins,
+        "top_fraction": top_frac, "k": k,
     }
 
 
-def fit_prior_pca_ridge(
-    X_all: np.ndarray,
-    y_res_tv: np.ndarray,
-    trainval_idx: np.ndarray,
-    test_idx: np.ndarray,
-    edge_prior: np.ndarray,
-    n_components: int,
-    alpha_grid: Sequence[float],
-    rng: Optional[np.random.RandomState] = None,
-) -> Dict:
-    """D3: PCA on top-prior features + Ridge."""
-    from sklearn.decomposition import PCA
+def crossfit_residual_branch_weighted(
+    X_all, y_res_tv, trainval_idx, test_idx,
+    edge_prior, gamma, epsilon, alpha_grid, n_inner_folds, rng,
+):
+    """OOF cross-fitted generalized-prior-weighted Ridge via penalty matrix."""
+    from sklearn.model_selection import KFold
     from sklearn.preprocessing import StandardScaler
 
-    if rng is None:
-        rng = np.random.RandomState(42)
+    from metascfc.diagnostics.generalized_ridge import (
+        compute_prior_penalties,
+        fit_generalized_ridge,
+        predict_generalized_ridge,
+    )
+
+    d = compute_prior_penalties(edge_prior, gamma, epsilon)
+    d_inv_sqrt = 1.0 / np.sqrt(np.maximum(d, 1e-30))
+
+    n_tv = len(trainval_idx)
+    kf = KFold(n_splits=n_inner_folds, shuffle=True, random_state=rng.randint(0, 2**31))
+
+    oof_pred = np.zeros(n_tv)
+    for tr_local, va_local in kf.split(np.zeros(n_tv)):
+        tr_global = trainval_idx[tr_local]
+        va_global = trainval_idx[va_local]
+
+        scaler = StandardScaler()
+        X_tr_raw = scaler.fit_transform(X_all[tr_global])
+        X_va_raw = scaler.transform(X_all[va_global])
+
+        # Apply penalty via reparameterization: X' = X D^{-1/2}
+        X_tr = X_tr_raw * d_inv_sqrt[np.newaxis, :]
+        X_va = X_va_raw * d_inv_sqrt[np.newaxis, :]
+
+        y_mean = float(y_res_tv[tr_local].mean())
+        y_std = max(float(y_res_tv[tr_local].std()), 1e-8)
+        y_tr = _normalize_target(y_res_tv[tr_local], y_mean, y_std)
+
+        n_tr = len(tr_local)
+        perm = rng.permutation(n_tr)
+        n_sel = max(int(n_tr * 0.8), 1)
+        s_tr, s_val = perm[:n_sel], perm[n_sel:]
+        best_a, best_rmse = alpha_grid[0], float("inf")
+        for a in alpha_grid:
+            beta = _robust_ridge(X_tr[s_tr], y_tr[s_tr], a)
+            pred = X_tr[s_val] @ beta
+            rmse = float(np.sqrt(np.mean((y_tr[s_val] - pred) ** 2)))
+            if rmse < best_rmse:
+                best_a, best_rmse = a, rmse
+
+        beta = _robust_ridge(X_tr, y_tr, best_a)
+        oof_pred[va_local] = _denormalize(X_va @ beta, y_mean, y_std)
+
+    # Refit on full trainval
+    scaler = StandardScaler()
+    X_tv_raw = scaler.fit_transform(X_all[trainval_idx])
+    X_te_raw = scaler.transform(X_all[test_idx])
+    X_tv = X_tv_raw * d_inv_sqrt[np.newaxis, :]
+    X_te = X_te_raw * d_inv_sqrt[np.newaxis, :]
+
+    y_mean = float(y_res_tv.mean())
+    y_std = max(float(y_res_tv.std()), 1e-8)
+    y_tv = _normalize_target(y_res_tv, y_mean, y_std)
+
+    n_tv2 = len(trainval_idx)
+    perm = rng.permutation(n_tv2)
+    n_sel = max(int(n_tv2 * 0.8), 1)
+    s_tr2, s_val2 = perm[:n_sel], perm[n_sel:]
+    best_a2, best_rmse2 = alpha_grid[0], float("inf")
+    for a in alpha_grid:
+        beta = _robust_ridge(X_tv[s_tr2], y_tv[s_tr2], a)
+        pred = X_tv[s_val2] @ beta
+        rmse = float(np.sqrt(np.mean((y_tv[s_val2] - pred) ** 2)))
+        if rmse < best_rmse2:
+            best_a2, best_rmse2 = a, rmse
+
+    beta = _robust_ridge(X_tv, y_tv, best_a2)
+    pred_test = _denormalize(X_te @ beta, y_mean, y_std)
+    pred_tv_ins = _denormalize(X_tv @ beta, y_mean, y_std)
+
+    return {
+        "variant": f"weighted_{gamma}", "alpha": best_a2,
+        "oof_pred_trainval": oof_pred,
+        "pred_test": pred_test,
+        "pred_trainval_ins": pred_tv_ins,
+        "gamma": gamma, "epsilon": epsilon,
+    }
+
+
+def crossfit_residual_branch_pca(
+    X_all, y_res_tv, trainval_idx, test_idx,
+    edge_prior, n_components, alpha_grid, n_inner_folds, rng,
+):
+    """OOF cross-fitted PCA + Ridge residual branch."""
+    from sklearn.decomposition import PCA
+    from sklearn.model_selection import KFold
+    from sklearn.preprocessing import StandardScaler
 
     k = min(max(n_components + 10, 2 * n_components), len(edge_prior))
     top_features = np.argsort(np.abs(edge_prior))[-k:]
 
+    n_tv = len(trainval_idx)
+    kf = KFold(n_splits=n_inner_folds, shuffle=True, random_state=rng.randint(0, 2**31))
+
+    oof_pred = np.zeros(n_tv)
+    for tr_local, va_local in kf.split(np.zeros(n_tv)):
+        tr_global = trainval_idx[tr_local]
+        va_global = trainval_idx[va_local]
+
+        scaler = StandardScaler()
+        X_tr_raw = scaler.fit_transform(X_all[tr_global][:, top_features])
+        X_va_raw = scaler.transform(X_all[va_global][:, top_features])
+
+        pca = PCA(n_components=min(n_components, X_tr_raw.shape[1], X_tr_raw.shape[0]))
+        X_tr = pca.fit_transform(X_tr_raw)
+        X_va = pca.transform(X_va_raw)
+
+        y_mean = float(y_res_tv[tr_local].mean())
+        y_std = max(float(y_res_tv[tr_local].std()), 1e-8)
+        y_tr = _normalize_target(y_res_tv[tr_local], y_mean, y_std)
+
+        n_tr = len(tr_local)
+        perm = rng.permutation(n_tr)
+        n_sel = max(int(n_tr * 0.8), 1)
+        s_tr, s_val = perm[:n_sel], perm[n_sel:]
+        best_a, best_rmse = alpha_grid[0], float("inf")
+        for a in alpha_grid:
+            beta = _robust_ridge(X_tr[s_tr], y_tr[s_tr], a)
+            rmse = float(np.sqrt(np.mean((y_tr[s_val] - X_tr[s_val] @ beta) ** 2)))
+            if rmse < best_rmse:
+                best_a, best_rmse = a, rmse
+
+        beta = _robust_ridge(X_tr, y_tr, best_a)
+        oof_pred[va_local] = _denormalize(X_va @ beta, y_mean, y_std)
+
+    # Refit on full trainval
     scaler = StandardScaler()
     X_tv_raw = scaler.fit_transform(X_all[trainval_idx][:, top_features])
-    X_test_raw = scaler.transform(X_all[test_idx][:, top_features])
+    X_te_raw = scaler.transform(X_all[test_idx][:, top_features])
 
     pca = PCA(n_components=min(n_components, X_tv_raw.shape[1], X_tv_raw.shape[0]))
     X_tv = pca.fit_transform(X_tv_raw)
-    X_test = pca.transform(X_test_raw)
+    X_te = pca.transform(X_te_raw)
 
     y_mean = float(y_res_tv.mean())
     y_std = max(float(y_res_tv.std()), 1e-8)
-    y_norm = (y_res_tv - y_mean) / y_std
+    y_tv = _normalize_target(y_res_tv, y_mean, y_std)
 
-    pv_train, pv_test, best_a = _select_alpha_and_predict(X_tv, y_norm, X_test, alpha_grid, rng)
+    n_tv2 = len(trainval_idx)
+    perm = rng.permutation(n_tv2)
+    n_sel = max(int(n_tv2 * 0.8), 1)
+    s_tr2, s_val2 = perm[:n_sel], perm[n_sel:]
+    best_a2, best_rmse2 = alpha_grid[0], float("inf")
+    for a in alpha_grid:
+        beta = _robust_ridge(X_tv[s_tr2], y_tv[s_tr2], a)
+        pred = X_tv[s_val2] @ beta
+        rmse = float(np.sqrt(np.mean((y_tv[s_val2] - pred) ** 2)))
+        if rmse < best_rmse2:
+            best_a2, best_rmse2 = a, rmse
+
+    beta = _robust_ridge(X_tv, y_tv, best_a2)
+    pred_test = _denormalize(X_te @ beta, y_mean, y_std)
+    pred_tv_ins = _denormalize(X_tv @ beta, y_mean, y_std)
 
     return {
-        "variant": "pca", "n_components": n_components,
+        "variant": f"pca_{n_components}", "alpha": best_a2,
+        "oof_pred_trainval": oof_pred,
+        "pred_test": pred_test,
+        "pred_trainval_ins": pred_tv_ins,
+        "n_components": n_components,
         "explained_variance": float(pca.explained_variance_ratio_.sum()),
-        "best_alpha": best_a,
-        "pred_test": pv_test * y_std + y_mean,
-        "pred_trainval": pv_train * y_std + y_mean,
     }
 
 
 # ---------------------------------------------------------------------------
-# Diagnostic E — additive prediction test
+# Eta selection using OOF predictions
 # ---------------------------------------------------------------------------
 
-def compute_additive_metrics(
-    baseline_pred_test: np.ndarray,
-    prior_pred_test: np.ndarray,
-    y_test: np.ndarray,
-    baseline_pred_trainval: np.ndarray,
-    prior_pred_trainval: np.ndarray,
+def select_eta_and_evaluate(
+    oof_baseline: np.ndarray,
+    oof_residual: np.ndarray,
     y_trainval: np.ndarray,
+    pred_test_baseline: np.ndarray,
+    pred_test_residual: np.ndarray,
+    y_test: np.ndarray,
     eta_grid: Sequence[float],
 ) -> Dict:
-    """Select eta on trainval, evaluate combined prediction on test."""
+    """Select eta using OOF combined predictions, evaluate on test.
+
+    Returns metrics dict with selected_eta, baseline/combined metrics, deltas.
+    """
     from metascfc.benchmark_utils import prediction_metrics
 
-    best_eta, best_rmse = 0.0, float("inf")
+    best_eta, best_pearson = 0.0, -float("inf")
     for eta in eta_grid:
-        combined_tv = baseline_pred_trainval + eta * prior_pred_trainval
-        rmse = float(np.sqrt(np.mean((y_trainval - combined_tv) ** 2)))
-        if rmse < best_rmse:
-            best_eta, best_rmse = eta, rmse
+        combined_oof = oof_baseline + eta * oof_residual
+        r = float(np.corrcoef(y_trainval, combined_oof)[0, 1]) if len(y_trainval) > 1 else 0.0
+        if r > best_pearson:
+            best_pearson = r
+            best_eta = eta
 
-    baseline_m = prediction_metrics(y_test, baseline_pred_test)
-    combined_pred = baseline_pred_test + best_eta * prior_pred_test
+    baseline_m = prediction_metrics(y_test, pred_test_baseline)
+    combined_pred = pred_test_baseline + best_eta * pred_test_residual
     combined_m = prediction_metrics(y_test, combined_pred)
 
     return {
         "selected_eta": best_eta,
+        "inner_pearson": best_pearson,
         "baseline_pearson": baseline_m["pearson"],
         "baseline_rmse": baseline_m["rmse"],
         "baseline_mae": baseline_m["mae"],
@@ -413,7 +549,10 @@ def seed_level_stats(
     control_vals: np.ndarray,
     label: str = "matched",
 ) -> Dict:
-    """Paired stats: matched vs a control at seed level."""
+    """Paired stats: matched vs a control at seed level.
+
+    Convention: positive mean_diff means matched > control.
+    """
     n = min(len(matched_vals), len(control_vals))
     if n < 3:
         return {"label": label, "wilcoxon_p": 1.0, "mean_diff": 0.0,

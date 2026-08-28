@@ -1,0 +1,35 @@
+{
+  "per_task": {
+    "fluid_intelligence": {
+      "matched_prior_residual_enrichment": true,
+      "matched_beats_unrelated": true,
+      "matched_beats_shuffled": true,
+      "matched_beats_random": true,
+      "median_delta_pearson": 0.0,
+      "mean_delta_pearson": -0.000336,
+      "positive_delta_seeds": 1,
+      "total_seeds": 10,
+      "best_residual_variant": "unknown",
+      "best_modality": "FC",
+      "recommended_next_step": "anisotropic_ncr"
+    },
+    "working_memory": {
+      "matched_prior_residual_enrichment": true,
+      "matched_beats_unrelated": true,
+      "matched_beats_shuffled": true,
+      "matched_beats_random": true,
+      "median_delta_pearson": 0.0,
+      "mean_delta_pearson": 9e-05,
+      "positive_delta_seeds": 4,
+      "total_seeds": 10,
+      "best_residual_variant": "unknown",
+      "best_modality": "FC",
+      "recommended_next_step": "anisotropic_ncr"
+    }
+  },
+  "overall_recommended_next_step": "anisotropic_ncr",
+  "task_recommendations": {
+    "fluid_intelligence": "anisotropic_ncr",
+    "working_memory": "anisotropic_ncr"
+  }
+}
