@@ -1,0 +1,3 @@
+target,variant,mean_delta_pearson,std_delta_pearson,median_delta_pearson,n_positive_seeds,n_seeds
+fluid_intelligence,weighted_0.5,0.00296314379638134,0.004934568544550072,0.0006960339169194973,7,10
+working_memory,topk_0.2,0.009433015723470033,0.01347203374746228,0.0013795234529400708,9,10

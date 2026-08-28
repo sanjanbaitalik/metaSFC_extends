@@ -1,0 +1,12 @@
+{
+  "matched_prior_residual_enrichment": false,
+  "matched_beats_unrelated_on_residual_signal": false,
+  "matched_beats_shuffled_random": false,
+  "incremental_prediction_gain": false,
+  "median_delta_pearson": 0.000822,
+  "positive_delta_seeds": 16,
+  "total_seeds": 20,
+  "best_modality": "FC+SC",
+  "best_residual_variant": "topk_0.2",
+  "recommended_next_step": "rebuild_prior"
+}
