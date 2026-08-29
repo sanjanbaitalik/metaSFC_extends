@@ -1,0 +1,7 @@
+{
+  "comparison": "A3_matched_vs_A4",
+  "metric": "pearson",
+  "p_raw": 0.037109375,
+  "p_holm_all_five": 0.111328125,
+  "matches_original_conservative_analysis": true
+}

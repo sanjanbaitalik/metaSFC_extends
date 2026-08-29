@@ -49,3 +49,10 @@ Thumbs.db
 
 # Generated experiment and publication artifacts
 
+# Restricted HCP data (NEVER commit)
+*restricted*.csv
+restricted_data/
+private_hcp/
+inputs/dataset_SC/family_groups.npy
+inputs/dataset_SC/family_groups*.npy
+

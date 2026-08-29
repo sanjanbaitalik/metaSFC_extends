@@ -1,0 +1,14 @@
+\begin{tabular}{lccc}
+\toprule
+Method & Pearson $\uparrow$ & RMSE $\downarrow$ & MAE $\downarrow$ \\
+\midrule
+A4 modality-specific Ridge & 0.2510 $\pm$ 0.0367$^{\dagger}$ & 11.6145 $\pm$ 0.2993 & 9.4275 $\pm$ 0.2708 \\
+A2 FC-Laplacian & 0.2495 $\pm$ 0.0309 & 11.5684 $\pm$ 0.2508 & 9.3969 $\pm$ 0.2238 \\
+A3 MS-A-NCR matched & \textbf{0.2632 $\pm$ 0.0318} & \textbf{11.5503 $\pm$ 0.2716} & \textbf{9.3542 $\pm$ 0.2509} \\
+A3 unrelated fixed & 0.2419 $\pm$ 0.0340$^{\star}$ & 11.6694 $\pm$ 0.2934$^{\star}$ & 9.4933 $\pm$ 0.2611$^{\star}$ \\
+A3 shuffled fixed & 0.2439 $\pm$ 0.0322$^{\star}$ & 11.6437 $\pm$ 0.2692$^{\star}$ & 9.4421 $\pm$ 0.2545$^{\star}$ \\
+A3 random fixed & 0.2517 $\pm$ 0.0263 & 11.6293 $\pm$ 0.2502$^{\star}$ & 9.4535 $\pm$ 0.2213$^{\star}$ \\
+\bottomrule
+\end{tabular}
+
+$^{\dagger}$ = designated primary A3-vs-A4 paired Wilcoxon $p < 0.05$ (not Holm-corrected).  $^{\star}$ = significant after the stated secondary/conservative Holm procedure.

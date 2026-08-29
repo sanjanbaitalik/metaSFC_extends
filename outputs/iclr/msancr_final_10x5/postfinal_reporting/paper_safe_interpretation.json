@@ -1,0 +1,23 @@
+{
+  "primary_prediction_contrast": {
+    "supported_at_nominal_005": true,
+    "p_primary": 0.037109375,
+    "mean_delta_r": 0.01216064797089067,
+    "ci95": [
+      0.0044537268223115,
+      0.02038107168678683
+    ],
+    "cohens_dz": 0.8931667960876111
+  },
+  "conservative_familywise_sensitivity": {
+    "supported": false,
+    "p_holm_all_five": 0.111328125
+  },
+  "recommended_wording": "MS-A-NCR (A3) improved Working-Memory prediction relative to modality-specific Ridge (A4) across 10 seeds (mean \u0394r = 0.0122, paired Wilcoxon p = 0.03711, 95% bootstrap CI = [0.00445, 0.02038], Cohen dz = 0.893).  This designated primary contrast did not remain significant under an additional conservative Holm correction that grouped the primary comparison with four secondary method/control comparisons (p_Holm = 0.11133).  The matched prior was directionally superior to all three control swaps and significant after Holm correction within the secondary family of swap comparisons.",
+  "prohibited_wording": [
+    "statistically significant after correction for the primary contrast",
+    "A3 outperformed A4 after Holm correction",
+    "all three control comparisons significant under conservative Holm",
+    "family leakage inflated results"
+  ]
+}

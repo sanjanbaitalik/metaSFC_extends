@@ -1,0 +1,14 @@
+\begin{tabular}{lccc}
+\toprule
+Method & WM alignment $\uparrow$ & Rank stability $\uparrow$ & Top-10 Jaccard $\uparrow$ \\
+\midrule
+A4 modality-specific Ridge & 0.1229 $\pm$ 0.0336$^{\star}$ & 0.6249 $\pm$ 0.0908 & 0.2781 $\pm$ 0.0492 \\
+A2 FC-Laplacian matched & -0.0422 $\pm$ 0.0687$^{\star}$ & 0.6186 $\pm$ 0.1151 & 0.2536 $\pm$ 0.0483$^{\star}$ \\
+A3 MS-A-NCR matched & \textbf{0.5137 $\pm$ 0.0812} & \textbf{0.7121 $\pm$ 0.0567} & \textbf{0.3368 $\pm$ 0.0706} \\
+A3 unrelated fixed & 0.3729 $\pm$ 0.0787 & 0.7073 $\pm$ 0.0695 & 0.2644 $\pm$ 0.0525 \\
+A3 shuffled fixed & -0.0465 $\pm$ 0.0256 & 0.7142 $\pm$ 0.0727 & 0.2904 $\pm$ 0.0633 \\
+A3 random fixed & 0.0829 $\pm$ 0.0353 & 0.6977 $\pm$ 0.0651 & 0.3714 $\pm$ 0.0463 \\
+\bottomrule
+\end{tabular}
+
+Statistics use ten paired seed-level summaries.  $^{\star}$ = significantly different from A3 matched after metric-wise Holm correction.

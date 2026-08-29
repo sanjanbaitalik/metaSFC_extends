@@ -1,0 +1,45 @@
+{
+  "swaps": {
+    "unrelated": {
+      "matched_mean_pearson": 0.26319889047029865,
+      "swap_mean_pearson": 0.24194744632655546,
+      "mean_delta": 0.021251444143743192,
+      "directional_superiority": true,
+      "raw_wilcoxon_p": 0.001953125,
+      "p_holm_secondary": 0.005859375,
+      "significant_secondary_holm": true,
+      "p_holm_conservative_all_five": 0.009765625
+    },
+    "shuffled": {
+      "matched_mean_pearson": 0.26319889047029865,
+      "swap_mean_pearson": 0.24394198632120498,
+      "mean_delta": 0.019256904149093597,
+      "directional_superiority": true,
+      "raw_wilcoxon_p": 0.001953125,
+      "p_holm_secondary": 0.005859375,
+      "significant_secondary_holm": true,
+      "p_holm_conservative_all_five": 0.009765625
+    },
+    "random": {
+      "matched_mean_pearson": 0.26319889047029865,
+      "swap_mean_pearson": 0.25174079540768485,
+      "mean_delta": 0.011458095062613787,
+      "directional_superiority": true,
+      "raw_wilcoxon_p": 0.037109375,
+      "p_holm_secondary": 0.037109375,
+      "significant_secondary_holm": true,
+      "p_holm_conservative_all_five": 0.111328125
+    }
+  },
+  "vs_A2": {
+    "directional_superiority": true,
+    "raw_wilcoxon_p": 0.037109375,
+    "p_holm_conservative_all_five": 0.111328125
+  },
+  "paper_safe_claims": {
+    "matched_greater_than_all_swaps_directionally": true,
+    "matched_significant_after_secondary_holm": true,
+    "matched_significant_after_conservative_all_five_holm": false,
+    "interpretation": "The matched prior is directionally superior to all three control swaps. This superiority is significant after Holm correction within the secondary family of three swap comparisons.  However, under the most conservative five-comparison Holm sensitivity analysis, not all swaps survive correction.  The random swap typically does not reach significance."
+  }
+}

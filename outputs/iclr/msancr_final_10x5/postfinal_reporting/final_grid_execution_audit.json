@@ -1,0 +1,158 @@
+{
+  "models": {
+    "A2_fc_laplacian": {
+      "observed_ridge_values": [
+        0.001,
+        0.01,
+        0.1,
+        1.0,
+        10.0,
+        100.0
+      ],
+      "observed_gamma_values": [
+        0.0
+      ],
+      "observed_lambda_l_values": [
+        0.03,
+        0.1,
+        0.5,
+        1.0,
+        2.0,
+        5.0
+      ],
+      "observed_lifting_values": [
+        "prod"
+      ],
+      "missing_from_ridge_grid": [],
+      "missing_from_gamma_grid": [
+        0.1,
+        0.25,
+        0.5,
+        1.0,
+        2.0
+      ],
+      "missing_from_lambda_l_grid": [],
+      "missing_from_lifting": [
+        "mean"
+      ],
+      "grid_match": true,
+      "note": "A2_fc_laplacian does not use the full gamma/lambda_l/lifting grid by design."
+    },
+    "A3_msancr": {
+      "observed_ridge_values": [
+        0.001,
+        0.01,
+        0.1,
+        1.0,
+        10.0,
+        100.0
+      ],
+      "observed_gamma_values": [
+        0.1,
+        0.25,
+        0.5,
+        1.0,
+        2.0
+      ],
+      "observed_lambda_l_values": [
+        0.03,
+        0.1,
+        0.5,
+        1.0,
+        2.0,
+        5.0
+      ],
+      "observed_lifting_values": [
+        "mean",
+        "prod"
+      ],
+      "missing_from_ridge_grid": [],
+      "missing_from_gamma_grid": [],
+      "missing_from_lambda_l_grid": [],
+      "missing_from_lifting": [],
+      "grid_match": true
+    },
+    "A4_iso_same_solver": {
+      "observed_ridge_values": [
+        0.001,
+        0.01,
+        0.1,
+        1.0,
+        10.0,
+        100.0
+      ],
+      "observed_gamma_values": [
+        0.0
+      ],
+      "observed_lambda_l_values": [
+        0.0
+      ],
+      "observed_lifting_values": [
+        "prod"
+      ],
+      "missing_from_ridge_grid": [],
+      "missing_from_gamma_grid": [
+        0.1,
+        0.25,
+        0.5,
+        1.0,
+        2.0
+      ],
+      "missing_from_lambda_l_grid": [
+        0.03,
+        0.1,
+        0.5,
+        1.0,
+        2.0,
+        5.0
+      ],
+      "missing_from_lifting": [
+        "mean"
+      ],
+      "grid_match": true,
+      "note": "A4_iso_same_solver does not use the full gamma/lambda_l/lifting grid by design."
+    },
+    "A4_modality_ridge": {
+      "observed_ridge_values": [
+        0.001,
+        0.01,
+        0.1,
+        1.0,
+        10.0,
+        100.0
+      ],
+      "observed_gamma_values": [
+        0.0
+      ],
+      "observed_lambda_l_values": [
+        0.0
+      ],
+      "observed_lifting_values": [
+        "prod"
+      ],
+      "missing_from_ridge_grid": [],
+      "missing_from_gamma_grid": [
+        0.1,
+        0.25,
+        0.5,
+        1.0,
+        2.0
+      ],
+      "missing_from_lambda_l_grid": [
+        0.03,
+        0.1,
+        0.5,
+        1.0,
+        2.0,
+        5.0
+      ],
+      "missing_from_lifting": [
+        "mean"
+      ],
+      "grid_match": true,
+      "note": "A4_modality_ridge does not use the full gamma/lambda_l/lifting grid by design."
+    }
+  },
+  "overall_grid_execution_valid": true,
+  "n_candidates_evaluated": 18810
+}
