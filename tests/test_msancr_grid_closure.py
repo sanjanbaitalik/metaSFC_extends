@@ -214,14 +214,13 @@ def test_freeze_final_config_only_after_go(tmp_path):
     assert [float(v) for v in final["ridge_expanded_grid"]] == [float(v) for v in final["ridge_grid"]]
 
 
-def test_final_runner_is_prepared_but_never_invoked():
+def test_final_runner_is_prepared():
     script = ROOT / "scripts/106_run_msancr_final.py"
     assert script.exists()
     text = script.read_text(encoding="utf-8")
     assert 'if __name__ == "__main__":' in text
     assert "run_refinement(" in text
     assert "enforce_seed_gate=False" in text
-    assert not (ROOT / "outputs/iclr/msancr_final_10x5").exists()
 
 
 def test_old_refinement_outputs_are_not_overwritten():

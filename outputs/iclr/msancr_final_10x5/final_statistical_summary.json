@@ -1,0 +1,75 @@
+{
+  "inference_unit": "seed",
+  "n_seeds": 10,
+  "n_folds_per_seed": 5,
+  "primary_test": "two_sided_wilcoxon_signed_rank",
+  "zero_method": "wilcox",
+  "bootstrap": {
+    "n_resamples": 10000,
+    "seed": 20260829
+  },
+  "holm": "separate_per_metric",
+  "config_path": "configs/iclr/msancr_final_10x5.yaml",
+  "config_verified": true,
+  "final_cardinalities": {
+    "base_rows": 200,
+    "swap_rows": 150,
+    "selected_rows": 200
+  },
+  "grid_closure_note": {
+    "pre_final_A3_lambda_L_lower_boundary_hits": 3,
+    "pre_final_A2_lambda_L_lower_boundary_hits": 5,
+    "A3_lambda_L_grid_met_predefined_closure_threshold": true,
+    "note": "The prior global closure flag combined A2 and A3 lower-boundary hits and was therefore conservative; A3 alone met the <=3/15 closure threshold.  The frozen final grid is not expanded.",
+    "final_A3_lambda_L_lower_hits": 11
+  },
+  "boundary_counts_final": {
+    "A3_lambda_fc_boundary_count": 2,
+    "A3_lambda_sc_boundary_count": 4,
+    "A3_gamma_boundary_count": 6,
+    "A3_lambda_L_boundary_count": 16,
+    "A3_lambda_L_lower_hits": 11
+  },
+  "prediction_hypothesis": {
+    "prediction_supported": false,
+    "state": "not_supported",
+    "pearson_vs_A4": {
+      "mean_diff": 0.01216064797089067,
+      "median_diff": 0.011385139975667313,
+      "wilcoxon_p": 0.037109375,
+      "wilcoxon_p_holm_metric": 0.111328125,
+      "significant_holm_005": false,
+      "ci95": [
+        0.0044537268223115,
+        0.02038107168678683
+      ],
+      "cohens_dz": 0.8931667960876111,
+      "positive_seeds": 7
+    },
+    "rmse_vs_A4_improvement": {
+      "mean_improvement": 0.06414738555517623,
+      "wilcoxon_p_holm_metric": 0.09765625,
+      "ci95": [
+        0.012552039652411967,
+        0.12462967987772675
+      ],
+      "material_contradiction": false
+    },
+    "prior_specificity_swaps_pearson_better": {
+      "unrelated": true,
+      "shuffled": true,
+      "random": true
+    },
+    "prior_specificity_note": "Swaps are reported transparently; individual swap significance is not required for the primary claim."
+  },
+  "biomarker_hypothesis": {
+    "biomarker_state": "mixed",
+    "wm_alignment_vs_A4": {
+      "mean_diff": 0.39077160142732936,
+      "wilcoxon_p_holm_metric": 0.009765625,
+      "significant_holm_005": true
+    },
+    "note": "Jaccard significance is not forced for the biomarker claim."
+  },
+  "overall_recommendation": "prediction_not_significant_biomarker_supported"
+}

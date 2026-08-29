@@ -1,0 +1,15 @@
+{
+  "swap_integrity": {
+    "n_checks": 150,
+    "n_pass": 150,
+    "n_fail": 0,
+    "failures": []
+  },
+  "leakage_audit": {
+    "outer_test_subjects_never_used_for_inner_selection": true,
+    "scaler_inner_training_fitted": true,
+    "outer_test_labels_used_exactly_once": true,
+    "same_outer_folds_base_and_swap": true,
+    "statistics_run_after_predictions_frozen": true
+  }
+}

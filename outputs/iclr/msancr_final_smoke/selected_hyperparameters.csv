@@ -1,0 +1,5 @@
+target,seed,fold,model_id,prior_type,lambda_fc,lambda_sc,lambda_l,gamma,lifting,selected_hyperparameter_hash,mean_inner_pearson,mean_inner_rmse,mean_inner_mae,selection_metric,pearson_tie_tolerance
+working_memory,0,0,A2_fc_laplacian,matched,0.01,1.0,0.03,0.0,prod,9f4841196b4a6078,0.28647368692671554,12.318305509869539,10.057655805372143,pearson,0.002
+working_memory,0,0,A3_msancr,matched,0.01,1.0,0.03,0.1,prod,81e7d57fdde7cdf7,0.2883546817151847,12.31469541820217,10.049980444149341,pearson,0.002
+working_memory,0,0,A4_iso_same_solver,uniform,1.0,1.0,0.0,0.0,prod,1a9d8a819b9f2772,0.23506014562921465,11.615998608639183,9.375970709901537,pearson,0.002
+working_memory,0,0,A4_modality_ridge,none,0.001,0.1,0.0,0.0,prod,7e6b367935337855,0.29682070030408075,12.41628326225584,10.095391783398663,pearson,0.002

@@ -1,0 +1,8 @@
+model_id,prior_type,seed,n_folds,n_fold_pairs,wm_alignment,rank_stability,top10_jaccard
+A4_modality_ridge,none,0,1,0,0.016045304540794877,0.0,0.0
+A4_iso_same_solver,uniform,0,1,0,0.1750596196926283,0.0,0.0
+A2_fc_laplacian,matched,0,1,0,-0.1786256703541763,0.0,0.0
+A3_msancr,matched,0,1,0,0.14631578954906094,0.0,0.0
+A3_msancr,unrelated,0,1,0,0.05421012505127821,0.0,0.0
+A3_msancr,shuffled,0,1,0,-0.025927919588817423,0.0,0.0
+A3_msancr,random,0,1,0,-0.07904553289481014,0.0,0.0

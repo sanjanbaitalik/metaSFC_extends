@@ -1081,6 +1081,7 @@ def finalize_refinement_outputs(
     elapsed_seconds: float,
     groups_available: bool,
     completed_full_grid: bool,
+    inference_status: str = "descriptive_only_n_equals_3_no_significance_claim",
 ) -> dict[str, Any]:
     split_df = pd.DataFrame(_read_records(output_dir / "split_metrics.csv"))
     swap_df = pd.DataFrame(_read_records(output_dir / "prior_swap_split_metrics.csv"))
@@ -1115,11 +1116,13 @@ def finalize_refinement_outputs(
     decision: dict[str, Any] = {
         "status": "complete" if completed_full_grid else "partial_smoke",
         "target": "working_memory",
+        "inference_status": inference_status,
     }
     if completed_full_grid:
         decision.update(make_refinement_decision(
             summary, comparisons, float(cfg["max_material_rmse_degradation"])
         ))
+        decision["inference_status"] = inference_status
     else:
         decision["recommended_next_step"] = "complete_full_3_seed_refinement_before_decision"
         decision["inference_status"] = "smoke_only"
@@ -1158,6 +1161,7 @@ def run_refinement(
     figure_dir_override: Optional[str | Path] = None,
     overwrite: bool = False,
     enforce_seed_gate: bool = True,
+    inference_status: str = "descriptive_only_n_equals_3_no_significance_claim",
 ) -> dict[str, Any]:
     validate_refinement_config(cfg, enforce_seed_gate=enforce_seed_gate)
     started = time.time()
@@ -1361,4 +1365,5 @@ def run_refinement(
     return finalize_refinement_outputs(
         output_dir, figure_dir, cfg, cfg_hash, time.time() - started,
         groups is not None, full,
+        inference_status=inference_status,
     )

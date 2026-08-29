@@ -1,0 +1,47 @@
+{
+  "status": "complete",
+  "target": "working_memory",
+  "inference_status": "deferred_to_final_inference_n10",
+  "recommended_next_step": "full_10x5_msancr",
+  "gate": {
+    "median_delta_pearson_vs_A4": 0.011385139975667313,
+    "mean_delta_pearson_vs_A4": 0.01216064797089067,
+    "positive_seeds_vs_A4": 7,
+    "median_threshold_go": 0.01,
+    "positive_seed_threshold_go": 2,
+    "preferred_mean_threshold": 0.01,
+    "preferred_mean_threshold_met": true,
+    "mean_delta_rmse_A3_minus_A4": -0.06414738555517623,
+    "max_material_rmse_degradation": 0.1,
+    "no_material_rmse_degradation": true,
+    "specificity_pass_count": 3,
+    "specificity_required": 2,
+    "go_primary_prediction_gate": true,
+    "go_all_requirements": true
+  },
+  "fixed_prior_swap_specificity": {
+    "unrelated": {
+      "mean_delta_pearson": 0.021251444143743192,
+      "median_delta_pearson": 0.02225154704396154,
+      "matched_better_mean_or_median": true
+    },
+    "shuffled": {
+      "mean_delta_pearson": 0.019256904149093597,
+      "median_delta_pearson": 0.019500763248990235,
+      "matched_better_mean_or_median": true
+    },
+    "random": {
+      "mean_delta_pearson": 0.011458095062613787,
+      "median_delta_pearson": 0.011354980255393846,
+      "matched_better_mean_or_median": true
+    }
+  },
+  "component_contribution": {
+    "A4_pearson": 0.2510382424994079,
+    "A2_pearson": 0.24947569473232983,
+    "A3_pearson": 0.2631988904702986,
+    "equivalence_tolerance": 0.005,
+    "ordering": "A2 ~= A4 and A3 > A4",
+    "interpretation": "interaction between anisotropy and Laplacian drives gain"
+  }
+}
