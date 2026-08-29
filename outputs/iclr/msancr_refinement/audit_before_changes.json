@@ -1,0 +1,80 @@
+{
+  "audit_date": "2026-08-29",
+  "scope": "MS-A-NCR v2 correctness patch and targeted Working-Memory refinement",
+  "repository_head_before_changes": "7bcbbfd887f4f4039c6a24fa431ee91f7aa00978",
+  "confirmed_issues": [
+    {
+      "id": "full_fc_anisotropy_missing",
+      "confirmed": true,
+      "detail": "The pilot solver computes D for all FC edges but applies D only to Laplacian-active FC edges. Inactive FC edges use lambda_fc times identity in both fitting and prediction, contrary to the stated full-FC objective."
+    },
+    {
+      "id": "invalid_ratio_only_eigencache",
+      "confirmed": true,
+      "detail": "The pilot caches eigenvalues of lambda_fc*D + lambda_L*L by lambda_L/lambda_fc only. Eigenvectors are ratio-invariant but the cached eigenvalues retain the absolute lambda_fc scale; cached and uncached solves therefore disagree across proportional penalty pairs."
+    },
+    {
+      "id": "incomplete_prior_controls",
+      "confirmed": true,
+      "detail": "The completed pilot config and outputs contain only matched and random priors. Unrelated and shuffled controls were not evaluated."
+    },
+    {
+      "id": "narrow_method_grid",
+      "confirmed": true,
+      "detail": "The completed pilot used only prod lifting, gamma in {0,1}, lambda_L in {0,1}, and lambda_fc/lambda_sc in {0.1,1,10}."
+    },
+    {
+      "id": "single_holdout_rmse_selection",
+      "confirmed": true,
+      "detail": "The pilot uses one deterministic 15% inner validation split and selects every model by validation RMSE, rather than 3-fold inner CV with Pearson as the primary endpoint."
+    },
+    {
+      "id": "a0_solver_mismatch",
+      "confirmed": true,
+      "detail": "A0 uses sklearn Ridge without the custom dual feature-count convention and does not refit on train+validation, while A4 and prior models use the custom dual formulation and refit. A4 remains the scientifically relevant no-prior comparator."
+    },
+    {
+      "id": "superficial_grid_tests",
+      "confirmed": true,
+      "detail": "Existing grid assertions use hard-coded lists and do not exercise the production config or runner path. Existing MS-A-NCR tests do not establish direct-primal equivalence or cache correctness."
+    },
+    {
+      "id": "proxy_biomarker_coefficients",
+      "confirmed": true,
+      "detail": "The existing MS-A-NCR node_saliency method uses X^T alpha as a proxy rather than the exact generalized-Ridge coefficient P^{-1}X^T alpha."
+    },
+    {
+      "id": "silent_candidate_failures",
+      "confirmed": true,
+      "detail": "The pilot catches all candidate exceptions without recording them and can fall back to zero predictions."
+    }
+  ],
+  "split_audit": {
+    "outer": "iter_nested_splits uses shuffled subject-wise KFold when groups is null and GroupKFold when groups are supplied.",
+    "pilot_inner": "Within each outer trainval partition, make_inner_split creates one deterministic train/validation split using seed*1000+fold.",
+    "refinement_required_inner": "Use a new deterministic 3-fold split restricted to each outer training partition; fit every scaler only on the corresponding inner-training indices.",
+    "family_groups_available": false,
+    "limitation": "No family/group file was found under inputs and configs set groups_path to null, so the refinement must retain subject-wise splitting and record this limitation."
+  },
+  "assumptions_revised": [
+    {
+      "original": "The existing eig_cache is a valid speed optimization.",
+      "revision": "It is invalid as implemented. The exact refinement will cache the eigendecomposition of D_active^{-1/2} L_active D_active^{-1/2}, whose basis is independent of lambda_fc and lambda_L."
+    },
+    {
+      "original": "The pilot evaluated 5 models x 2 targets x 4 priors x 2 liftings.",
+      "revision": "That table describes the intended design; the completed pilot actually evaluated 5 models x 2 targets x 2 priors x 1 lifting across 3 seeds x 5 folds (300 rows)."
+    },
+    {
+      "original": "The stated objective is unscaled.",
+      "revision": "The existing custom dual convention divides X P^{-1} X^T by 2*n_edges, equivalent to multiplying the written penalty by the feature-count scale. The refinement preserves this established convention and makes direct-primal tests include the same scale."
+    }
+  ],
+  "preservation_constraints": [
+    "Do not modify network_constrained_ridge.py.",
+    "Do not overwrite outputs/iclr/msancr_pilot or Phase-B outputs.",
+    "Use load_connectomes and the repository outer-split semantics.",
+    "Use seed means for final paired summaries; n=3 results are descriptive only.",
+    "Do not launch the final 10-seed x 5-fold experiment."
+  ]
+}

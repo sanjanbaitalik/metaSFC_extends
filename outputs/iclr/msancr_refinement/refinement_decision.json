@@ -1,0 +1,47 @@
+{
+  "status": "complete",
+  "target": "working_memory",
+  "recommended_next_step": "full_10x5_msancr",
+  "inference_status": "descriptive_only_n_equals_3_no_significance_claim",
+  "gate": {
+    "median_delta_pearson_vs_A4": 0.012905816248607926,
+    "mean_delta_pearson_vs_A4": 0.012772660315296891,
+    "positive_seeds_vs_A4": 3,
+    "median_threshold_go": 0.01,
+    "positive_seed_threshold_go": 2,
+    "preferred_mean_threshold": 0.01,
+    "preferred_mean_threshold_met": true,
+    "mean_delta_rmse_A3_minus_A4": -0.079278049500538,
+    "max_material_rmse_degradation": 0.1,
+    "no_material_rmse_degradation": true,
+    "specificity_pass_count": 3,
+    "specificity_required": 2,
+    "go_primary_prediction_gate": true,
+    "go_all_requirements": true
+  },
+  "fixed_prior_swap_specificity": {
+    "unrelated": {
+      "mean_delta_pearson": 0.027225509721868324,
+      "median_delta_pearson": 0.027980871426052822,
+      "matched_better_mean_or_median": true
+    },
+    "shuffled": {
+      "mean_delta_pearson": 0.01913856022994348,
+      "median_delta_pearson": 0.02091472865213201,
+      "matched_better_mean_or_median": true
+    },
+    "random": {
+      "mean_delta_pearson": 0.017069139886191954,
+      "median_delta_pearson": 0.014130440896361923,
+      "matched_better_mean_or_median": true
+    }
+  },
+  "component_contribution": {
+    "A4_pearson": 0.2689834268278486,
+    "A2_pearson": 0.2741842098559862,
+    "A3_pearson": 0.2817560871431455,
+    "equivalence_tolerance": 0.005,
+    "ordering": "A3 > A2 > A4",
+    "interpretation": "anisotropy + Laplacian are complementary"
+  }
+}

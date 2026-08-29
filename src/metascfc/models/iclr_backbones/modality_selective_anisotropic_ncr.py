@@ -1,13 +1,15 @@
 """Modality-Selective Anisotropic Network-Constrained Ridge (MS-A-NCR).
 
-Solves:
+Solves, using the repository's feature-count-scaled Ridge convention:
     min_β  ||y - Xβ||^2
          + λ_FC β_FC^T D(q;γ) β_FC
          + λ_SC ||β_SC||^2
          + λ_L  β_FC^T L_q β_FC
 
 where X = [FC, SC], β = [β_FC; β_SC], D is a prior-dependent diagonal
-shrinkage matrix, and L_q is an FC-only edge Laplacian from the prior.
+shrinkage matrix, and L_q is an FC-only edge Laplacian from the prior.  The
+written penalty is multiplied by ``s = 2 * n_edges`` internally, matching the
+existing NCR/generalized dual-Ridge baseline convention.
 
 SC receives ordinary Ridge (no prior).  FC receives anisotropic shrinkage
 plus network smoothing.
@@ -23,9 +25,7 @@ from sklearn.preprocessing import StandardScaler
 
 from metascfc.models.iclr_backbones.network_constrained_ridge import (
     EdgeLaplacian,
-    _LaplacianEig,
     build_edge_laplacian,
-    factor_laplacian_eig,
     node_saliency_from_beta,
 )
 
@@ -53,8 +53,17 @@ def compute_diagonal_penalty(
     -------
     D : (p,) diagonal penalty weights.  High D_e means MORE shrinkage.
     """
-    d = (epsilon + np.abs(np.asarray(edge_prior, dtype=np.float64))) ** (-gamma)
-    if normalize and d.mean() > 1e-12:
+    if gamma < 0:
+        raise ValueError(f"gamma must be non-negative, got {gamma}")
+    if epsilon <= 0:
+        raise ValueError(f"epsilon must be positive, got {epsilon}")
+    q = np.asarray(edge_prior, dtype=np.float64)
+    if not np.isfinite(q).all():
+        raise ValueError("edge_prior contains NaN/Inf values")
+    d = (epsilon + np.abs(q)) ** (-gamma)
+    if not np.isfinite(d).all() or np.any(d <= 0):
+        raise ValueError("diagonal penalty must be finite and strictly positive")
+    if normalize:
         d = d / d.mean()
     return d
 
@@ -109,9 +118,16 @@ class _MSANCRCache:
     active_indices: np.ndarray      # indices of active edges
     D_active: np.ndarray            # D at active indices
     active_laplacian: np.ndarray    # (n_active, n_active) Laplacian on active edges
-    eig: _LaplacianEig              # eigendecomposition of L_q
+    generalized_u: np.ndarray       # eigvecs of D_A^-1/2 L_A D_A^-1/2
+    generalized_mu: np.ndarray      # corresponding non-negative eigenvalues
     n_edges: int
     n_rois: int
+    gamma: float
+    lifting: str
+
+    @property
+    def n_active(self) -> int:
+        return int(len(self.active_indices))
 
 
 def build_msancr_cache(
@@ -124,21 +140,43 @@ def build_msancr_cache(
     weighting: str = "binary",
     couple_modalities: bool = False,
     normalize_laplacian: str = "sym",
+    edge_laplacian: Optional[EdgeLaplacian] = None,
 ) -> _MSANCRCache:
     """Precompute quantities that depend on (prior, gamma) only."""
+    if couple_modalities:
+        raise ValueError("MS-A-NCR is FC-selective; couple_modalities must be False")
     edge_prior = lift_roi_to_edge(roi_prior, n_rois, lifting)
     D = compute_diagonal_penalty(edge_prior, gamma, epsilon, normalize=True)
     D_inv_sqrt = 1.0 / np.sqrt(np.maximum(D, 1e-30))
 
-    edge_lap = build_edge_laplacian(
-        n_rois,
-        prior_scores=roi_prior,
-        top_k=top_k,
-        weighting=weighting,
-        couple_modalities=couple_modalities,
-        normalize=normalize_laplacian,
-    )
-    eig = factor_laplacian_eig(edge_lap)
+    edge_lap = edge_laplacian
+    if edge_lap is None:
+        edge_lap = build_edge_laplacian(
+            n_rois,
+            prior_scores=roi_prior,
+            top_k=top_k,
+            weighting=weighting,
+            couple_modalities=couple_modalities,
+            normalize=normalize_laplacian,
+        )
+    if edge_lap.n_rois != n_rois or edge_lap.n_edges != len(D):
+        raise ValueError("edge_laplacian dimensions do not match the prior/atlas")
+    if edge_lap.couple_modalities:
+        raise ValueError("MS-A-NCR requires an FC-only edge Laplacian")
+    active = edge_lap.active_indices
+    if len(active):
+        d_active_inv_sqrt = D_inv_sqrt[active]
+        whitened_laplacian = (
+            d_active_inv_sqrt[:, None]
+            * edge_lap.active_laplacian
+            * d_active_inv_sqrt[None, :]
+        )
+        whitened_laplacian = 0.5 * (whitened_laplacian + whitened_laplacian.T)
+        generalized_mu, generalized_u = np.linalg.eigh(whitened_laplacian)
+        generalized_mu = np.clip(generalized_mu, 0.0, None)
+    else:
+        generalized_u = np.empty((0, 0), dtype=np.float64)
+        generalized_mu = np.empty(0, dtype=np.float64)
     n_edges = int(n_rois * (n_rois - 1) / 2)
 
     return _MSANCRCache(
@@ -147,9 +185,12 @@ def build_msancr_cache(
         active_indices=edge_lap.active_indices,
         D_active=D[edge_lap.active_indices],
         active_laplacian=edge_lap.active_laplacian,
-        eig=eig,
+        generalized_u=generalized_u,
+        generalized_mu=generalized_mu,
         n_edges=n_edges,
         n_rois=n_rois,
+        gamma=float(gamma),
+        lifting=lifting,
     )
 
 
@@ -169,16 +210,27 @@ def _solve_msancr_kernel(
 
     Parameters
     ----------
-    eig_cache : optional dict mapping ratio -> (eigvals, eigvecs) for the
-        active penalty matrix.  When provided, repeated solves with the
-        same (gamma, lifting) but different (lambda_fc, lambda_l) reuse
-        eigendecompositions via the ratio r = lambda_l / lambda_fc.
+    eig_cache : deprecated compatibility argument.  The exact generalized
+        eigendecomposition is now stored in ``cache`` and is valid for every
+        positive lambda_fc and non-negative lambda_l.  This mapping is not
+        read or mutated.
 
     Returns (alpha, kernel_info) where kernel_info is a tuple of
     precomputed matrices for predictions on new data.
     """
+    del eig_cache
+    X_fc = np.asarray(X_fc, dtype=np.float64)
+    X_sc = np.asarray(X_sc, dtype=np.float64)
+    y = np.asarray(y, dtype=np.float64).reshape(-1)
+    if lambda_fc <= 0 or lambda_sc <= 0 or lambda_l < 0:
+        raise ValueError("lambda_fc/lambda_sc must be positive and lambda_l non-negative")
+    if X_fc.ndim != 2 or X_sc.ndim != 2 or X_fc.shape != X_sc.shape:
+        raise ValueError(f"Expected matched 2D FC/SC designs; got {X_fc.shape} and {X_sc.shape}")
+    if X_fc.shape[1] != cache.n_edges or len(y) != len(X_fc):
+        raise ValueError("MS-A-NCR design/target dimensions do not match the cache")
+
     n = X_fc.shape[0]
-    n_active = cache.eig.n_active
+    n_active = cache.n_active
     n_edges = cache.n_edges
 
     active = cache.active_indices
@@ -186,33 +238,25 @@ def _solve_msancr_kernel(
     inactive_fc_mask[active] = False
     inactive_fc_idx = np.where(inactive_fc_mask)[0]
 
-    # --- FC active block: P_fc_active = lambda_fc * diag(D_active) + lambda_l * L_q ---
-    # P_active = lambda_fc * (diag(D_active) + (lambda_l/lambda_fc) * L_active)
-    # Eigendecomposition depends only on ratio r = lambda_l / lambda_fc
+    # --- FC active block: P_A = lambda_fc D_A + lambda_l L_A ---
+    # If D_A^-1/2 L_A D_A^-1/2 = U diag(mu) U^T, then
+    # P_A^-1 = D_A^-1/2 U diag(1/(lambda_fc + lambda_l mu)) U^T D_A^-1/2.
+    # This generalized basis depends only on the prior/gamma/lifting cache.
     K_active = np.zeros((n, n), dtype=np.float64)
     if n_active > 0:
-        if lambda_fc > 0:
-            ratio = lambda_l / lambda_fc
-        else:
-            ratio = float(lambda_l) if lambda_l > 0 else 0.0
+        whitened_active = X_fc[:, active] * cache.D_inv_sqrt[active][None, :]
+        W = whitened_active @ cache.generalized_u
+        denom = lambda_fc + lambda_l * cache.generalized_mu
+        K_active = (W / denom) @ W.T
 
-        if eig_cache is not None and ratio in eig_cache:
-            eigvals, eigvecs = eig_cache[ratio]
-        else:
-            P_active = lambda_fc * np.diag(cache.D_active) + lambda_l * cache.active_laplacian
-            P_active = 0.5 * (P_active + P_active.T)
-            eigvals, eigvecs = np.linalg.eigh(P_active)
-            eigvals = np.maximum(eigvals, 1e-12)
-            if eig_cache is not None:
-                eig_cache[ratio] = (eigvals.copy(), eigvecs.copy())
-
-        W = X_fc[:, active] @ eigvecs
-        K_active = (W / eigvals) @ W.T
-
-    # --- FC inactive block: P_fc_inactive = lambda_fc * I (no prior weighting) ---
+    # --- FC inactive block: P_I = lambda_fc * diag(D_I) ---
     K_inactive_fc = np.zeros((n, n), dtype=np.float64)
     if len(inactive_fc_idx) > 0:
-        K_inactive_fc = (1.0 / lambda_fc) * (X_fc[:, inactive_fc_idx] @ X_fc[:, inactive_fc_idx].T)
+        whitened_inactive = (
+            X_fc[:, inactive_fc_idx]
+            * cache.D_inv_sqrt[inactive_fc_idx][None, :]
+        )
+        K_inactive_fc = (whitened_inactive @ whitened_inactive.T) / lambda_fc
 
     # --- SC block: P_sc = lambda_sc * I ---
     K_sc = (1.0 / lambda_sc) * (X_sc @ X_sc.T)
@@ -224,7 +268,7 @@ def _solve_msancr_kernel(
     # --- Solve ---
     alpha = np.linalg.solve(K + np.eye(n), y)
 
-    return alpha, (K_active, K_inactive_fc, K_sc, eigvals if n_active > 0 else None)
+    return alpha, (K_active, K_inactive_fc, K_sc, cache.generalized_mu)
 
 
 def _predict_msancr(
@@ -239,7 +283,7 @@ def _predict_msancr(
     lambda_l: float,
 ) -> np.ndarray:
     """Predict using the dual form."""
-    n_active = cache.eig.n_active
+    n_active = cache.n_active
     n_edges = cache.n_edges
     active = cache.active_indices
     inactive_fc_mask = np.ones(n_edges, dtype=bool)
@@ -249,27 +293,82 @@ def _predict_msancr(
     n_test = X_fc_new.shape[0]
     pred = np.zeros(n_test, dtype=np.float64)
 
+    if lambda_fc <= 0 or lambda_sc <= 0 or lambda_l < 0:
+        raise ValueError("lambda_fc/lambda_sc must be positive and lambda_l non-negative")
+
     # FC active
     if n_active > 0:
-        P_active = lambda_fc * np.diag(cache.D_active) + lambda_l * cache.active_laplacian
-        P_active = 0.5 * (P_active + P_active.T)
-        eigvals, eigvecs = np.linalg.eigh(P_active)
-        eigvals = np.maximum(eigvals, 1e-12)
-
-        W_train = X_fc_train[:, active] @ eigvecs
-        W_test = X_fc_new[:, active] @ eigvecs
-        K_test_active = (W_test / eigvals) @ W_train.T
+        W_train = (
+            X_fc_train[:, active] * cache.D_inv_sqrt[active][None, :]
+        ) @ cache.generalized_u
+        W_test = (
+            X_fc_new[:, active] * cache.D_inv_sqrt[active][None, :]
+        ) @ cache.generalized_u
+        denom = lambda_fc + lambda_l * cache.generalized_mu
+        K_test_active = (W_test / denom) @ W_train.T
         pred += K_test_active @ alpha
 
-    # FC inactive (ordinary ridge, no prior weighting)
+    # FC inactive (diagonal prior weighting, no Laplacian contribution)
     if len(inactive_fc_idx) > 0:
-        pred += (1.0 / lambda_fc) * (X_fc_new[:, inactive_fc_idx] @ X_fc_train[:, inactive_fc_idx].T) @ alpha
+        X_new_w = X_fc_new[:, inactive_fc_idx] * cache.D_inv_sqrt[inactive_fc_idx][None, :]
+        X_train_w = X_fc_train[:, inactive_fc_idx] * cache.D_inv_sqrt[inactive_fc_idx][None, :]
+        pred += (X_new_w @ X_train_w.T) @ alpha / lambda_fc
 
     # SC
     pred += (1.0 / lambda_sc) * (X_sc_new @ X_sc_train.T) @ alpha
 
     scale = float(max(1, n_edges * 2))
     return pred / scale
+
+
+def recover_msancr_beta(
+    X_fc_train: np.ndarray,
+    X_sc_train: np.ndarray,
+    alpha: np.ndarray,
+    cache: _MSANCRCache,
+    lambda_fc: float,
+    lambda_sc: float,
+    lambda_l: float,
+) -> Tuple[np.ndarray, np.ndarray]:
+    """Recover exact primal coefficients on standardized FC/SC features.
+
+    The returned vectors satisfy ``prediction_z = X_fc @ beta_fc +
+    X_sc @ beta_sc`` under the same feature-count-scaled objective used by
+    :func:`_solve_msancr_kernel`.
+    """
+    if lambda_fc <= 0 or lambda_sc <= 0 or lambda_l < 0:
+        raise ValueError("lambda_fc/lambda_sc must be positive and lambda_l non-negative")
+    X_fc_train = np.asarray(X_fc_train, dtype=np.float64)
+    X_sc_train = np.asarray(X_sc_train, dtype=np.float64)
+    alpha = np.asarray(alpha, dtype=np.float64).reshape(-1)
+    if X_fc_train.shape != X_sc_train.shape or len(alpha) != len(X_fc_train):
+        raise ValueError("Training designs and alpha have incompatible dimensions")
+
+    n_edges = cache.n_edges
+    scale = float(max(1, n_edges * 2))
+    active = cache.active_indices
+    inactive_mask = np.ones(n_edges, dtype=bool)
+    inactive_mask[active] = False
+    inactive = np.where(inactive_mask)[0]
+
+    beta_fc = np.zeros(n_edges, dtype=np.float64)
+    if len(active):
+        rhs_w = cache.D_inv_sqrt[active] * (X_fc_train[:, active].T @ alpha)
+        denom = lambda_fc + lambda_l * cache.generalized_mu
+        beta_fc[active] = (
+            cache.D_inv_sqrt[active]
+            * (cache.generalized_u @ ((cache.generalized_u.T @ rhs_w) / denom))
+            / scale
+        )
+    if len(inactive):
+        beta_fc[inactive] = (
+            (cache.D_inv_sqrt[inactive] ** 2)
+            * (X_fc_train[:, inactive].T @ alpha)
+            / (lambda_fc * scale)
+        )
+
+    beta_sc = (X_sc_train.T @ alpha) / (lambda_sc * scale)
+    return beta_fc, beta_sc
 
 
 class ModalitySelectiveAnisotropicNCR:
@@ -335,6 +434,14 @@ class ModalitySelectiveAnisotropicNCR:
         X_fc = np.asarray(X_fc, dtype=np.float64)
         X_sc = np.asarray(X_sc, dtype=np.float64)
         y = np.asarray(y, dtype=np.float64).reshape(-1)
+        if self.cache is None:
+            raise ValueError("cache is required")
+        if self.n_rois != self.cache.n_rois:
+            raise ValueError("n_rois does not match the supplied cache")
+        if not np.isclose(self.gamma, self.cache.gamma):
+            raise ValueError(
+                f"model gamma={self.gamma} does not match cache gamma={self.cache.gamma}"
+            )
 
         # Standardize on training data
         self.scaler_fc_ = StandardScaler()
@@ -376,17 +483,19 @@ class ModalitySelectiveAnisotropicNCR:
         )
         return pred_z * self.target_std_ + self.target_mean_
 
+    def beta(self) -> np.ndarray:
+        """Return exact FC+SC coefficients on standardized features."""
+        if self.alpha_ is None:
+            raise RuntimeError("beta() called before fit()")
+        beta_fc, beta_sc = recover_msancr_beta(
+            self.X_fc_train_, self.X_sc_train_, self.alpha_, self.cache,
+            self.lambda_fc, self.lambda_sc, self.lambda_l,
+        )
+        return np.concatenate([beta_fc, beta_sc])
+
     def node_saliency(self) -> np.ndarray:
         """ROI-level saliency (biomarker) of the learned weights."""
-        if self.alpha_ is None:
-            raise RuntimeError("node_saliency() called before fit()")
-        # Approximate beta from dual: beta = P^{-1} X^T alpha
-        # For simplicity, use |X^T alpha| as a proxy
-        n_edges = self.cache.n_edges
-        beta_fc = self.X_fc_train_.T @ self.alpha_
-        beta_sc = self.X_sc_train_.T @ self.alpha_
-        beta = np.concatenate([beta_fc, beta_sc])
-        return node_saliency_from_beta(beta, self.n_rois)
+        return node_saliency_from_beta(self.beta(), self.n_rois)
 
 
 # ---------------------------------------------------------------------------
@@ -416,7 +525,7 @@ def fit_predict_msancr(
     y = np.asarray(y, dtype=np.float64).reshape(-1)
 
     n_edges = cache.n_edges
-    n_active = cache.eig.n_active
+    n_active = cache.n_active
     active = cache.active_indices
     inactive_fc_mask = np.ones(n_edges, dtype=bool)
     inactive_fc_mask[active] = False

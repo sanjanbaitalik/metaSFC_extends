@@ -1,0 +1,31 @@
+{
+  "experiment_name": "msancr_refinement_working_memory_v2",
+  "config_hash": "4bb1e3a6b9993cee",
+  "target": "working_memory",
+  "seeds_configured": [
+    0,
+    1,
+    2
+  ],
+  "n_outer_folds": 5,
+  "n_inner_folds": 3,
+  "selection_metric": "mean_inner_validation_pearson",
+  "tie_breakers": [
+    "mean_rmse",
+    "mean_mae",
+    "simpler_configuration"
+  ],
+  "pearson_tie_tolerance": 0.002,
+  "group_aware": false,
+  "group_limitation": "No family IDs available; subject-wise CV retained.",
+  "feature_count_penalty_scale": "2*n_edges",
+  "full_fc_diagonal_penalty": true,
+  "fixed_prior_swap_controls": [
+    "unrelated",
+    "shuffled",
+    "random"
+  ],
+  "retuned_controls_run": false,
+  "elapsed_seconds": 103.16440343856812,
+  "completed_full_grid": true
+}
