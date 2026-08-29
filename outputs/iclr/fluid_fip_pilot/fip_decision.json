@@ -1,0 +1,25 @@
+{
+  "available_candidates": [
+    "FIP1_MAC",
+    "FIP2_Bridge",
+    "FIP3_Weaktie"
+  ],
+  "best_candidate_descriptive": "FIP1_MAC",
+  "inner_selected_candidate_distribution": {
+    "FIP1_MAC": 0.6,
+    "FIP2_Bridge": 0.4
+  },
+  "A4_pearson": 0.359314027870038,
+  "original_qwen_A3_pearson": 0.3410651245351226,
+  "fip_selected_pearson": 0.30363430755916115,
+  "mean_delta_pearson_vs_A4": -0.0556797203108769,
+  "median_delta_pearson_vs_A4": -0.051166054921898296,
+  "positive_seeds_vs_A4": 0,
+  "mean_delta_rmse_vs_A4": 0.0,
+  "mean_delta_mae_vs_A4": 0.0,
+  "matched_beats_shuffled": false,
+  "matched_beats_random": false,
+  "matched_beats_unrelated": false,
+  "fip_biomarker_alignment": 0.0,
+  "recommended_next_step": "consider_modification_2"
+}

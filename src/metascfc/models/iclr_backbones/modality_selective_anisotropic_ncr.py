@@ -141,24 +141,59 @@ def build_msancr_cache(
     couple_modalities: bool = False,
     normalize_laplacian: str = "sym",
     edge_laplacian: Optional[EdgeLaplacian] = None,
+    prior_space: str = "node",
 ) -> _MSANCRCache:
-    """Precompute quantities that depend on (prior, gamma) only."""
+    """Precompute quantities that depend on (prior, gamma) only.
+
+    Parameters
+    ----------
+    prior_space : str, default "node"
+        If "node", roi_prior is a (n_rois,) vector and lifting is applied.
+        If "edge", roi_prior is already an (n_edges,) edge-level vector;
+        lifting is skipped and the FIP edge vector is used directly as q_e.
+    """
     if couple_modalities:
         raise ValueError("MS-A-NCR is FC-selective; couple_modalities must be False")
-    edge_prior = lift_roi_to_edge(roi_prior, n_rois, lifting)
+    if prior_space == "edge":
+        edge_prior = np.asarray(roi_prior, dtype=np.float64).ravel()
+        if len(edge_prior) != n_rois * (n_rois - 1) // 2:
+            raise ValueError(
+                f"edge prior has {len(edge_prior)} entries; "
+                f"expected {n_rois * (n_rois - 1) // 2}"
+            )
+    else:
+        edge_prior = lift_roi_to_edge(roi_prior, n_rois, lifting)
     D = compute_diagonal_penalty(edge_prior, gamma, epsilon, normalize=True)
     D_inv_sqrt = 1.0 / np.sqrt(np.maximum(D, 1e-30))
 
     edge_lap = edge_laplacian
     if edge_lap is None:
-        edge_lap = build_edge_laplacian(
-            n_rois,
-            prior_scores=roi_prior,
-            top_k=top_k,
-            weighting=weighting,
-            couple_modalities=couple_modalities,
-            normalize=normalize_laplacian,
-        )
+        if prior_space == "edge":
+            # For edge-level priors, build a simple Laplacian from edge weights
+            # Select top_k edges by prior weight as active
+            top_k_actual = min(top_k, len(edge_prior))
+            active_by_weight = np.argsort(edge_prior)[-top_k_actual:] if top_k_actual > 0 else np.array([], dtype=int)
+            n_edges_total = n_rois * (n_rois - 1) // 2
+            active_laplacian = np.zeros((len(active_by_weight), len(active_by_weight)), dtype=np.float64)
+            from metascfc.models.iclr_backbones.network_constrained_ridge import EdgeLaplacian
+            edge_lap = EdgeLaplacian(
+                n_rois=n_rois,
+                n_edges=n_edges_total,
+                active_indices=active_by_weight,
+                active_laplacian=active_laplacian,
+                top_k=top_k,
+                weighting="fip_edge",
+                couple_modalities=False,
+            )
+        else:
+            edge_lap = build_edge_laplacian(
+                n_rois,
+                prior_scores=roi_prior,
+                top_k=top_k,
+                weighting=weighting,
+                couple_modalities=couple_modalities,
+                normalize=normalize_laplacian,
+            )
     if edge_lap.n_rois != n_rois or edge_lap.n_edges != len(D):
         raise ValueError("edge_laplacian dimensions do not match the prior/atlas")
     if edge_lap.couple_modalities:

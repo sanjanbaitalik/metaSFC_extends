@@ -1,0 +1,7 @@
+requested_term,available,matched_feature,notes
+fluid intelligence,True,title_search,found in Neurosynth metadata titles
+reasoning,True,title_search,found in Neurosynth metadata titles
+relational reasoning,True,title_search,found in Neurosynth metadata titles
+abstract reasoning,True,title_search,found in Neurosynth metadata titles
+matrix reasoning,True,title_search,found in Neurosynth metadata titles
+raven,True,title_search,found in Neurosynth metadata titles

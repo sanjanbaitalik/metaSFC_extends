@@ -1,0 +1,21 @@
+{
+  "neurosynth_available": true,
+  "nimare_installed": true,
+  "hcp_data_loaded": false,
+  "fluid_terms": [
+    "fluid intelligence",
+    "reasoning",
+    "relational reasoning",
+    "abstract reasoning",
+    "matrix reasoning",
+    "raven"
+  ],
+  "atlas": "AAL116",
+  "n_rois": 116,
+  "edge_convention": "upper_triangle_row_major",
+  "n_edges": 6670,
+  "coordinates_file": "/home/iemiedc2026/.nimare/neurosynth/data-neurosynth_version-7_coordinates.tsv.gz",
+  "metadata_file": "/home/iemiedc2026/.nimare/neurosynth/data-neurosynth_version-7_metadata.tsv.gz",
+  "atlas_labels": "inputs/atlases/AAL116_labels.csv",
+  "coarse_modules": "inputs/atlases/AAL116_coarse_modules.csv"
+}

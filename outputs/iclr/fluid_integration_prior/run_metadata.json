@@ -1,0 +1,10 @@
+{
+  "n_fluid_studies": 73,
+  "n_background_studies": 4886,
+  "n_repeats": 20,
+  "fip1_status": "constructed",
+  "fip2_status": "constructed",
+  "fip3_status": "constructed",
+  "external_prior_rule": "independent_of_hcp",
+  "hcp_data_loaded_during_construction": false
+}

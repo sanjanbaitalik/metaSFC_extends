@@ -1,0 +1,12 @@
+{
+  "seeds": [
+    0,
+    1,
+    2
+  ],
+  "recommendation": "consider_modification_2",
+  "fip_distribution": {
+    "FIP1_MAC": 0.6,
+    "FIP2_Bridge": 0.4
+  }
+}
