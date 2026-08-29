@@ -65,11 +65,15 @@ def atomic_write_json(value: Mapping[str, Any], path: str | Path) -> None:
     tmp.replace(path)
 
 
-def validate_refinement_config(cfg: Mapping[str, Any]) -> None:
+def validate_refinement_config(cfg: Mapping[str, Any], enforce_seed_gate: bool = True) -> None:
     if list(cfg.get("targets", {})) != ["working_memory"]:
         raise ValueError("The refinement config must contain Working Memory only")
-    if [int(s) for s in cfg.get("seeds", [])] != [0, 1, 2]:
-        raise ValueError("The refinement is restricted to seeds [0, 1, 2]")
+    seeds = [int(s) for s in cfg.get("seeds", [])]
+    if enforce_seed_gate:
+        if seeds != [0, 1, 2]:
+            raise ValueError("The refinement is restricted to seeds [0, 1, 2]")
+    elif seeds != list(range(10)):
+        raise ValueError("The final 10x5 runner requires seeds [0..9]")
     if int(cfg.get("n_outer_folds", 0)) != 5 or int(cfg.get("n_inner_folds", 0)) != 3:
         raise ValueError("The refinement requires 5 outer folds and 3 inner folds")
     prior_cfg = cfg.get("priors", {}).get("working_memory", {})
@@ -518,8 +522,9 @@ def tune_outer_split(
         float(a4_initial["lambda_fc"]) in (ridge_grid[0], ridge_grid[-1])
         or float(a4_initial["lambda_sc"]) in (ridge_grid[0], ridge_grid[-1])
     )
-    final_grid = expanded_grid if initial_boundary else ridge_grid
-    if initial_boundary:
+    expand = initial_boundary and expanded_grid != ridge_grid
+    final_grid = expanded_grid if expand else ridge_grid
+    if expand:
         expanded_fold, expanded_summary = evaluate_candidates(
             _candidates_for_ridge(expanded_grid, isotropic=False), inner_folds,
             cache_factory, "A_expanded", seed, outer_fold, MODEL_A4, "matched", prepared_cache,
@@ -1152,8 +1157,9 @@ def run_refinement(
     output_dir_override: Optional[str | Path] = None,
     figure_dir_override: Optional[str | Path] = None,
     overwrite: bool = False,
+    enforce_seed_gate: bool = True,
 ) -> dict[str, Any]:
-    validate_refinement_config(cfg)
+    validate_refinement_config(cfg, enforce_seed_gate=enforce_seed_gate)
     started = time.time()
     output_dir = Path(output_dir_override or cfg["output_dir"])
     figure_dir = Path(figure_dir_override or cfg["figures_dir"])
@@ -1343,7 +1349,14 @@ def run_refinement(
     }
     full = configured.issubset(completed_pairs)
     if full:
-        if len(base_df[base_df.seed.isin(cfg["seeds"])]) != 60 or len(swap_df[swap_df.seed.isin(cfg["seeds"])]) != 45:
+        n_cfg_seeds = len(cfg["seeds"])
+        n_outer = int(cfg["n_outer_folds"])
+        expected_base = n_cfg_seeds * n_outer * len(BASE_MODELS)
+        expected_swap = n_cfg_seeds * n_outer * len(CONTROL_PRIORS)
+        if (
+            len(base_df[base_df.seed.isin(cfg["seeds"])]) != expected_base
+            or len(swap_df[swap_df.seed.isin(cfg["seeds"])]) != expected_swap
+        ):
             raise RuntimeError("Full-grid cardinality check failed")
     return finalize_refinement_outputs(
         output_dir, figure_dir, cfg, cfg_hash, time.time() - started,

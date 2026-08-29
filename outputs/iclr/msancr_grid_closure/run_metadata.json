@@ -1,0 +1,60 @@
+{
+  "experiment_name": "msancr_grid_closure_working_memory",
+  "config_hash": "79551fc97a7bb907",
+  "target": "working_memory",
+  "seeds_configured": [
+    0,
+    1,
+    2
+  ],
+  "n_outer_folds": 5,
+  "n_inner_folds": 3,
+  "selection_metric": "mean_inner_validation_pearson",
+  "tie_breakers": [
+    "mean_rmse",
+    "mean_mae",
+    "simpler_configuration"
+  ],
+  "pearson_tie_tolerance": 0.002,
+  "group_aware": false,
+  "group_limitation": "No family IDs available; subject-wise CV retained.",
+  "feature_count_penalty_scale": "2*n_edges",
+  "full_fc_diagonal_penalty": true,
+  "fixed_prior_swap_controls": [
+    "unrelated",
+    "shuffled",
+    "random"
+  ],
+  "retuned_controls_run": false,
+  "elapsed_seconds": 133.89527559280396,
+  "completed_full_grid": true,
+  "grid_closure_decision_hash": "3ed3d7c1dbe1fb94",
+  "grid_closure_status": {
+    "closure_rule": "grid_closed = new-boundary selections <= 20% of outer splits",
+    "ridge_grid_closed": {
+      "description": "lambda_fc selected at the new 0.001 lower boundary",
+      "boundary_value": 0.001,
+      "n_boundary_selections": 1,
+      "n_outer_splits": 15,
+      "threshold_closed_max_selections": 3,
+      "grid_closed": true
+    },
+    "gamma_grid_closed": {
+      "description": "gamma selected at the new 0.1 lower boundary",
+      "boundary_value": 0.1,
+      "n_boundary_selections": 2,
+      "n_outer_splits": 15,
+      "threshold_closed_max_selections": 3,
+      "grid_closed": true
+    },
+    "lambda_L_grid_closed": {
+      "description": "lambda_L selected at the new 0.03 lower boundary",
+      "boundary_value": 0.03,
+      "n_boundary_selections": 5,
+      "n_outer_splits": 15,
+      "threshold_closed_max_selections": 3,
+      "grid_closed": false
+    }
+  },
+  "grid_closure_complete": true
+}

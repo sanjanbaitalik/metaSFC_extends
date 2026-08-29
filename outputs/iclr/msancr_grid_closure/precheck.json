@@ -1,0 +1,37 @@
+{
+  "purpose": "pre-full-run grid closure boundary confirmation",
+  "source_run": "outputs/iclr/msancr_refinement",
+  "source_config_hash": "4bb1e3a6b9993cee",
+  "source_completed": true,
+  "n_outer_splits": 15,
+  "confirmed_inner_cv_boundary_counts": {
+    "A4_final_lambda_fc_at_0.01": 4,
+    "A3_lambda_fc_at_0.01": 4,
+    "A3_gamma_at_0.25": 3,
+    "A3_lambda_L_at_0.1": 5,
+    "A2_lambda_L_at_0.1": 7,
+    "A4_splits_expanded_to_wider_grid": 13,
+    "A4_final_at_boundary_after_expansion": 4
+  },
+  "justified_grid_additions": {
+    "ridge_lower": {
+      "new_value": 0.001,
+      "evidence": "A4 final lambda_fc selected at expanded minimum 0.01 in 4/15 splits"
+    },
+    "gamma_lower": {
+      "new_value": 0.1,
+      "evidence": "A3 gamma selected at minimum 0.25 in 3/15 splits"
+    },
+    "lambda_L_lower": {
+      "new_value": 0.03,
+      "evidence": "A3 lambda_L selected at minimum 0.1 in 5/15 splits"
+    }
+  },
+  "explicitly_not_added": {
+    "ridge_intermediates": true,
+    "gamma_upper": true,
+    "lambda_L_upper": true,
+    "new_liftings": true
+  },
+  "conclusion": "inner-CV boundary closure required before final 10x5 run"
+}

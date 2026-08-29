@@ -1,0 +1,16 @@
+seed,fold,initial_grid_min,initial_grid_max,initial_lambda_fc,initial_lambda_sc,initial_boundary_selected,expanded,final_grid_min,final_grid_max,final_lambda_fc,final_lambda_sc,final_boundary_selected
+0,0,0.001,100.0,0.001,0.1,True,True,0.001,100.0,0.001,0.1,True
+0,1,0.001,100.0,0.1,1.0,False,False,0.001,100.0,0.1,1.0,False
+0,2,0.001,100.0,0.1,1.0,False,False,0.001,100.0,0.1,1.0,False
+0,3,0.001,100.0,1.0,1.0,False,False,0.001,100.0,1.0,1.0,False
+0,4,0.001,100.0,0.01,10.0,False,False,0.001,100.0,0.01,10.0,False
+1,0,0.001,100.0,1.0,10.0,False,False,0.001,100.0,1.0,10.0,False
+1,1,0.001,100.0,1.0,1.0,False,False,0.001,100.0,1.0,1.0,False
+1,2,0.001,100.0,0.1,1.0,False,False,0.001,100.0,0.1,1.0,False
+1,3,0.001,100.0,0.1,1.0,False,False,0.001,100.0,0.1,1.0,False
+1,4,0.001,100.0,0.1,1.0,False,False,0.001,100.0,0.1,1.0,False
+2,0,0.001,100.0,0.01,0.1,False,False,0.001,100.0,0.01,0.1,False
+2,1,0.001,100.0,0.1,1.0,False,False,0.001,100.0,0.1,1.0,False
+2,2,0.001,100.0,0.1,10.0,False,False,0.001,100.0,0.1,10.0,False
+2,3,0.001,100.0,0.01,1.0,False,False,0.001,100.0,0.01,1.0,False
+2,4,0.001,100.0,0.1,1.0,False,False,0.001,100.0,0.1,1.0,False
