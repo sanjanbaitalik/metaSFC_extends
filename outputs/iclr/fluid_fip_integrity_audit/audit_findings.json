@@ -1,0 +1,19 @@
+{
+  "a4_discrepancy": {
+    "cause": "FIP pilot A4 used fixed (lambda_fc=1,lambda_sc=1,lambda_l=0.5,gamma=0.5) vs verification inner CV (lambda_l=0.0,gamma=0.0,6x6 grid)",
+    "impact": "A4 inflated from ~0.345 to ~0.359"
+  },
+  "rmse_mae_zeros": {
+    "cause": "fip_decision.json hardcoded zeros",
+    "impact": "Misleading"
+  },
+  "biomarker_zeros": {
+    "cause": "No coefficient artifacts saved",
+    "impact": "Impossible without rerun"
+  },
+  "neurosynth_provenance": {
+    "cause": "~500k is entire DB not selected peaks",
+    "impact": "Misleading description"
+  },
+  "split_identity": "Identical"
+}

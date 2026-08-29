@@ -1,0 +1,13 @@
+{
+  "mod1_status": "VALIDATED_FAILURE",
+  "recommended_next_step": "modification_2_late_fusion",
+  "corrected_A4_pearson_mean": 0.34411495674442844,
+  "fip_selected_pearson_mean": 0.30363430755916115,
+  "median_delta_pearson": -0.03673677192967045,
+  "mean_delta_pearson": -0.04048064918526736,
+  "positive_seeds": 0,
+  "delta_rmse": 0.07838731402845767,
+  "delta_mae": 0.05177212846823457,
+  "fip_biomarker_alignment_mean": 0.030936760711575608,
+  "bug": "A4 used fixed hyperparams (lambda_l=0.5,gamma=0.5) instead of inner CV (lambda_l=0.0,gamma=0.0,6x6 grid)"
+}

@@ -1,0 +1,7 @@
+check,count,status
+positive_foreign_ids,0,PASS
+background_foreign_ids,0,PASS
+nan_study_ids,0,PASS
+dtype_mismatches,0,PASS
+positive_foreign_coordinate_rows,0,PASS
+background_foreign_coordinate_rows,0,PASS

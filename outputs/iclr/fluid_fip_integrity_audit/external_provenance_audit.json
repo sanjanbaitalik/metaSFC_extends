@@ -1,0 +1,9 @@
+{
+  "n_total_database_studies": 14371,
+  "n_total_database_coordinate_rows": 507891,
+  "n_positive_fluid_studies": 73,
+  "n_background_studies_available": 4886,
+  "n_background_studies_per_repeat": 73,
+  "n_positive_coordinate_rows": 3096,
+  "n_background_coordinate_rows_used_per_repeat": "subset of 181511"
+}

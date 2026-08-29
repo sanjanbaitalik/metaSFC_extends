@@ -1,0 +1,9 @@
+{
+  "n_rows": 73,
+  "n_columns": 116,
+  "density": 0.020784128483703354,
+  "mean_active_rois_per_study": 2.410958904109589,
+  "median_active_rois_per_study": 1.0,
+  "max_active_rois_per_study": 16,
+  "zero_roi_studies": 24
+}
