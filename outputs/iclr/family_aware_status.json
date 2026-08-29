@@ -1,0 +1,7 @@
+{
+  "status": "deferred",
+  "reason": "HCP Family_ID is restricted and not available before the current study deadline",
+  "family_aware_code_prepared": true,
+  "family_aware_results_available": false,
+  "paper_limitation_required": true
+}

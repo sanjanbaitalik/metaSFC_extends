@@ -1,0 +1,4 @@
+model_id,prior_type,evaluation_type,seed,pearson,rmse,mae,n_folds
+A3_msancr,random,fixed_prior_swap,0,0.5020629558283547,3.939344163968044,3.329638397911736,1
+A3_msancr,shuffled,fixed_prior_swap,0,0.5020441483171054,3.9393964617309902,3.329672201526688,1
+A3_msancr,unrelated,fixed_prior_swap,0,0.5021604216831157,3.9391900780339193,3.3297405590296143,1

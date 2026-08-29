@@ -1,0 +1,24 @@
+{
+  "n_seeds": 3,
+  "target": "fluid_intelligence",
+  "target_name": "Fluid Intelligence (PMAT24_A_CR)",
+  "group_aware": false,
+  "family_aware_status": "deferred_restricted_data_unavailable",
+  "A4_pearson": 0.34486460574236477,
+  "A2_pearson": 0.3448243315784192,
+  "A3_matched_pearson": 0.34120277494819157,
+  "A3_vs_A4": {
+    "mean_delta_pearson": -0.0036618307941732597,
+    "median_delta_pearson": -0.002207997763357117,
+    "positive_seeds": 1,
+    "mean_delta_rmse": 0.0072009831197619905,
+    "mean_delta_mae": -0.002504691807332371
+  },
+  "matched_prior_swaps": {
+    "vs_unrelated_mean_delta": -0.001684593827975737,
+    "vs_shuffled_mean_delta": 0.0001448588789111175,
+    "vs_random_mean_delta": -0.0016081659817067846
+  },
+  "recommendation": "stop_fluid_method_development",
+  "rationale": "Task-selective null: median \u0394Pearson = -0.0022 < 0.005 or positive seeds = 1/3 < 2. MS-A-NCR predictive benefit is stronger for Working Memory than Fluid Intelligence under the present external priors."
+}

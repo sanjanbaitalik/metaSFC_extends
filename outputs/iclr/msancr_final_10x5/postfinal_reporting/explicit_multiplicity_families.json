@@ -1,0 +1,44 @@
+{
+  "prior_specificity_3_holm": {
+    "A3_matched_vs_A3_unrelated_fixed|pearson": 0.005859375,
+    "A3_matched_vs_A3_shuffled_fixed|pearson": 0.005859375,
+    "A3_matched_vs_A3_random_fixed|pearson": 0.037109375,
+    "A3_matched_vs_A3_unrelated_fixed|rmse": 0.005859375,
+    "A3_matched_vs_A3_shuffled_fixed|rmse": 0.0078125,
+    "A3_matched_vs_A3_random_fixed|rmse": 0.009765625,
+    "A3_matched_vs_A3_unrelated_fixed|mae": 0.005859375,
+    "A3_matched_vs_A3_shuffled_fixed|mae": 0.0078125,
+    "A3_matched_vs_A3_random_fixed|mae": 0.0078125
+  },
+  "broad_secondary_4_holm": {
+    "A3_matched_vs_A2|pearson": 0.07421875,
+    "A3_matched_vs_A3_unrelated_fixed|pearson": 0.0078125,
+    "A3_matched_vs_A3_shuffled_fixed|pearson": 0.0078125,
+    "A3_matched_vs_A3_random_fixed|pearson": 0.07421875,
+    "A3_matched_vs_A2|rmse": 0.6953125,
+    "A3_matched_vs_A3_unrelated_fixed|rmse": 0.0078125,
+    "A3_matched_vs_A3_shuffled_fixed|rmse": 0.01171875,
+    "A3_matched_vs_A3_random_fixed|rmse": 0.01953125,
+    "A3_matched_vs_A2|mae": 0.232421875,
+    "A3_matched_vs_A3_unrelated_fixed|mae": 0.0078125,
+    "A3_matched_vs_A3_shuffled_fixed|mae": 0.01171875,
+    "A3_matched_vs_A3_random_fixed|mae": 0.01171875
+  },
+  "conservative_all_five_holm": {
+    "A3_matched_vs_A4|pearson": 0.111328125,
+    "A3_matched_vs_A2|pearson": 0.111328125,
+    "A3_matched_vs_A3_unrelated_fixed|pearson": 0.009765625,
+    "A3_matched_vs_A3_shuffled_fixed|pearson": 0.009765625,
+    "A3_matched_vs_A3_random_fixed|pearson": 0.111328125,
+    "A3_matched_vs_A4|rmse": 0.09765625,
+    "A3_matched_vs_A2|rmse": 0.6953125,
+    "A3_matched_vs_A3_unrelated_fixed|rmse": 0.009765625,
+    "A3_matched_vs_A3_shuffled_fixed|rmse": 0.015625,
+    "A3_matched_vs_A3_random_fixed|rmse": 0.029296875,
+    "A3_matched_vs_A4|mae": 0.0390625,
+    "A3_matched_vs_A2|mae": 0.232421875,
+    "A3_matched_vs_A3_unrelated_fixed|mae": 0.009765625,
+    "A3_matched_vs_A3_shuffled_fixed|mae": 0.015625,
+    "A3_matched_vs_A3_random_fixed|mae": 0.015625
+  }
+}

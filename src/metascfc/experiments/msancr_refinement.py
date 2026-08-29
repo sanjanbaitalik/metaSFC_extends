@@ -65,9 +65,11 @@ def atomic_write_json(value: Mapping[str, Any], path: str | Path) -> None:
     tmp.replace(path)
 
 
-def validate_refinement_config(cfg: Mapping[str, Any], enforce_seed_gate: bool = True) -> None:
-    if list(cfg.get("targets", {})) != ["working_memory"]:
-        raise ValueError("The refinement config must contain Working Memory only")
+def validate_refinement_config(cfg: Mapping[str, Any], enforce_seed_gate: bool = True,
+                               target_key: str = "working_memory") -> None:
+    targets = list(cfg.get("targets", {}))
+    if targets != [target_key]:
+        raise ValueError(f"The refinement config must contain target '{target_key}' only; found {targets}")
     seeds = [int(s) for s in cfg.get("seeds", [])]
     if enforce_seed_gate:
         if seeds != [0, 1, 2]:
@@ -76,7 +78,7 @@ def validate_refinement_config(cfg: Mapping[str, Any], enforce_seed_gate: bool =
         raise ValueError("The final 10x5 runner requires seeds [0..9]")
     if int(cfg.get("n_outer_folds", 0)) != 5 or int(cfg.get("n_inner_folds", 0)) != 3:
         raise ValueError("The refinement requires 5 outer folds and 3 inner folds")
-    prior_cfg = cfg.get("priors", {}).get("working_memory", {})
+    prior_cfg = cfg.get("priors", {}).get(target_key, {})
     missing = [name for name in REQUIRED_PRIORS if not prior_cfg.get(name)]
     if missing:
         raise ValueError(f"Missing required Working-Memory priors: {missing}")
@@ -1081,6 +1083,7 @@ def finalize_refinement_outputs(
     elapsed_seconds: float,
     groups_available: bool,
     completed_full_grid: bool,
+    target_key: str = "working_memory",
     inference_status: str = "descriptive_only_n_equals_3_no_significance_claim",
 ) -> dict[str, Any]:
     split_df = pd.DataFrame(_read_records(output_dir / "split_metrics.csv"))
@@ -1103,7 +1106,7 @@ def finalize_refinement_outputs(
         output_dir, expected_biomarkers,
         [int(v) for v in cfg["seeds"]] if completed_full_grid else sorted(combined.seed.unique()),
         int(cfg["n_outer_folds"]) if completed_full_grid else int(combined.fold.nunique()),
-        load_roi_prior(cfg["priors"]["working_memory"]["matched"], int(cfg["n_rois"])),
+        load_roi_prior(cfg["priors"][target_key]["matched"], int(cfg["n_rois"])),
     )
 
     atomic_write_csv(seed_df, output_dir / "seed_metrics.csv")
@@ -1115,7 +1118,7 @@ def finalize_refinement_outputs(
 
     decision: dict[str, Any] = {
         "status": "complete" if completed_full_grid else "partial_smoke",
-        "target": "working_memory",
+        "target": target_key,
         "inference_status": inference_status,
     }
     if completed_full_grid:
@@ -1130,7 +1133,7 @@ def finalize_refinement_outputs(
     metadata = {
         "experiment_name": cfg["experiment_name"],
         "config_hash": config_hash,
-        "target": "working_memory",
+        "target": target_key,
         "seeds_configured": cfg["seeds"],
         "n_outer_folds": int(cfg["n_outer_folds"]),
         "n_inner_folds": int(cfg["n_inner_folds"]),
@@ -1161,9 +1164,10 @@ def run_refinement(
     figure_dir_override: Optional[str | Path] = None,
     overwrite: bool = False,
     enforce_seed_gate: bool = True,
+    target_key: str = "working_memory",
     inference_status: str = "descriptive_only_n_equals_3_no_significance_claim",
 ) -> dict[str, Any]:
-    validate_refinement_config(cfg, enforce_seed_gate=enforce_seed_gate)
+    validate_refinement_config(cfg, enforce_seed_gate=enforce_seed_gate, target_key=target_key)
     started = time.time()
     output_dir = Path(output_dir_override or cfg["output_dir"])
     figure_dir = Path(figure_dir_override or cfg["figures_dir"])
@@ -1186,7 +1190,7 @@ def run_refinement(
         "experiment_name": cfg["experiment_name"],
         "config_hash": cfg_hash,
         "status": "running",
-        "target": "working_memory",
+        "target": target_key,
         "seeds_configured": cfg["seeds"],
         "n_outer_folds": int(cfg["n_outer_folds"]),
         "n_inner_folds": int(cfg["n_inner_folds"]),
@@ -1196,14 +1200,14 @@ def run_refinement(
     n_rois = int(fc.shape[1])
     if n_rois != int(cfg["n_rois"]):
         raise ValueError(f"Expected {cfg['n_rois']} ROIs, found {n_rois}")
-    target_info = cfg["targets"]["working_memory"]
+    target_info = cfg["targets"][target_key]
     y = np.load(target_info["label_path"], allow_pickle=False).astype(np.float64).reshape(-1)
     if len(y) != len(fc) or len(subject_ids) != len(y):
-        raise ValueError("Working-Memory labels/subject manifest do not align with connectomes")
+        raise ValueError(f"{target_key} labels/subject manifest do not align with connectomes")
     X_fc, X_sc = upper_triangle_features(fc), upper_triangle_features(sc)
 
     priors = {
-        name: load_roi_prior(cfg["priors"]["working_memory"][name], n_rois)
+        name: load_roi_prior(cfg["priors"][target_key][name], n_rois)
         for name in REQUIRED_PRIORS
     }
     cache_factory = CacheFactory(
@@ -1259,7 +1263,7 @@ def run_refinement(
                 beta_fc, beta_sc, saliency, hp_hash,
             )
             base_new.append({
-                "target": "working_memory", "seed": seed, "fold": fold,
+                "target": target_key, "seed": seed, "fold": fold,
                 "model_id": model_id, "prior_type": display_prior,
                 "evaluation_type": "retuned_base", "n_train": len(trainval_idx),
                 "n_test": len(test_idx), "test_indices_hash": stable_hash(test_idx.tolist()),
@@ -1269,7 +1273,7 @@ def run_refinement(
                 **prediction_metrics(y[test_idx], pred),
             })
             selected_new.append({
-                "target": "working_memory", "seed": seed, "fold": fold,
+                "target": target_key, "seed": seed, "fold": fold,
                 "model_id": model_id, "prior_type": display_prior,
                 **hp,
                 "selected_hyperparameter_hash": hp_hash,
@@ -1295,7 +1299,7 @@ def run_refinement(
                 beta_fc, beta_sc, saliency, matched_hash,
             )
             swap_new.append({
-                "target": "working_memory", "seed": seed, "fold": fold,
+                "target": target_key, "seed": seed, "fold": fold,
                 "model_id": MODEL_A3, "prior_type": control,
                 "evaluation_type": "fixed_prior_swap", "n_train": len(trainval_idx),
                 "n_test": len(test_idx), "test_indices_hash": stable_hash(test_idx.tolist()),
@@ -1365,5 +1369,6 @@ def run_refinement(
     return finalize_refinement_outputs(
         output_dir, figure_dir, cfg, cfg_hash, time.time() - started,
         groups is not None, full,
+        target_key=target_key,
         inference_status=inference_status,
     )

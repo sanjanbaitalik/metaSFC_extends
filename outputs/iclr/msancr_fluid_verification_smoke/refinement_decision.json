@@ -1,0 +1,6 @@
+{
+  "status": "partial_smoke",
+  "target": "fluid_intelligence",
+  "inference_status": "smoke_only",
+  "recommended_next_step": "complete_full_3_seed_refinement_before_decision"
+}

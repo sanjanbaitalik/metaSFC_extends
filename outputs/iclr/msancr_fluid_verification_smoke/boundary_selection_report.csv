@@ -1,0 +1,2 @@
+seed,fold,initial_grid_min,initial_grid_max,initial_lambda_fc,initial_lambda_sc,initial_boundary_selected,expanded,final_grid_min,final_grid_max,final_lambda_fc,final_lambda_sc,final_boundary_selected
+0,0,0.001,100.0,100.0,1.0,True,True,0.001,100.0,100.0,1.0,True

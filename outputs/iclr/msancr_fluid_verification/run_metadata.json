@@ -1,0 +1,31 @@
+{
+  "experiment_name": "msancr_fluid_verification_3seed",
+  "config_hash": "c74f46f823127777",
+  "target": "fluid_intelligence",
+  "seeds_configured": [
+    0,
+    1,
+    2
+  ],
+  "n_outer_folds": 5,
+  "n_inner_folds": 3,
+  "selection_metric": "mean_inner_validation_pearson",
+  "tie_breakers": [
+    "mean_rmse",
+    "mean_mae",
+    "simpler_configuration"
+  ],
+  "pearson_tie_tolerance": 0.002,
+  "group_aware": false,
+  "group_limitation": "No family IDs available; subject-wise CV retained.",
+  "feature_count_penalty_scale": "2*n_edges",
+  "full_fc_diagonal_penalty": true,
+  "fixed_prior_swap_controls": [
+    "unrelated",
+    "shuffled",
+    "random"
+  ],
+  "retuned_controls_run": false,
+  "elapsed_seconds": 3231.669600725174,
+  "completed_full_grid": true
+}

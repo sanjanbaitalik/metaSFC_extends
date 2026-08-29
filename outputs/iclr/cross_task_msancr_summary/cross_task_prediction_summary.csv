@@ -1,0 +1,3 @@
+task,A4_pearson,A2_pearson,A3_matched_pearson,delta_A3_minus_A4,positive_seeds,n_seeds,median_delta,interpretation
+Working Memory,0.2510,0.2495,0.2632,0.0122,7,10,0.0114,positive
+Fluid Intelligence,0.3449,0.3448,0.3412,-0.0037,1,3,-0.0022,null

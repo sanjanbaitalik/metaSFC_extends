@@ -1,0 +1,47 @@
+{
+  "status": "complete",
+  "target": "fluid_intelligence",
+  "inference_status": "descriptive_only_n_equals_3_no_significance_claim",
+  "recommended_next_step": "ct_mac_prior_rebuild",
+  "gate": {
+    "median_delta_pearson_vs_A4": -0.002207997763357117,
+    "mean_delta_pearson_vs_A4": -0.0036618307941732597,
+    "positive_seeds_vs_A4": 1,
+    "median_threshold_go": 0.01,
+    "positive_seed_threshold_go": 2,
+    "preferred_mean_threshold": 0.01,
+    "preferred_mean_threshold_met": false,
+    "mean_delta_rmse_A3_minus_A4": 0.0072009831197619905,
+    "max_material_rmse_degradation": 0.1,
+    "no_material_rmse_degradation": true,
+    "specificity_pass_count": 1,
+    "specificity_required": 2,
+    "go_primary_prediction_gate": false,
+    "go_all_requirements": false
+  },
+  "fixed_prior_swap_specificity": {
+    "unrelated": {
+      "mean_delta_pearson": -0.001684593827975737,
+      "median_delta_pearson": -0.001803391004997823,
+      "matched_better_mean_or_median": false
+    },
+    "shuffled": {
+      "mean_delta_pearson": 0.0001448588789111175,
+      "median_delta_pearson": -0.0004997771983463184,
+      "matched_better_mean_or_median": true
+    },
+    "random": {
+      "mean_delta_pearson": -0.0016081659817067846,
+      "median_delta_pearson": -0.001887742387420066,
+      "matched_better_mean_or_median": false
+    }
+  },
+  "component_contribution": {
+    "A4_pearson": 0.34486460574236477,
+    "A2_pearson": 0.34482433157841913,
+    "A3_pearson": 0.34120277494819157,
+    "equivalence_tolerance": 0.005,
+    "ordering": "A4 >= A3",
+    "interpretation": "prior does not improve prediction under corrected implementation"
+  }
+}

@@ -1,0 +1,219 @@
+{
+  "comparisons": {
+    "A3_matched_vs_A4": {
+      "metrics": {
+        "pearson": {
+          "n_resamples": 50,
+          "k_folds": 5,
+          "r_repeats": 10,
+          "mean_difference": 0.012160647970890675,
+          "sd_fold_difference": 0.03223996640937149,
+          "mean_test_train_ratio": 0.2500027631942525,
+          "corrected_se": 0.016752463678744448,
+          "corrected_t": 0.7259020645614128,
+          "df": 49,
+          "corrected_p_two_sided": 0.47135194184428886,
+          "direction_positive_is_A3_better": true
+        },
+        "rmse": {
+          "n_resamples": 50,
+          "k_folds": 5,
+          "r_repeats": 10,
+          "mean_difference": 0.06414738555517634,
+          "sd_fold_difference": 0.30156577375597354,
+          "mean_test_train_ratio": 0.2500027631942525,
+          "corrected_se": 0.15669897441738367,
+          "corrected_t": 0.4093669776313484,
+          "df": 49,
+          "corrected_p_two_sided": 0.6840543747790366,
+          "direction_positive_is_A3_better": true
+        },
+        "mae": {
+          "n_resamples": 50,
+          "k_folds": 5,
+          "r_repeats": 10,
+          "mean_difference": 0.07336211635500678,
+          "sd_fold_difference": 0.24489001237153,
+          "mean_test_train_ratio": 0.2500027631942525,
+          "corrected_se": 0.12724923424079065,
+          "corrected_t": 0.5765230478022793,
+          "df": 49,
+          "corrected_p_two_sided": 0.5669007829691717,
+          "direction_positive_is_A3_better": true
+        }
+      }
+    },
+    "A3_matched_vs_A2": {
+      "metrics": {
+        "pearson": {
+          "n_resamples": 50,
+          "k_folds": 5,
+          "r_repeats": 10,
+          "mean_difference": 0.013723195737968817,
+          "sd_fold_difference": 0.040855783498359666,
+          "mean_test_train_ratio": 0.2500027631942525,
+          "corrected_se": 0.021229396471206186,
+          "corrected_t": 0.6464242050678094,
+          "df": 49,
+          "corrected_p_two_sided": 0.5210210704781153,
+          "direction_positive_is_A3_better": true
+        },
+        "rmse": {
+          "n_resamples": 50,
+          "k_folds": 5,
+          "r_repeats": 10,
+          "mean_difference": 0.018098566304012777,
+          "sd_fold_difference": 0.23140415584626775,
+          "mean_test_train_ratio": 0.2500027631942525,
+          "corrected_se": 0.12024174177794045,
+          "corrected_t": 0.15051816479369345,
+          "df": 49,
+          "corrected_p_two_sided": 0.8809737346030089,
+          "direction_positive_is_A3_better": true
+        },
+        "mae": {
+          "n_resamples": 50,
+          "k_folds": 5,
+          "r_repeats": 10,
+          "mean_difference": 0.042735978325916066,
+          "sd_fold_difference": 0.2079663999689711,
+          "mean_test_train_ratio": 0.2500027631942525,
+          "corrected_se": 0.10806306426134231,
+          "corrected_t": 0.39547257537101066,
+          "df": 49,
+          "corrected_p_two_sided": 0.6942107250523579,
+          "direction_positive_is_A3_better": true
+        }
+      }
+    },
+    "A3_matched_vs_A3_unrelated_fixed": {
+      "metrics": {
+        "pearson": {
+          "n_resamples": 50,
+          "k_folds": 5,
+          "r_repeats": 10,
+          "mean_difference": 0.02125144414374319,
+          "sd_fold_difference": 0.02084183965644487,
+          "mean_test_train_ratio": 0.2500027631942525,
+          "corrected_se": 0.01082979297836108,
+          "corrected_t": 1.9623130549407108,
+          "df": 49,
+          "corrected_p_two_sided": 0.055417967933156786,
+          "direction_positive_is_A3_better": true
+        },
+        "rmse": {
+          "n_resamples": 50,
+          "k_folds": 5,
+          "r_repeats": 10,
+          "mean_difference": 0.11903226029859208,
+          "sd_fold_difference": 0.1404740370391798,
+          "mean_test_train_ratio": 0.2500027631942525,
+          "corrected_se": 0.07299282429219314,
+          "corrected_t": 1.630739205570417,
+          "df": 49,
+          "corrected_p_two_sided": 0.10935732419755584,
+          "direction_positive_is_A3_better": true
+        },
+        "mae": {
+          "n_resamples": 50,
+          "k_folds": 5,
+          "r_repeats": 10,
+          "mean_difference": 0.1390986721629586,
+          "sd_fold_difference": 0.13713567988073522,
+          "mean_test_train_ratio": 0.2500027631942525,
+          "corrected_se": 0.07125815415223719,
+          "corrected_t": 1.9520386658597095,
+          "df": 49,
+          "corrected_p_two_sided": 0.05666036879586267,
+          "direction_positive_is_A3_better": true
+        }
+      }
+    },
+    "A3_matched_vs_A3_shuffled_fixed": {
+      "metrics": {
+        "pearson": {
+          "n_resamples": 50,
+          "k_folds": 5,
+          "r_repeats": 10,
+          "mean_difference": 0.019256904149093593,
+          "sd_fold_difference": 0.025167698382205148,
+          "mean_test_train_ratio": 0.2500027631942525,
+          "corrected_se": 0.013077586610106724,
+          "corrected_t": 1.4725120714713005,
+          "df": 49,
+          "corrected_p_two_sided": 0.14727726007774344,
+          "direction_positive_is_A3_better": true
+        },
+        "rmse": {
+          "n_resamples": 50,
+          "k_folds": 5,
+          "r_repeats": 10,
+          "mean_difference": 0.09336785444449358,
+          "sd_fold_difference": 0.15623334321495191,
+          "mean_test_train_ratio": 0.2500027631942525,
+          "corrected_se": 0.08118164189080868,
+          "corrected_t": 1.1501104470155417,
+          "df": 49,
+          "corrected_p_two_sided": 0.2556806607939399,
+          "direction_positive_is_A3_better": true
+        },
+        "mae": {
+          "n_resamples": 50,
+          "k_folds": 5,
+          "r_repeats": 10,
+          "mean_difference": 0.08795146713776997,
+          "sd_fold_difference": 0.15986139146675066,
+          "mean_test_train_ratio": 0.2500027631942525,
+          "corrected_se": 0.08306684070867482,
+          "corrected_t": 1.0588035657480475,
+          "df": 49,
+          "corrected_p_two_sided": 0.2948809672721686,
+          "direction_positive_is_A3_better": true
+        }
+      }
+    },
+    "A3_matched_vs_A3_random_fixed": {
+      "metrics": {
+        "pearson": {
+          "n_resamples": 50,
+          "k_folds": 5,
+          "r_repeats": 10,
+          "mean_difference": 0.01145809506261379,
+          "sd_fold_difference": 0.026801850376625896,
+          "mean_test_train_ratio": 0.2500027631942525,
+          "corrected_se": 0.01392672123960571,
+          "corrected_t": 0.8227417541774671,
+          "df": 49,
+          "corrected_p_two_sided": 0.4146409148043868,
+          "direction_positive_is_A3_better": true
+        },
+        "rmse": {
+          "n_resamples": 50,
+          "k_folds": 5,
+          "r_repeats": 10,
+          "mean_difference": 0.07894121027970911,
+          "sd_fold_difference": 0.1612687839968901,
+          "mean_test_train_ratio": 0.2500027631942525,
+          "corrected_se": 0.08379814706127832,
+          "corrected_t": 0.9420400456108234,
+          "df": 49,
+          "corrected_p_two_sided": 0.3507936402507643,
+          "direction_positive_is_A3_better": true
+        },
+        "mae": {
+          "n_resamples": 50,
+          "k_folds": 5,
+          "r_repeats": 10,
+          "mean_difference": 0.09935531112443809,
+          "sd_fold_difference": 0.14712467620175124,
+          "mean_test_train_ratio": 0.2500027631942525,
+          "corrected_se": 0.07644861545514631,
+          "corrected_t": 1.299635193298321,
+          "df": 49,
+          "corrected_p_two_sided": 0.19980722099069537,
+          "direction_positive_is_A3_better": true
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,76 @@
+{
+  "layer_1_designated_primary": {
+    "test": "seed-aggregated paired Wilcoxon signed-rank",
+    "contrast": "A3 matched vs A4 modality-specific Ridge",
+    "metric": "Pearson",
+    "p_value": 0.037109375,
+    "significant_at_nominal_005": true,
+    "mean_delta_r": 0.01216064797089067,
+    "note": "Predesignated primary analysis. No multiplicity correction needed within a single contrast."
+  },
+  "layer_2_conservative_multiplicity": {
+    "test": "Holm correction across five comparisons (primary + secondary + control)",
+    "p_holm_all_five": 0.111328125,
+    "significant": false,
+    "note": "The five-comparison Holm sensitivity analysis groups the primary A3-vs-A4 contrast with four secondary/control comparisons.  This is a conservative upper bound on familywise error."
+  },
+  "layer_3_cv_dependence_sensitivity": {
+    "test": "Bouckaert-Frank / Nadeau-Bengio corrected repeated-k-fold t-test",
+    "corrected_p_two_sided": 0.47135194184428886,
+    "corrected_t": 0.7259020645614128,
+    "df": 49,
+    "mean_difference": 0.012160647970890675,
+    "sd_fold_difference": 0.03223996640937149,
+    "mean_test_train_ratio": 0.2500027631942525,
+    "significant": false,
+    "note": "Because repeated cross-validation partitions reuse the same participants, this corrected test inflates uncertainty for train/test overlap.  Conclusions from this sensitivity analysis are reported separately and do not trigger model retuning."
+  },
+  "multiplicity_families": {
+    "prior_specificity_3": {
+      "comparisons": [
+        "A3 vs unrelated",
+        "A3 vs shuffled",
+        "A3 vs random"
+      ],
+      "holm_adjusted_p_values": {
+        "unrelated_pearson": 0.005859375,
+        "shuffled_pearson": 0.005859375,
+        "random_pearson": 0.037109375
+      },
+      "note": "Holm within the 3 prior-identity controls only."
+    },
+    "broad_secondary_4": {
+      "comparisons": [
+        "A3 vs A2",
+        "A3 vs unrelated",
+        "A3 vs shuffled",
+        "A3 vs random"
+      ],
+      "holm_adjusted_p_values": {
+        "A2_pearson": 0.07421875,
+        "unrelated_pearson": 0.0078125,
+        "shuffled_pearson": 0.0078125,
+        "random_pearson": 0.07421875
+      },
+      "note": "Holm across the broader 4-comparison secondary/method family."
+    },
+    "conservative_all_five": {
+      "comparisons": [
+        "A3 vs A4",
+        "A3 vs A2",
+        "A3 vs unrelated",
+        "A3 vs shuffled",
+        "A3 vs random"
+      ],
+      "p_holm_all_five": 0.111328125,
+      "note": "Holm across all five comparisons. Preserved as-is from original analysis."
+    }
+  },
+  "recommended_interpretation": "The designated primary seed-aggregated paired analysis showed a positive A3-vs-A4 effect (mean \u0394r = 0.0122, p = 0.03711).  Because repeated cross-validation partitions reuse the same participants, we additionally report a corrected repeated-k-fold sensitivity analysis that inflates uncertainty for train/test overlap (corrected p = 0.47135).  Conclusions from this sensitivity analysis are reported separately and do not trigger model retuning.",
+  "prohibited_claims": [
+    "The corrected repeated-CV test is the one true test",
+    "The primary Wilcoxon is the only valid test",
+    "Both tests must be significant for the result to be valid",
+    "The conservative Holm analysis was never planned"
+  ]
+}

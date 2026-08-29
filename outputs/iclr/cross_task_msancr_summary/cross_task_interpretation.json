@@ -1,0 +1,21 @@
+{
+  "working_memory": {
+    "A3_vs_A4_mean_delta_pearson": 0.0121606479708906,
+    "A3_vs_A4_p_primary": 0.037109375,
+    "A3_vs_A4_p_holm_conservative": 0.111328125,
+    "A3_vs_A4_cv_corrected_p": 0.47135194184428886,
+    "prior_specificity": "matched > unrelated/shuffled/random (directional)",
+    "biomarker_alignment": "significant (Holm p=0.010)",
+    "fc_prior_signal": "positive (Audit 101 v2)",
+    "overall": "Primary contrast nominal significant; conservative Holm not; CV-corrected not; biomarker supported"
+  },
+  "fluid_intelligence": {
+    "A3_vs_A4_mean_delta_pearson": -0.0036618307941732597,
+    "A3_vs_A4_median_delta_pearson": -0.002207997763357117,
+    "positive_seeds": 1,
+    "overall": "Task-selective null. MS-A-NCR does not improve Fluid Intelligence prediction.",
+    "recommendation": "stop_fluid_method_development"
+  },
+  "does_benefit_track_prior_signal": "WM shows positive FC residual enrichment and positive A3-A4 prediction gain. Fluid Intelligence has not been audited for prior signal enrichment under the corrected solver. The observed task-specificity suggests the current Fluid prior may not capture task-relevant connectivity patterns, or the WM prior signal is stronger. No causal claim is made about prior signal magnitude predicting method benefit.",
+  "recommended_paper_wording": "MS-A-NCR improved Working Memory prediction (\u0394r = ..., p = ...) but not Fluid Intelligence (\u0394r = ..., 3 seeds). This task specificity is consistent with the hypothesis that the effectiveness of connectome-informed priors depends on the degree to which task-relevant connectivity patterns are captured by the external prior."
+}
