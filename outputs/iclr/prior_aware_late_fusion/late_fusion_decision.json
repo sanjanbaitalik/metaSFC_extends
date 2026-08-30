@@ -1,0 +1,23 @@
+{
+  "working_memory": {
+    "A4_pearson": 0.2743356206056656,
+    "LF0_pearson": 0.2707237339162988,
+    "LF1_pearson": 0.2847689404185516,
+    "LF2_matched_pearson": 0.2839624977232944,
+    "strongest_no_prior_pearson": 0.2743356206056656,
+    "mean_delta_vs_strongest_no_prior": 0.00962687711762883,
+    "positive_seeds": 1,
+    "status": "FAILURE"
+  },
+  "fluid_intelligence": {
+    "A4_pearson": 0.3237733333333333,
+    "LF0_pearson": 0.3634333333333333,
+    "LF1_pearson": 0.37936,
+    "LF2_matched_pearson": 0.3764066666666667,
+    "strongest_no_prior_pearson": 0.3634333333333333,
+    "mean_delta_vs_strongest_no_prior": 0.012973333333333448,
+    "positive_seeds": 1,
+    "status": "FAILURE"
+  },
+  "recommended_next_step": "consider_modification_3"
+}

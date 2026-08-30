@@ -237,6 +237,7 @@ def _solve_msancr_kernel(
     lambda_fc: float,
     lambda_sc: float,
     lambda_l: float,
+    fc_only: bool = False,
     eig_cache: Optional[Dict[float, Tuple[np.ndarray, np.ndarray]]] = None,
 ) -> Tuple[np.ndarray, np.ndarray]:
     """Compute dual coefficients alpha and the kernel for predictions.
@@ -245,22 +246,26 @@ def _solve_msancr_kernel(
 
     Parameters
     ----------
-    eig_cache : deprecated compatibility argument.  The exact generalized
-        eigendecomposition is now stored in ``cache`` and is valid for every
-        positive lambda_fc and non-negative lambda_l.  This mapping is not
-        read or mutated.
+    fc_only : bool, default False
+        If True, SC block is omitted entirely (FC-only prior-aware Ridge).
+        In this mode, lambda_sc is ignored and X_sc is not used.
 
     Returns (alpha, kernel_info) where kernel_info is a tuple of
     precomputed matrices for predictions on new data.
     """
     del eig_cache
     X_fc = np.asarray(X_fc, dtype=np.float64)
-    X_sc = np.asarray(X_sc, dtype=np.float64)
     y = np.asarray(y, dtype=np.float64).reshape(-1)
-    if lambda_fc <= 0 or lambda_sc <= 0 or lambda_l < 0:
-        raise ValueError("lambda_fc/lambda_sc must be positive and lambda_l non-negative")
-    if X_fc.ndim != 2 or X_sc.ndim != 2 or X_fc.shape != X_sc.shape:
-        raise ValueError(f"Expected matched 2D FC/SC designs; got {X_fc.shape} and {X_sc.shape}")
+    if lambda_fc <= 0 or lambda_l < 0:
+        raise ValueError("lambda_fc must be positive and lambda_l non-negative")
+    if not fc_only and lambda_sc <= 0:
+        raise ValueError("lambda_sc must be positive in FC+SC mode")
+    if X_fc.ndim != 2:
+        raise ValueError(f"Expected 2D FC design; got {X_fc.shape}")
+    if not fc_only:
+        X_sc = np.asarray(X_sc, dtype=np.float64)
+        if X_sc.ndim != 2 or X_fc.shape != X_sc.shape:
+            raise ValueError(f"Expected matched 2D FC/SC designs; got {X_fc.shape} and {X_sc.shape}")
     if X_fc.shape[1] != cache.n_edges or len(y) != len(X_fc):
         raise ValueError("MS-A-NCR design/target dimensions do not match the cache")
 
@@ -274,9 +279,6 @@ def _solve_msancr_kernel(
     inactive_fc_idx = np.where(inactive_fc_mask)[0]
 
     # --- FC active block: P_A = lambda_fc D_A + lambda_l L_A ---
-    # If D_A^-1/2 L_A D_A^-1/2 = U diag(mu) U^T, then
-    # P_A^-1 = D_A^-1/2 U diag(1/(lambda_fc + lambda_l mu)) U^T D_A^-1/2.
-    # This generalized basis depends only on the prior/gamma/lifting cache.
     K_active = np.zeros((n, n), dtype=np.float64)
     if n_active > 0:
         whitened_active = X_fc[:, active] * cache.D_inv_sqrt[active][None, :]
@@ -293,16 +295,20 @@ def _solve_msancr_kernel(
         )
         K_inactive_fc = (whitened_inactive @ whitened_inactive.T) / lambda_fc
 
-    # --- SC block: P_sc = lambda_sc * I ---
-    K_sc = (1.0 / lambda_sc) * (X_sc @ X_sc.T)
+    # --- SC block ---
+    if fc_only:
+        K = K_active + K_inactive_fc
+    else:
+        K_sc = (1.0 / lambda_sc) * (X_sc @ X_sc.T)
+        K = K_active + K_inactive_fc + K_sc
 
-    # --- Total kernel ---
-    K = K_active + K_inactive_fc + K_sc
     K = K / float(max(1, n_edges * 2))
 
     # --- Solve ---
     alpha = np.linalg.solve(K + np.eye(n), y)
 
+    if fc_only:
+        return alpha, (K_active, K_inactive_fc, None, cache.generalized_mu)
     return alpha, (K_active, K_inactive_fc, K_sc, cache.generalized_mu)
 
 
@@ -316,6 +322,7 @@ def _predict_msancr(
     lambda_fc: float,
     lambda_sc: float,
     lambda_l: float,
+    fc_only: bool = False,
 ) -> np.ndarray:
     """Predict using the dual form."""
     n_active = cache.n_active
@@ -328,8 +335,8 @@ def _predict_msancr(
     n_test = X_fc_new.shape[0]
     pred = np.zeros(n_test, dtype=np.float64)
 
-    if lambda_fc <= 0 or lambda_sc <= 0 or lambda_l < 0:
-        raise ValueError("lambda_fc/lambda_sc must be positive and lambda_l non-negative")
+    if lambda_fc <= 0 or lambda_l < 0:
+        raise ValueError("lambda_fc must be positive and lambda_l non-negative")
 
     # FC active
     if n_active > 0:
@@ -349,8 +356,9 @@ def _predict_msancr(
         X_train_w = X_fc_train[:, inactive_fc_idx] * cache.D_inv_sqrt[inactive_fc_idx][None, :]
         pred += (X_new_w @ X_train_w.T) @ alpha / lambda_fc
 
-    # SC
-    pred += (1.0 / lambda_sc) * (X_sc_new @ X_sc_train.T) @ alpha
+    # SC (only if not fc_only)
+    if not fc_only:
+        pred += (1.0 / lambda_sc) * (X_sc_new @ X_sc_train.T) @ alpha
 
     scale = float(max(1, n_edges * 2))
     return pred / scale
@@ -364,19 +372,23 @@ def recover_msancr_beta(
     lambda_fc: float,
     lambda_sc: float,
     lambda_l: float,
+    fc_only: bool = False,
 ) -> Tuple[np.ndarray, np.ndarray]:
     """Recover exact primal coefficients on standardized FC/SC features.
 
     The returned vectors satisfy ``prediction_z = X_fc @ beta_fc +
     X_sc @ beta_sc`` under the same feature-count-scaled objective used by
     :func:`_solve_msancr_kernel`.
+
+    If fc_only=True, beta_sc is returned as zeros (SC is unused).
     """
-    if lambda_fc <= 0 or lambda_sc <= 0 or lambda_l < 0:
-        raise ValueError("lambda_fc/lambda_sc must be positive and lambda_l non-negative")
+    if lambda_fc <= 0 or lambda_l < 0:
+        raise ValueError("lambda_fc must be positive and lambda_l non-negative")
     X_fc_train = np.asarray(X_fc_train, dtype=np.float64)
-    X_sc_train = np.asarray(X_sc_train, dtype=np.float64)
+    if not fc_only:
+        X_sc_train = np.asarray(X_sc_train, dtype=np.float64)
     alpha = np.asarray(alpha, dtype=np.float64).reshape(-1)
-    if X_fc_train.shape != X_sc_train.shape or len(alpha) != len(X_fc_train):
+    if len(alpha) != len(X_fc_train):
         raise ValueError("Training designs and alpha have incompatible dimensions")
 
     n_edges = cache.n_edges
@@ -402,7 +414,10 @@ def recover_msancr_beta(
             / (lambda_fc * scale)
         )
 
-    beta_sc = (X_sc_train.T @ alpha) / (lambda_sc * scale)
+    if fc_only:
+        beta_sc = np.zeros(X_fc_train.shape[1], dtype=np.float64)
+    else:
+        beta_sc = (X_sc_train.T @ alpha) / (lambda_sc * scale)
     return beta_fc, beta_sc
 
 
@@ -417,7 +432,7 @@ class ModalitySelectiveAnisotropicNCR:
     lambda_fc : float
         Ridge penalty for FC (modulates D).
     lambda_sc : float
-        Ridge penalty for SC (isotropic).
+        Ridge penalty for SC (isotropic). Ignored when fc_only=True.
     lambda_l : float
         Laplacian smoothing strength for FC.
     gamma : float
@@ -426,6 +441,8 @@ class ModalitySelectiveAnisotropicNCR:
         Precomputed prior-dependent quantities.
     n_rois : int
         Atlas size.
+    fc_only : bool, default False
+        If True, FC-only prior-aware Ridge (no SC branch).
     """
 
     def __init__(
@@ -436,6 +453,7 @@ class ModalitySelectiveAnisotropicNCR:
         gamma: float = 0.0,
         cache: Optional[_MSANCRCache] = None,
         n_rois: int = 116,
+        fc_only: bool = False,
     ) -> None:
         self.lambda_fc = float(lambda_fc)
         self.lambda_sc = float(lambda_sc)
@@ -443,6 +461,7 @@ class ModalitySelectiveAnisotropicNCR:
         self.gamma = float(gamma)
         self.cache = cache
         self.n_rois = n_rois
+        self.fc_only = bool(fc_only)
 
         self.scaler_fc_: Optional[StandardScaler] = None
         self.scaler_sc_: Optional[StandardScaler] = None
@@ -463,7 +482,7 @@ class ModalitySelectiveAnisotropicNCR:
         Parameters
         ----------
         X_fc : (n, n_edges) FC upper-triangle features.
-        X_sc : (n, n_edges) SC upper-triangle features.
+        X_sc : (n, n_edges) SC upper-triangle features. Ignored when fc_only.
         y : (n,) target values.
         """
         X_fc = np.asarray(X_fc, dtype=np.float64)
@@ -480,9 +499,14 @@ class ModalitySelectiveAnisotropicNCR:
 
         # Standardize on training data
         self.scaler_fc_ = StandardScaler()
-        self.scaler_sc_ = StandardScaler()
         X_fc_z = self.scaler_fc_.fit_transform(X_fc)
-        X_sc_z = self.scaler_sc_.fit_transform(X_sc)
+
+        if not self.fc_only:
+            self.scaler_sc_ = StandardScaler()
+            X_sc_z = self.scaler_sc_.fit_transform(X_sc)
+        else:
+            self.scaler_sc_ = None
+            X_sc_z = np.zeros_like(X_fc_z)
 
         self.target_mean_ = float(y.mean())
         y_std = float(y.std())
@@ -493,6 +517,7 @@ class ModalitySelectiveAnisotropicNCR:
         self.alpha_, _ = _solve_msancr_kernel(
             X_fc_z, X_sc_z, y_z, self.cache,
             self.lambda_fc, self.lambda_sc, self.lambda_l,
+            fc_only=self.fc_only,
         )
         self.X_fc_train_ = X_fc_z
         self.X_sc_train_ = X_sc_z
@@ -507,14 +532,20 @@ class ModalitySelectiveAnisotropicNCR:
         if self.alpha_ is None:
             raise RuntimeError("predict() called before fit()")
         X_fc = np.asarray(X_fc, dtype=np.float64)
-        X_sc = np.asarray(X_sc, dtype=np.float64)
         X_fc_z = self.scaler_fc_.transform(X_fc)
-        X_sc_z = self.scaler_sc_.transform(X_sc)
+
+        if not self.fc_only:
+            X_sc = np.asarray(X_sc, dtype=np.float64)
+            X_sc_z = self.scaler_sc_.transform(X_sc)
+        else:
+            X_sc_z = np.zeros_like(X_fc_z)
+
         pred_z = _predict_msancr(
             X_fc_z, X_sc_z,
             self.X_fc_train_, self.X_sc_train_,
             self.alpha_, self.cache,
             self.lambda_fc, self.lambda_sc, self.lambda_l,
+            fc_only=self.fc_only,
         )
         return pred_z * self.target_std_ + self.target_mean_
 
@@ -525,6 +556,7 @@ class ModalitySelectiveAnisotropicNCR:
         beta_fc, beta_sc = recover_msancr_beta(
             self.X_fc_train_, self.X_sc_train_, self.alpha_, self.cache,
             self.lambda_fc, self.lambda_sc, self.lambda_l,
+            fc_only=self.fc_only,
         )
         return np.concatenate([beta_fc, beta_sc])
 
@@ -549,6 +581,7 @@ def fit_predict_msancr(
     lambda_sc_grid: Sequence[float],
     lambda_l_grid: Sequence[float],
     n_rois: int = 116,
+    fc_only: bool = False,
 ) -> Tuple[np.ndarray, float, float, float, float, dict]:
     """Nested hyperparameter selection for MS-A-NCR.
 
@@ -568,30 +601,38 @@ def fit_predict_msancr(
 
     # --- Inner training partition (selection) ---
     scaler_fc = StandardScaler()
-    scaler_sc = StandardScaler()
     X_fc_train = scaler_fc.fit_transform(X_fc[train_idx])
-    X_sc_train = scaler_sc.fit_transform(X_sc[train_idx])
+    if fc_only:
+        X_sc_train = np.zeros_like(X_fc_train)
+    else:
+        scaler_sc = StandardScaler()
+        X_sc_train = scaler_sc.fit_transform(X_sc[train_idx])
     y_mean = float(y[train_idx].mean())
     y_std = max(float(y[train_idx].std()), 1e-8)
     y_z = (y[train_idx] - y_mean) / y_std
 
     X_fc_val = scaler_fc.transform(X_fc[val_idx])
-    X_sc_val = scaler_sc.transform(X_sc[val_idx])
+    if fc_only:
+        X_sc_val = np.zeros_like(X_fc_val)
+    else:
+        X_sc_val = scaler_sc.transform(X_sc[val_idx])
 
     best = (float("inf"), None, None, None)
 
     for lambda_fc in lambda_fc_grid:
-        for lambda_sc in lambda_sc_grid:
+        for lambda_sc in lambda_sc_grid if not fc_only else [1.0]:
             for lambda_l in lambda_l_grid:
                 try:
                     alpha, _ = _solve_msancr_kernel(
                         X_fc_train, X_sc_train, y_z, cache,
                         lambda_fc, lambda_sc, lambda_l,
+                        fc_only=fc_only,
                     )
                     pred_z = _predict_msancr(
                         X_fc_val, X_sc_val,
                         X_fc_train, X_sc_train,
                         alpha, cache, lambda_fc, lambda_sc, lambda_l,
+                        fc_only=fc_only,
                     )
                     pred = pred_z * y_std + y_mean
                     rmse = float(np.sqrt(np.mean((y[val_idx] - pred) ** 2)))
@@ -602,17 +643,23 @@ def fit_predict_msancr(
 
     best_rmse, best_lfc, best_lsc, best_ll = best
     if best_lfc is None:
-        # Fallback to isotropic ridge
         best_lfc, best_lsc, best_ll = lambda_fc_grid[0], lambda_sc_grid[0], 0.0
 
     # --- Refit on train + val, predict test ---
     fit_idx = np.concatenate([train_idx, val_idx])
     final_fc = StandardScaler()
-    final_sc = StandardScaler()
     X_fc_fit = final_fc.fit_transform(X_fc[fit_idx])
-    X_sc_fit = final_sc.fit_transform(X_sc[fit_idx])
+    if fc_only:
+        X_sc_fit = np.zeros_like(X_fc_fit)
+        final_sc = None
+    else:
+        final_sc = StandardScaler()
+        X_sc_fit = final_sc.fit_transform(X_sc[fit_idx])
     X_fc_test = final_fc.transform(X_fc[test_idx])
-    X_sc_test = final_sc.transform(X_sc[test_idx])
+    if fc_only:
+        X_sc_test = np.zeros_like(X_fc_test)
+    else:
+        X_sc_test = final_sc.transform(X_sc[test_idx])
 
     fit_mean = float(y[fit_idx].mean())
     fit_std = max(float(y[fit_idx].std()), 1e-8)
@@ -621,11 +668,13 @@ def fit_predict_msancr(
     alpha, _ = _solve_msancr_kernel(
         X_fc_fit, X_sc_fit, y_fit_z, cache,
         best_lfc, best_lsc, best_ll,
+        fc_only=fc_only,
     )
     pred_z = _predict_msancr(
         X_fc_test, X_sc_test,
         X_fc_fit, X_sc_fit,
         alpha, cache, best_lfc, best_lsc, best_ll,
+        fc_only=fc_only,
     )
     pred = pred_z * fit_std + fit_mean
 
@@ -634,5 +683,6 @@ def fit_predict_msancr(
         "best_lambda_sc": best_lsc,
         "best_lambda_l": best_ll,
         "n_active": n_active,
+        "fc_only": fc_only,
     }
     return pred, best_lfc, best_lsc, best_ll, best_rmse, info
