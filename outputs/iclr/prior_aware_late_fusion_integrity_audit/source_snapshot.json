@@ -1,0 +1,22 @@
+{
+  "audit_date": "2026-08-30",
+  "prompt_version": "v13",
+  "source_files_audited": [
+    "src/metascfc/experiments/prior_aware_late_fusion.py",
+    "scripts/113_run_prior_aware_late_fusion.py",
+    "configs/iclr/prior_aware_late_fusion.yaml",
+    "tests/test_fc_only_msancr.py",
+    "tests/test_prior_aware_late_fusion.py"
+  ],
+  "output_files_audited": [
+    "outputs/iclr/prior_aware_late_fusion/working_memory/seed_metrics.csv",
+    "outputs/iclr/prior_aware_late_fusion/working_memory/split_metrics.csv",
+    "outputs/iclr/prior_aware_late_fusion/fluid_intelligence/seed_metrics.csv",
+    "outputs/iclr/prior_aware_late_fusion/fluid_intelligence/split_metrics.csv",
+    "outputs/iclr/prior_aware_late_fusion/late_fusion_decision.json"
+  ],
+  "reference_files": [
+    "outputs/iclr/msancr_grid_closure/seed_metrics.csv",
+    "outputs/iclr/msancr_fluid_verification/seed_metrics.csv"
+  ]
+}

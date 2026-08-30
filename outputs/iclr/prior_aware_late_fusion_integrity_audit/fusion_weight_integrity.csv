@@ -1,0 +1,2 @@
+note
+Fusion weights not saved to split_metrics.csv due to code bug — they were appended to split_rows but the CSV was written before that

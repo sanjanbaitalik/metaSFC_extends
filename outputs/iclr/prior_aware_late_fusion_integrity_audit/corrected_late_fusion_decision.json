@@ -1,0 +1,86 @@
+{
+  "working_memory": {
+    "A4_pearson": 0.2743356206056655,
+    "LF0_pearson": 0.2707237339162987,
+    "LF1_pearson": 0.2847689404185516,
+    "LF2_pearson": 0.28396249772329446,
+    "strongest_no_prior": "A4",
+    "strongest_no_prior_pearson": 0.2743356206056655,
+    "LF1_vs_strongest": {
+      "seed_deltas": [
+        -0.0004184974640191186,
+        0.0234375705771796,
+        0.008280886325497838
+      ],
+      "mean": 0.010433319812886107,
+      "median": 0.008280886325497838,
+      "positive_seeds": 2,
+      "status": "PROMISING"
+    },
+    "LF2_vs_strongest": {
+      "seed_deltas": [
+        -0.003191293524505423,
+        0.028805937604491294,
+        0.00326598727290095
+      ],
+      "mean": 0.00962687711762894,
+      "median": 0.00326598727290095,
+      "positive_seeds": 2,
+      "status": "FAILURE"
+    },
+    "lf1_controls": {
+      "lf1_matched_pearson": 0.2794563208936717,
+      "unrelated_mean": 0.2568200695619392,
+      "shuffled_mean": 0.2592063143219688,
+      "random_mean": 0.27117666768932125,
+      "beats_count": 3,
+      "beats_2_of_3": true
+    },
+    "task_passes": true
+  },
+  "fluid_intelligence": {
+    "A4_pearson": 0.3237733333333333,
+    "LF0_pearson": 0.36343333333333333,
+    "LF1_pearson": 0.37936,
+    "LF2_pearson": 0.3764066666666667,
+    "strongest_no_prior": "LF0",
+    "strongest_no_prior_pearson": 0.36343333333333333,
+    "LF1_vs_strongest": {
+      "seed_deltas": [
+        0.011319999999999997,
+        0.030840000000000034,
+        0.005619999999999958
+      ],
+      "mean": 0.015926666666666662,
+      "median": 0.011319999999999997,
+      "positive_seeds": 3,
+      "status": "PROMISING"
+    },
+    "LF2_vs_strongest": {
+      "seed_deltas": [
+        0.005580000000000029,
+        0.027720000000000022,
+        0.005619999999999958
+      ],
+      "mean": 0.012973333333333337,
+      "median": 0.005619999999999958,
+      "positive_seeds": 3,
+      "status": "BORDERLINE"
+    },
+    "lf1_controls": {
+      "lf1_matched_pearson": 0.3792653123715828,
+      "unrelated_mean": 0.3779026806311087,
+      "shuffled_mean": 0.37381353319276833,
+      "random_mean": 0.37393494327306415,
+      "beats_count": 3,
+      "beats_2_of_3": true
+    },
+    "task_passes": true
+  },
+  "overall": {
+    "wm_pass": true,
+    "fl_pass": true,
+    "status": "VALIDATED_SUCCESS",
+    "recommended_next_step": "full_10x5_late_fusion_both_tasks"
+  }
+}

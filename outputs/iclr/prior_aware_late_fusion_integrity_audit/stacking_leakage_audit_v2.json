@@ -1,0 +1,15 @@
+{
+  "oof_integrity": "PASS",
+  "oof_nan_count": 0,
+  "test_label_in_training": false,
+  "test_label_in_fusion_weight_selection": false,
+  "test_label_in_hp_selection": false,
+  "n_failures": 0,
+  "details": [],
+  "code_analysis": {
+    "oof_generation": "Inner CV splits on outer_train only. Each inner fold trains on subset, predicts non-overlapping subset.",
+    "fusion_weight_selection": "Uses OOF predictions on outer_train vs outer_train labels only.",
+    "hp_selection": "FP branch HP selection uses sel_splitter on outer_train only (random_state differs from inner_splitter).",
+    "test_prediction": "Only after all selections frozen. Uses refitted models on full train, predicts test."
+  }
+}

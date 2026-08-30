@@ -1,0 +1,18 @@
+{
+  "working_memory": {
+    "task": "working_memory",
+    "comparator": "A4",
+    "median_delta": 0.00326598727290095,
+    "mean_delta": 0.009626877117628921,
+    "positive_seeds": 2,
+    "status": "WEAK"
+  },
+  "fluid_intelligence": {
+    "task": "fluid_intelligence",
+    "comparator": "LF0",
+    "median_delta": 0.005619999999999958,
+    "mean_delta": 0.012973333333333337,
+    "positive_seeds": 3,
+    "status": "BORDERLINE"
+  }
+}
