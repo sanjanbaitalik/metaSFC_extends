@@ -1,0 +1,21 @@
+{
+  "working_memory": {
+    "prediction_improved": true,
+    "biomarker_improved": true,
+    "prediction_raw_p": 0.013671875,
+    "prediction_holm_p": 0.02734375,
+    "prediction_cv_corrected_p": 0.5125509510555484
+  },
+  "fluid_intelligence": {
+    "prediction_improved": true,
+    "biomarker_improved": true,
+    "prediction_raw_p": 0.048828125,
+    "prediction_holm_p": 0.048828125,
+    "prediction_cv_corrected_p": 0.5214868225771587
+  },
+  "overall": {
+    "both_tasks_prediction_improved": true,
+    "both_tasks_biomarker_improved": true,
+    "professor_requirement_satisfied_both_tasks": true
+  }
+}

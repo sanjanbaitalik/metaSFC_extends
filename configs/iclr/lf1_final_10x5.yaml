@@ -1,0 +1,42 @@
+experiment_name: lf1_final_10x5
+seeds: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]
+outer_folds: 5
+inner_folds: 3
+n_rois: 116
+
+data:
+  fc_path: inputs/dataset_FC/FC_all.npy
+  sc_path: inputs/dataset_SC/SC_all.npy
+  y_path: inputs/dataset_SC/label_all.npy
+  subjects_path: inputs/dataset_SC/hcp_subjects_used.csv
+  groups_path: null
+
+fusion_model: LF1
+fusion_weight_step: 0.05
+
+ridge_grid: [0.001, 0.01, 0.1, 1.0, 10.0, 100.0]
+gamma_grid: [0.1, 0.25, 0.5, 1.0, 2.0]
+lambda_laplacian_grid: [0.03, 0.1, 0.5, 1.0, 2.0, 5.0]
+lifting_rules: [prod, mean]
+
+targets:
+  working_memory:
+    name: Working Memory (ListSort_Unadj)
+    label_path: inputs/dataset_SC/task_labels/ListSort_Unadj/label_all.npy
+  fluid_intelligence:
+    name: Fluid Intelligence (PMAT24_A_CR)
+    label_path: inputs/dataset_SC/label_all.npy
+
+priors:
+  working_memory:
+    matched: outputs/priors/llm/working_memory_contrastive_qwen3/roi_prior.csv
+    unrelated: outputs/priors/llm/fluid_intelligence_contrastive_qwen3/roi_prior.csv
+    shuffled: outputs/priors/llm/working_memory_contrastive_qwen3_shuffled/roi_prior.csv
+    random: outputs/priors/random_prior/aal116/roi_prior.csv
+  fluid_intelligence:
+    matched: outputs/priors/llm/fluid_intelligence_contrastive_qwen3/roi_prior.csv
+    unrelated: outputs/priors/llm/working_memory_contrastive_qwen3/roi_prior.csv
+    shuffled: outputs/priors/llm/fluid_intelligence_contrastive_qwen3_shuffled/roi_prior.csv
+    random: outputs/priors/random_prior/aal116/roi_prior.csv
+
+output_dir: outputs/iclr/lf1_final_10x5

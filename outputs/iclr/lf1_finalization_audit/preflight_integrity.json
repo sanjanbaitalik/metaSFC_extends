@@ -1,0 +1,71 @@
+{
+  "checks": [
+    {
+      "task": "working_memory",
+      "check": "finite_predictions",
+      "pass": true
+    },
+    {
+      "task": "working_memory",
+      "check": "oof_integrity",
+      "pass": true
+    },
+    {
+      "task": "working_memory",
+      "check": "fusion_weights_valid",
+      "pass": true
+    },
+    {
+      "task": "working_memory",
+      "check": "matched_control_reproduces",
+      "pass": true,
+      "ordinary": 0.023785645476149753,
+      "control": 0.023785645476149753,
+      "diff": 0.0
+    },
+    {
+      "task": "working_memory",
+      "check": "finite_metrics",
+      "pass": true
+    },
+    {
+      "task": "working_memory",
+      "check": "no_mod3",
+      "pass": true
+    },
+    {
+      "task": "fluid_intelligence",
+      "check": "finite_predictions",
+      "pass": true
+    },
+    {
+      "task": "fluid_intelligence",
+      "check": "oof_integrity",
+      "pass": true
+    },
+    {
+      "task": "fluid_intelligence",
+      "check": "fusion_weights_valid",
+      "pass": true
+    },
+    {
+      "task": "fluid_intelligence",
+      "check": "matched_control_reproduces",
+      "pass": true,
+      "ordinary": 0.5010066323369081,
+      "control": 0.5010066323369081,
+      "diff": 0.0
+    },
+    {
+      "task": "fluid_intelligence",
+      "check": "finite_metrics",
+      "pass": true
+    },
+    {
+      "task": "fluid_intelligence",
+      "check": "no_mod3",
+      "pass": true
+    }
+  ],
+  "all_pass": true
+}

@@ -1,0 +1,7 @@
+task,seed,LF0_pearson,LF1_pearson,delta_pearson,LF0_rmse,LF1_rmse,rmse_improvement,LF0_mae,LF1_mae,mae_improvement
+working_memory,0,0.252201,0.259819,0.007618000000000014,0,0,0,0,0,0
+working_memory,1,0.267661,0.286317,0.018656000000000006,0,0,0,0,0,0
+working_memory,2,0.292309,0.308171,0.015861999999999987,0,0,0,0,0,0
+fluid_intelligence,0,0.36216,0.37348,0.011319999999999997,0,0,0,0,0,0
+fluid_intelligence,1,0.32686,0.3577,0.030840000000000034,0,0,0,0,0,0
+fluid_intelligence,2,0.40128,0.4069,0.005619999999999958,0,0,0,0,0,0

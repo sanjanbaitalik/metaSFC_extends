@@ -878,6 +878,8 @@ def evaluate_prior_swap(
     lambda_l_grid: Sequence[float] = LAMBDA_L_GRID,
     n_inner_folds: int = 3,
     n_rois: int = 116,
+    s_alpha: float = 1.0,
+    f0_alpha: float = 1.0,
 ) -> dict:
     """Fixed-weight prior swap: replace FP branch with control prior, keep matched fusion weights.
 
@@ -905,12 +907,12 @@ def evaluate_prior_swap(
     X_sc_test_z = scaler_sc.transform(X_sc[test_idx])
 
     # S refit
-    s_model = Ridge(alpha=matched_weights.get("_s_alpha", 1.0), fit_intercept=True)
+    s_model = Ridge(alpha=s_alpha, fit_intercept=True)
     s_model.fit(X_sc_train_z, y[train_idx])
     s_test = s_model.predict(X_sc_test_z)
 
     # F0 refit
-    f0_model = Ridge(alpha=matched_weights.get("_f0_alpha", 1.0), fit_intercept=True)
+    f0_model = Ridge(alpha=f0_alpha, fit_intercept=True)
     f0_model.fit(X_fc_train_z, y[train_idx])
     f0_test = f0_model.predict(X_fc_test_z)
 
@@ -1061,6 +1063,8 @@ def run_late_fusion_experiment(
                     ridge_grid=ridge_grid, gamma_grid=gamma_grid,
                     lambda_l_grid=lambda_l_grid,
                     n_inner_folds=n_inner_folds, n_rois=n_rois,
+                    s_alpha=result.level1_results["S"].selected_hyperparams.get("alpha", 1.0),
+                    f0_alpha=result.level1_results["F0"].selected_hyperparams.get("alpha", 1.0),
                 )
                 ctrl_result["seed"] = seed
                 ctrl_result["outer_fold"] = outer_fold

@@ -1,0 +1,88 @@
+{
+  "working_memory": {
+    "task": "working_memory",
+    "lf0_mean": 0.2571265952967456,
+    "lf0_std": 0.028670006164315105,
+    "lf1_mean": 0.2741001838933039,
+    "lf1_std": 0.024828413696667582,
+    "a4_mean": 0.2672534915057388,
+    "a4_std": 0.037776974513565244,
+    "delta_mean": 0.016973588596558287,
+    "delta_median": 0.014915229533025903,
+    "positive_seeds": 8,
+    "n_seeds": 10,
+    "p_wilcoxon": 0.013671875,
+    "ci_95": [
+      0.006804491669037862,
+      0.02799065747066356
+    ],
+    "cohen_dz": 0.9509381987563774,
+    "large_margin_consistency_gate": true,
+    "ctrl_matched": 0.2741001838933039,
+    "ctrl_unrelated": 0.2535470983974218,
+    "ctrl_shuffled": 0.251323688660597,
+    "ctrl_random": 0.2625904116839641,
+    "ctrl_beats": 3,
+    "cv_sensitivity": {
+      "mean": 0.016973588596558283,
+      "std": 0.04697672573478207,
+      "corrected_se": 0.02573021236267359,
+      "t": 0.6596754180381968,
+      "p": 0.5125509510555484
+    },
+    "prediction_holm_p": 0.02734375,
+    "biomarker": {
+      "no_prior_alignment": 0.0019852425869143005,
+      "matched_alignment": 0.7130211226485094,
+      "unrelated_alignment": 0.4982246682241233,
+      "shuffled_alignment": -0.15984011041470178,
+      "random_alignment": 0.0967675136790579,
+      "rank_stability": 0.06379169389664142,
+      "top10_jaccard": 0.06198830409356725,
+      "matched_beats_negative_controls": true
+    }
+  },
+  "fluid_intelligence": {
+    "task": "fluid_intelligence",
+    "lf0_mean": 0.36207979980639554,
+    "lf0_std": 0.03134774463660421,
+    "lf1_mean": 0.37002594194753874,
+    "lf1_std": 0.027779107256466987,
+    "a4_mean": 0.32243635843282287,
+    "a4_std": 0.026382428689993805,
+    "delta_mean": 0.007946142141143147,
+    "delta_median": 0.010464966058734898,
+    "positive_seeds": 7,
+    "n_seeds": 10,
+    "p_wilcoxon": 0.048828125,
+    "ci_95": [
+      0.0014514607120345716,
+      0.01385561981609536
+    ],
+    "cohen_dz": 0.7426450340379481,
+    "large_margin_consistency_gate": false,
+    "ctrl_matched": 0.3700259419475387,
+    "ctrl_unrelated": 0.3699378591194593,
+    "ctrl_shuffled": 0.3693464831631676,
+    "ctrl_random": 0.3666429310349857,
+    "ctrl_beats": 3,
+    "cv_sensitivity": {
+      "mean": 0.007946142141143173,
+      "std": 0.022468064402487317,
+      "corrected_se": 0.012306265696721136,
+      "t": 0.6456988933093109,
+      "p": 0.5214868225771587
+    },
+    "prediction_holm_p": 0.048828125,
+    "biomarker": {
+      "no_prior_alignment": 0.16251018829814423,
+      "matched_alignment": 0.8526712576052052,
+      "unrelated_alignment": 0.6458065174141475,
+      "shuffled_alignment": -0.23459602329944915,
+      "random_alignment": 0.0977700893143172,
+      "rank_stability": 0.05444406002127142,
+      "top10_jaccard": 0.10569315445476436,
+      "matched_beats_negative_controls": true
+    }
+  }
+}
