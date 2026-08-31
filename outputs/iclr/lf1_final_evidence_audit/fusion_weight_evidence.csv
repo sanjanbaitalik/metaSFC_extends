@@ -1,0 +1,3 @@
+task,w_fp_mean,w_fp_median,w_fp_std,w_fp_zero_frac,w_fp_gte_010_frac,w_fp_gte_025_frac,w_s_mean,w_s_median,w_s_std
+working_memory,0.755,0.8,0.15328045524196382,0.0,1.0,1.0,0.245,0.2,0.15328045524196382
+fluid_intelligence,0.37300000000000005,0.375,0.124625971021538,0.02,0.98,0.88,0.627,0.625,0.124625971021538

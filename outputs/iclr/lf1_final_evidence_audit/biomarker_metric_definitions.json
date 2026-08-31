@@ -1,0 +1,12 @@
+{
+  "coefficient_source": "FC branch alpha/beta coefficients recomputed from frozen selected hyperparameters using _solve_msancr_kernel + recover_msancr_beta for FP models, and Ridge.coef_ for FC-no-prior",
+  "coefficient_treatment": "absolute values of primal beta coefficients (beta_fc)",
+  "prior_vector": "Each model measured against the MATCHED task prior (not its own prior) for specificity",
+  "similarity_statistic": "Spearman rank correlation between ROI-level importance vector and matched task prior vector",
+  "fold_aggregation": "Per-fold ROI importance computed from absolute beta coefficients aggregated to ROI level by summing absolute edge weights per ROI and dividing by (n_rois - 1)",
+  "seed_aggregation": "Arithmetic mean of per-fold Spearman correlations within each seed, then arithmetic mean across 10 seeds",
+  "top_k_definition": "Top-10 ROI indices by absolute importance, compared via Jaccard index against top-10 ROIs of matched task prior",
+  "distinction_self_vs_matched": "self_prior_alignment = correlation with the prior used to train that specific model; matched_task_prior_alignment = correlation with the task-matched prior across all models (used for fairness)",
+  "professor_facing_comparison": "All models compared against the same matched_task_prior_alignment to ensure fair cross-model comparison",
+  "biomarker_limitation": "Coefficients were not saved in the final run; they are recomputed from the exact frozen hyperparameters and splits. No new fitting or hyperparameter selection occurred."
+}

@@ -1,0 +1,17 @@
+{
+  "wm_prediction": "SATISFIED",
+  "wm_biomarker": "SATISFIED",
+  "fluid_prediction": "SATISFIED",
+  "fluid_biomarker": "SATISFIED",
+  "both_tasks_prediction_direction_positive": true,
+  "both_tasks_prediction_two_task_holm_supported": true,
+  "both_tasks_biomarker_supported": true,
+  "professor_core_requirement_satisfied": true,
+  "modification_3_recommended": false,
+  "additional_model_tuning_recommended": false,
+  "ready_to_email_professor": true,
+  "ready_for_manuscript_drafting": true,
+  "main_claim": "Adding a matched cognitive prior via leakage-safe late fusion improves both Working Memory and Fluid Intelligence prediction relative to architecture-matched no-prior baselines, and the prior-aware FC branch demonstrates task-prior alignment with specificity against negative controls.",
+  "main_prediction_caveat": "Conservative repeated-CV dependence correction yields nonsignificant p-values (WM 0.51, Fluid 0.52). Seed-level Wilcoxon and bootstrap CI support positive effect. Fluid Intelligence mean delta +0.0079 does not meet predefined large-margin gate (+0.010); described as consistent positive improvement.",
+  "main_biomarker_caveat": "FP branch is regularized toward the prior by design, so high matched-task alignment is expected. The informative comparison is specificity against unrelated/shuffled/random controls, which the matched prior dominates 10/10 seeds for both tasks."
+}
